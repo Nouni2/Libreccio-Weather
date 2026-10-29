@@ -19,6 +19,7 @@
         xmlns:vm="clr-namespace:LibreccioWeather.ViewModels"
         xmlns:views="clr-namespace:LibreccioWeather.Views"
         Title="Libreccio Weather"
+        Icon="/assets/icons/icon.ico"
         Width="960"
         Height="720"
         MinWidth="400"

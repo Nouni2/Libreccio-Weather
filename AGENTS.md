@@ -2,6 +2,17 @@
 
 Libreccio Weather is a native Windows weather app written in C# with .NET 10 and WPF.
 
+## Fidelity to upstream
+
+Libreccio Weather ports Breezy Weather, whose source is cloned into `upstream/`. Ported code behaves exactly like the code it ports. Compiling, passing the tests and following the rules in this file do not show that it does.
+
+- Read the upstream code before porting it. Keep its logic, its order and its names, so the two can be compared side by side.
+- Port upstream's tests for the code being ported along with it.
+- When a Kotlin, Java or Android call becomes a .NET call, check that both behave the same on edge cases: halves, negative numbers, zero, `NaN`, `null`, empty collections, time zones and culture. [docs/porting-pitfalls.md](docs/porting-pitfalls.md) lists the calls known to differ, and a newly found one is added to it.
+- Where .NET behaves differently, reproduce upstream's behaviour and pin it with a test of the edge case.
+- Record in [docs/port-map.md](docs/port-map.md) which upstream file each C# file ports, with any deliberate difference from upstream. Comments still never mention origin.
+- Report a difference that cannot be reproduced instead of choosing a behaviour silently.
+
 ## Comments
 
 A comment explains the code next to it and nothing else. The code must not reveal who or what wrote it.

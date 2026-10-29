@@ -7,7 +7,11 @@
     <UseWindowsForms>true</UseWindowsForms>
     <!-- The project file sits at the root, so the default globs would pick up every folder. -->
     <EnableDefaultItems>false</EnableDefaultItems>
+    <ApplicationIcon>assets\icons\icon.ico</ApplicationIcon>
   </PropertyGroup>
+  <ItemGroup>
+    <Resource Include="assets\icons\icon.ico" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="app\**\*.cs" />
     <!-- Link drops the app\ prefix so XAML resource paths, such as StartupUri, stay relative to app\. -->

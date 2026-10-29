@@ -11,7 +11,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Libreccio Weather icon in SVG format at `assets/icons/icon.svg`.
 - README describing the project, its planned features, building from source, credits and licence.
 - GNU General Public License v3.0 in `LICENCE.md`.
-- `AGENTS.md` with the rules for contributors: comments, licence header, text and translations, changelog, naming, folder layout and code organization, pointing to `CONTRIBUTING.md` for code style.
+- `AGENTS.md` with the rules for contributors: fidelity to Breezy Weather, comments, licence header, text and translations, changelog, naming, folder layout and code organization, pointing to `CONTRIBUTING.md` for code style.
 - `CONTRIBUTING.md` explaining how to report bugs, when to discuss changes first, how to set up, build and test, the pull request checklist, the code style, and the licence of contributions.
 - `Libreccio-Weather.slnx` solution with four projects, each defined by a project file in the root:
   - `Libreccio-Weather.Core`, the engine library, built from `src/`.
@@ -45,6 +45,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Tests for temperature conversions, humidex, total precipitation, rounding and the Beaufort scale.
 - Three weather database tests covering migration of a location database, restoration of stored quantities and forecasts, and rollback of a failed save.
 - `ROADMAP.md` listing the ported and remaining parts of the engine, sources, translations, interface, Mistray and notifications.
+- `docs/porting-pitfalls.md` listing the Kotlin, Java and Android constructs whose closest C# equivalent behaves differently, such as rounding, number formatting, `?:` after an `if`, sorting stability and network detection, with how to reproduce upstream's behaviour in C#.
+- `docs/port-map.md` giving the Breezy Weather file behind each C# file and test, with deliberate differences from upstream.
+- The Libreccio Weather icon on the executable and the main window, from `assets/icons/icon.ico`.
 - This changelog.
 
 ### Changed
