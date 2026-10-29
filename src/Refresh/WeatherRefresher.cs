@@ -168,10 +168,10 @@ public sealed class WeatherRefresher
             bool currentStillValid = IsUpdateStillValid(newBase.CurrentUpdateTime, CurrentReuseMinutes);
             CurrentWrapper? currentWrapper = completed.Current
                 ?? (currentStillValid ? location.Weather?.Current?.ToCurrentWrapper() : null);
+            // The current hour's air quality is also used when the reused current conditions have none.
             AirQuality? currentAirQuality = completed.AirQuality?.Current?.ToValid()
-                ?? (currentStillValid
-                    ? location.Weather?.Current?.AirQuality
-                    : completed.AirQuality?.HourlyForecast?.FirstOrDefault(pair => pair.Key >= now.AddHours(-1)).Value);
+                ?? (currentStillValid ? location.Weather?.Current?.AirQuality : null)
+                ?? completed.AirQuality?.HourlyForecast?.FirstOrDefault(pair => pair.Key >= now.AddHours(-1)).Value;
 
             Weather weather = new()
             {
@@ -317,7 +317,11 @@ public sealed class WeatherRefresher
                     dailyForecast = daily;
                 }
             }
+        }
 
+        // Checked again after the days, so an empty day list also discards the new hours and both come from saved data.
+        if (location.ForecastSource.Length > 0 && !Failed(location.ForecastSource, SourceFeature.Forecast))
+        {
             hourlyForecast = From(location.ForecastSource)?.HourlyForecast;
         }
 

@@ -37,6 +37,46 @@ public sealed record Weather
 
     public IReadOnlyDictionary<Month, Normals> Normals { get; init; } = new Dictionary<Month, Normals>();
 
+    // The next hours, today and the current alerts are measured from when the weather was built,
+    // so they stay the same while it is shown, even across midnight.
+    private readonly DateTimeOffset _builtAt = DateTimeOffset.UtcNow;
+
+    public Weather()
+    {
+    }
+
+    // A copy made with "with" is a new weather, so it takes a new build time.
+    private Weather(Weather original)
+    {
+        Base = original.Base;
+        Current = original.Current;
+        DailyForecast = original.DailyForecast;
+        HourlyForecast = original.HourlyForecast;
+        MinutelyForecast = original.MinutelyForecast;
+        AlertList = original.AlertList;
+        Normals = original.Normals;
+        _builtAt = DateTimeOffset.UtcNow;
+    }
+
+    // The build time is left out, so two weathers with the same data are equal.
+    public bool Equals(Weather? other)
+    {
+        return ReferenceEquals(this, other)
+            || other is not null
+            && Equals(Base, other.Base)
+            && Equals(Current, other.Current)
+            && Equals(DailyForecast, other.DailyForecast)
+            && Equals(HourlyForecast, other.HourlyForecast)
+            && Equals(MinutelyForecast, other.MinutelyForecast)
+            && Equals(AlertList, other.AlertList)
+            && Equals(Normals, other.Normals);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Base, Current, DailyForecast, HourlyForecast, MinutelyForecast, AlertList, Normals);
+    }
+
     /// <summary>
     /// Hours from the one in progress to 24 hours ahead. At 15:59, the first hour is the one starting at 15:00.
     /// </summary>
@@ -44,8 +84,7 @@ public sealed record Weather
     {
         get
         {
-            DateTimeOffset now = DateTimeOffset.UtcNow;
-            return HourlyForecast.Where(hourly => hourly.Date >= now.AddHours(-1) && hourly.Date < now.AddHours(24)).ToList();
+            return HourlyForecast.Where(hourly => hourly.Date >= _builtAt.AddHours(-1) && hourly.Date < _builtAt.AddHours(24)).ToList();
         }
     }
 
@@ -56,8 +95,7 @@ public sealed record Weather
     {
         get
         {
-            DateTimeOffset now = DateTimeOffset.UtcNow;
-            return HourlyForecast.Where(hourly => hourly.Date >= now.AddHours(-1)).ToList();
+            return HourlyForecast.Where(hourly => hourly.Date >= _builtAt.AddHours(-1)).ToList();
         }
     }
 
@@ -66,7 +104,7 @@ public sealed record Weather
     {
         get
         {
-            DateTimeOffset dayAgo = DateTimeOffset.UtcNow.AddDays(-1);
+            DateTimeOffset dayAgo = _builtAt.AddDays(-1);
             for (int i = 0; i < DailyForecast.Count; i++)
             {
                 if (DailyForecast[i].Date > dayAgo)
@@ -100,8 +138,7 @@ public sealed record Weather
     {
         get
         {
-            DateTimeOffset now = DateTimeOffset.UtcNow;
-            return AlertList.Where(alert => IsInEffect(alert, now)).ToList();
+            return AlertList.Where(alert => IsInEffect(alert, _builtAt)).ToList();
         }
     }
 

@@ -14,7 +14,6 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.Globalization;
 using LibreccioWeather.Core.Units;
 
 namespace LibreccioWeather.Core.Localization;
@@ -30,7 +29,7 @@ public static class UnitFormatting
         UnitWidth valueWidth = UnitWidth.Short,
         UnitWidth unitWidth = UnitWidth.Short)
     {
-        string value = FormatNumber(temperature.ToDouble(unit), unit.GetPrecision(valueWidth));
+        string value = NumberFormatting.Format(temperature.ToDouble(unit), unit.GetPrecision(valueWidth), Strings.Culture);
         return string.Format(Strings.Culture, Nominative("temperature", unit, unitWidth), value);
     }
 
@@ -47,19 +46,12 @@ public static class UnitFormatting
     /// </summary>
     public static string FormatRounded(Temperature temperature, TemperatureUnit unit)
     {
-        return RoundToInt(temperature.ToDouble(unit)).ToString(Strings.Culture);
+        return NumberFormatting.Format(temperature.ToDouble(unit), 0, Strings.Culture);
     }
 
     public static int RoundToInt(double value)
     {
         return (int)Math.Floor(value + 0.5);
-    }
-
-    // Rounds half away from zero, with the decimal separator of the selected language.
-    private static string FormatNumber(double value, int decimals)
-    {
-        double rounded = Math.Round(value, decimals, MidpointRounding.AwayFromZero);
-        return rounded.ToString("F" + decimals.ToString(CultureInfo.InvariantCulture), Strings.Culture);
     }
 
     // Keys follow the upstream names, such as temperature_c_nominative_short.

@@ -75,13 +75,17 @@ public sealed partial class SearchViewModel : ObservableObject
             {
                 // Open-Meteo is the only source, so it takes every feature it offers. Current conditions stay empty
                 // so they are taken from the current hour of the forecast, which keeps them consistent with it.
+                // Pollen is only set where Open-Meteo covers it, which needs the coordinates of the address.
                 Location location = new Location
                 {
                     ForecastSource = OpenMeteoService.Id,
                     AirQualitySource = OpenMeteoService.Id,
-                    PollenSource = OpenMeteoService.Id,
                     MinutelySource = OpenMeteoService.Id,
                 }.ToLocationWithAddressInfo(address, overwriteCoordinates: true);
+                if (OpenMeteoService.IsFeatureSupportedForLocation(location, SourceFeature.Pollen))
+                {
+                    location = location with { PollenSource = OpenMeteoService.Id };
+                }
                 Results.Add(new LocationResult(location));
             }
 

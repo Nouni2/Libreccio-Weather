@@ -36,7 +36,8 @@ The Breezy Weather files each C# file ports. Paths on the right are relative to 
 
 | C# file | Breezy Weather file |
 |---|---|
-| `src/Localization/UnitFormatting.cs` | `weather-unit/src/main/kotlin/org/breezyweather/unit/formatting/NumberFormatting.kt`, `MeasureUnitFormatting.kt` |
+| `src/Localization/NumberFormatting.cs` | `weather-unit/src/main/kotlin/org/breezyweather/unit/formatting/NumberFormatting.kt` |
+| `src/Localization/UnitFormatting.cs` | `weather-unit/src/main/kotlin/org/breezyweather/unit/formatting/MeasureUnitFormatting.kt` |
 | `src/Localization/Strings.cs` | No file. It replaces Android's string resources. |
 | `src/Localization/PluralRules.cs` | No file. It replaces Android's plural resources. |
 | `src/Localization/AppLanguages.cs` | No file. |
@@ -114,5 +115,6 @@ The Breezy Weather files each C# file ports. Paths on the right are relative to 
 | `Calculations/PrecipitationCalculationsTests.cs` | `computing/PrecipitationComputingTest.kt` |
 | `Calculations/TemperatureCalculationsTests.cs` | `computing/TemperatureComputingTest.kt` |
 | `Units/TemperatureTests.cs` | `temperature/TemperatureTest.kt` |
+| `Localization/NumberFormattingTests.cs` | `formatting/NumberFormattingTest.kt` |
 | `Units/SpeedTests.cs` | No file. |
 | `Database/WeatherRepositoryTests.cs` | No file. |

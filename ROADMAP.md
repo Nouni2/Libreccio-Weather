@@ -88,11 +88,11 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 ### Project
 
 - [x] Solution, build configuration, code style, `README.md`, `CONTRIBUTING.md`, `AGENTS.md` and `CHANGELOG.md`
-- [ ] Tests
+- [x] Tests
   - [x] Breezy Weather's tests for temperature conversions, humidex and total precipitation
   - [x] Checks on rounding and the Beaufort scale
-  - [ ] Weather database migrations, quantity storage and transaction rollback
-  - [ ] Breezy Weather's formatting tests, which need unit formatting
+  - [x] Weather database migrations, quantity storage and transaction rollback
+  - [x] Breezy Weather's number formatting tests
 - [ ] Third-party notices for the ported parts that come from other projects
 - [ ] Libreccio Weather's logo
 - [ ] Installer and releases
