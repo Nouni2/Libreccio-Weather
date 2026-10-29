@@ -49,6 +49,17 @@ Every source file starts with this header, written in the file's comment syntax:
 
 Follow the code style in `CONTRIBUTING.md`.
 
+## Text and translations
+
+The code and its default text are in English. The app is translated through resource files.
+
+- Never write user-visible text in code or XAML. Put it in `Strings.resx`, the English default.
+- Each other language has its own `Strings.xx.resx`, named with its language code, such as `Strings.fr.resx`.
+- A string missing from a language falls back to English.
+- Plurals follow the CLDR plural rules of each language.
+- Format numbers and dates with the culture of the selected language.
+- Storage identifiers, logs and exception messages are not translated and stay in English.
+
 ## Changelog
 
 Every commit updates `CHANGELOG.md`, which follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
