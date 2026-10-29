@@ -16,12 +16,20 @@
     <Resource Include="assets\icons\spring.ico" />
     <Resource Include="assets\icons\summer.ico" />
     <Resource Include="assets\icons\autumn.ico" />
+    <Resource Include="assets\weather\*.png" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="app\**\*.cs" />
     <!-- Link drops the app\ prefix so XAML resource paths, such as StartupUri, stay relative to app\. -->
     <ApplicationDefinition Include="app\App.xaml" Link="App.xaml" />
     <Page Include="app\**\*.xaml" Exclude="app\App.xaml" Link="%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LICENCE.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="assets\weather\LICENCE.md" Link="assets\weather\LICENCE.md"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="docs\third-party-notices.md" Link="docs\third-party-notices.md"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
     <!-- Windows Forms is only used for the tray icon. Importing it everywhere would clash with WPF names such as UserControl. -->

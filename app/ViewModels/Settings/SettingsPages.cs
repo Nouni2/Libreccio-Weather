@@ -171,6 +171,16 @@ public static class SettingsPages
                 Strings.Get("settings_units_summary"),
                 () => main.NavigateTo(Units(main)),
                 isLast: true),
+            SeparatorPreference.Large,
+            new SectionHeaderPreference(Strings.Get("desktop_interface_section")),
+            new SwitchPreference(
+                Strings.Get("desktop_interface_title"),
+                Strings.Get("desktop_interface_on"),
+                Strings.Get("desktop_interface_off"),
+                main.Settings.DesktopInterfaceEnabled,
+                value => main.Settings.DesktopInterfaceEnabled = value,
+                isFirst: true,
+                isLast: true),
         ];
         return new SettingsPageViewModel(Strings.Get("settings_appearance"), items, main.GoBack, () => Appearance(main));
     }

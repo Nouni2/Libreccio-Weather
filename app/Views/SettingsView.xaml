@@ -25,7 +25,18 @@
             <Setter Property="CornerRadius" Value="{Binding Corners}" />
             <Setter Property="Padding" Value="16" />
             <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Focusable" Value="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" />
+            <Setter Property="AutomationProperties.Name" Value="{Binding Title}" />
+            <Setter Property="IsEnabled" Value="{Binding IsEnabled}" />
             <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                    <Setter Property="CornerRadius" Value="6" />
+                    <Setter Property="Padding" Value="12" />
+                </DataTrigger>
+                <Trigger Property="IsKeyboardFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}" />
+                    <Setter Property="BorderThickness" Value="1" />
+                </Trigger>
                 <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
                         <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
@@ -61,6 +72,8 @@
             <Border Style="{StaticResource PreferenceCard}">
                 <Border.InputBindings>
                     <MouseBinding Gesture="LeftClick" Command="{Binding ClickCommand}" />
+                    <KeyBinding Key="Enter" Command="{Binding ClickCommand}" />
+                    <KeyBinding Key="Space" Command="{Binding ClickCommand}" />
                 </Border.InputBindings>
                 <DockPanel>
                     <Viewbox DockPanel.Dock="Left" Width="24" Height="24" Margin="0,0,16,0">
@@ -86,6 +99,8 @@
             <Border Style="{StaticResource PreferenceCard}">
                 <Border.InputBindings>
                     <MouseBinding Gesture="LeftClick" Command="{Binding OpenCommand}" />
+                    <KeyBinding Key="Enter" Command="{Binding OpenCommand}" />
+                    <KeyBinding Key="Space" Command="{Binding OpenCommand}" />
                 </Border.InputBindings>
                 <ContentControl Focusable="False" Content="{Binding}" ContentTemplate="{StaticResource PreferenceText}" />
             </Border>
@@ -95,6 +110,8 @@
             <Border Style="{StaticResource PreferenceCard}">
                 <Border.InputBindings>
                     <MouseBinding Gesture="LeftClick" Command="{Binding ToggleCommand}" />
+                    <KeyBinding Key="Enter" Command="{Binding ToggleCommand}" />
+                    <KeyBinding Key="Space" Command="{Binding ToggleCommand}" />
                 </Border.InputBindings>
                 <DockPanel>
                     <CheckBox DockPanel.Dock="Right" Margin="16,0,0,0" VerticalAlignment="Center" Style="{StaticResource Switch}"

@@ -269,6 +269,18 @@ public sealed class SettingsManager
 
     // Appearance
 
+    public bool DesktopInterfaceEnabled
+    {
+        get => _config.GetBoolean("desktop_interface", false);
+        set
+        {
+            if (value != DesktopInterfaceEnabled)
+            {
+                SetAndNotify(() => _config.PutBoolean("desktop_interface", value));
+            }
+        }
+    }
+
     // Changing the cards does not raise SettingsChanged; the main screen reads them again when it is shown.
     public List<CardDisplay> CardDisplayList
     {

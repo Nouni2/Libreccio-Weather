@@ -19,13 +19,17 @@
         xmlns:vm="clr-namespace:LibreccioWeather.ViewModels"
         xmlns:s="clr-namespace:LibreccioWeather.ViewModels.Settings"
         xmlns:views="clr-namespace:LibreccioWeather.Views"
-        Title="Libreccio Weather"
+        xmlns:l="clr-namespace:LibreccioWeather.Localization"
+        Title="{l:Translate desktop_app_name}"
         Width="960"
         Height="720"
         MinWidth="400"
         MinHeight="500"
-        Background="{StaticResource SurfaceBrush}">
+        Background="{DynamicResource SurfaceBrush}">
     <Window.Resources>
+        <DataTemplate x:Key="InterfacePages">
+            <ContentControl Content="{Binding CurrentPage}" Focusable="False" />
+        </DataTemplate>
         <!-- Each page view model is shown with its view. -->
         <DataTemplate DataType="{x:Type vm:SearchViewModel}">
             <views:SearchView />
@@ -42,8 +46,8 @@
 
         <!-- A list preference's choices. -->
         <DataTemplate DataType="{x:Type s:ListDialogViewModel}">
-            <Border MaxWidth="560" MinWidth="280" Margin="48" Padding="0,24,0,8" CornerRadius="28"
-                    Background="{StaticResource SurfaceContainerHighBrush}">
+            <Border MaxWidth="560" MinWidth="280" Margin="48" Padding="0,24,0,8" CornerRadius="{DynamicResource DialogCornerRadius}"
+                    Background="{DynamicResource SurfaceContainerHighBrush}">
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Top" Margin="24,0,24,16" Style="{StaticResource HeadlineSmallText}" Text="{Binding Title}" />
                     <Button DockPanel.Dock="Bottom" Margin="0,8,16,0" HorizontalAlignment="Right" Style="{StaticResource TextButton}"
@@ -64,8 +68,8 @@
 
         <!-- The warning before turning background updates off. -->
         <DataTemplate DataType="{x:Type s:NeverRefreshDialogViewModel}">
-            <Border MaxWidth="560" MinWidth="280" Margin="48" Padding="24,24,16,8" CornerRadius="28"
-                    Background="{StaticResource SurfaceContainerHighBrush}">
+            <Border MaxWidth="560" MinWidth="280" Margin="48" Padding="24,24,16,8" CornerRadius="{DynamicResource DialogCornerRadius}"
+                    Background="{DynamicResource SurfaceContainerHighBrush}">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Bottom" Margin="0,16,0,0" HorizontalAlignment="Right" Orientation="Horizontal">
                         <Button Style="{StaticResource TextButton}" Command="{Binding CancelCommand}" Content="{Binding CancelText}" />
@@ -84,12 +88,21 @@
         </DataTemplate>
     </Window.Resources>
 
+    <Window.InputBindings>
+        <KeyBinding Key="D1" Modifiers="Control" Command="{Binding DesktopHomeCommand}" />
+        <KeyBinding Key="F" Modifiers="Control" Command="{Binding DesktopSearchCommand}" />
+        <KeyBinding Key="L" Modifiers="Control" Command="{Binding DesktopLocationsCommand}" />
+        <KeyBinding Key="OemComma" Modifiers="Control" Command="{Binding DesktopAppearanceCommand}" />
+        <KeyBinding Key="Left" Modifiers="Alt" Command="{Binding DesktopBackCommand}" />
+        <KeyBinding Key="F5" Command="{Binding DesktopRefreshCommand}" />
+    </Window.InputBindings>
+
     <Grid>
-        <ContentControl Content="{Binding CurrentPage}" Focusable="False" />
+        <ContentControl x:Name="InterfaceHost" Content="{Binding}" Focusable="False" />
 
         <!-- A message at the bottom, with its optional action. -->
         <Border MaxWidth="560" Margin="16" Padding="16,4,8,4" HorizontalAlignment="Center" VerticalAlignment="Bottom"
-                CornerRadius="4" Background="{StaticResource InverseSurfaceBrush}"
+                CornerRadius="4" Background="{DynamicResource InverseSurfaceBrush}"
                 DataContext="{Binding Snackbar}">
             <Border.Style>
                 <Style TargetType="Border">
@@ -104,7 +117,7 @@
                 <Button DockPanel.Dock="Right" Margin="8,0,0,0" Command="{Binding ActionCommand}" Content="{Binding ActionText}">
                     <Button.Style>
                         <Style TargetType="Button" BasedOn="{StaticResource TextButton}">
-                            <Setter Property="Foreground" Value="{StaticResource InversePrimaryBrush}" />
+                            <Setter Property="Foreground" Value="{DynamicResource InversePrimaryBrush}" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding ActionText}" Value="{x:Null}">
                                     <Setter Property="Visibility" Value="Collapsed" />
@@ -114,12 +127,15 @@
                     </Button.Style>
                 </Button>
                 <TextBlock VerticalAlignment="Center" FontSize="14" TextWrapping="Wrap"
-                           Foreground="{StaticResource InverseOnSurfaceBrush}" Text="{Binding Text}" />
+                           Foreground="{DynamicResource InverseOnSurfaceBrush}" Text="{Binding Text}" />
             </DockPanel>
         </Border>
 
         <!-- The open dialog. A click outside it cancels it, as tapping outside an Android dialog does. -->
-        <Grid DataContext="{Binding Dialog}">
+        <Grid x:Name="DialogHost" DataContext="{Binding Dialog}" Focusable="True" KeyboardNavigation.TabNavigation="Cycle">
+            <Grid.InputBindings>
+                <KeyBinding Key="Escape" Command="{Binding CancelCommand}" />
+            </Grid.InputBindings>
             <Grid.Style>
                 <Style TargetType="Grid">
                     <Style.Triggers>
@@ -129,7 +145,7 @@
                     </Style.Triggers>
                 </Style>
             </Grid.Style>
-            <Border Background="{StaticResource ScrimBrush}">
+            <Border Background="{DynamicResource ScrimBrush}">
                 <Border.InputBindings>
                     <MouseBinding Gesture="LeftClick" Command="{Binding CancelCommand}" />
                 </Border.InputBindings>

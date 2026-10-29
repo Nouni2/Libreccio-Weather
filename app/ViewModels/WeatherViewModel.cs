@@ -14,19 +14,22 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LibreccioWeather.Appearance;
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Locations;
 using LibreccioWeather.Core.Models;
 using LibreccioWeather.Core.Refresh;
+using LibreccioWeather.Core.Settings.Options;
 using LibreccioWeather.Core.Units;
+using LibreccioWeather.ViewModels.Forecast;
+using Brush = System.Windows.Media.Brush;
+using Brushes = System.Windows.Media.Brushes;
 
 namespace LibreccioWeather.ViewModels;
 
-/// <summary>
-/// The header of the main screen: place, condition, temperature, feels-like temperature, and the day and night range.
-/// </summary>
 public sealed partial class WeatherViewModel : ObservableObject
 {
     private readonly WeatherRefresher _refresher;
@@ -57,6 +60,12 @@ public sealed partial class WeatherViewModel : ObservableObject
 
     [ObservableProperty]
     private string? _refreshTimeDescription;
+
+    [ObservableProperty]
+    private Brush _backgroundBrush = Brushes.Transparent;
+
+    [ObservableProperty]
+    private IReadOnlyList<ForecastCardViewModel> _forecastCards = [];
 
     public WeatherViewModel(WeatherRefresher refresher, MainViewModel main, Location location)
     {
@@ -149,6 +158,26 @@ public sealed partial class WeatherViewModel : ObservableObject
             : null;
 
         TemperatureRangeText = GetTemperatureRangeSummary(weather);
+        // Hourly flags supply daylight while solar events are unavailable.
+        bool daylight = weather.NextHourlyForecast.FirstOrDefault()?.IsDaylight ?? true;
+        BackgroundBrush = _main.Settings.MainScreenBackgroundEnabled
+            ? WeatherBackground.GetBrush(current?.WeatherCode, daylight) : Brushes.Transparent;
+        List<ForecastCardViewModel> cards = [];
+        foreach (CardDisplay card in _main.Settings.CardDisplayList)
+        {
+            if (card == CardDisplay.DailyForecast && weather.DailyForecast.Count > 0
+                && _main.Settings.DailyTrendDisplayList.Contains(DailyTrendDisplay.Temperature))
+            {
+                cards.Add(ForecastCardViewModel.CreateDaily(weather, _location, _temperatureUnit));
+            }
+            else if (card == CardDisplay.HourlyForecast && weather.NextHourlyForecast.Count > 0
+                && _main.Settings.HourlyTrendDisplayList.Contains(HourlyTrendDisplay.Temperature))
+            {
+                cards.Add(ForecastCardViewModel.CreateHourly(weather, _location, _temperatureUnit));
+            }
+        }
+
+        ForecastCards = cards;
     }
 
     // The next two half days: last night and today before 06:00, today and tonight until 18:00,

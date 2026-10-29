@@ -39,6 +39,7 @@ The Breezy Weather files each C# file ports. Paths on the right are relative to 
 | `src/Localization/NumberFormatting.cs` | `weather-unit/src/main/kotlin/org/breezyweather/unit/formatting/NumberFormatting.kt` |
 | `src/Localization/UnitFormatting.cs` | `weather-unit/src/main/kotlin/org/breezyweather/unit/formatting/MeasureUnitFormatting.kt`, and `getDisplayName` in `weather-unit/src/main/kotlin/org/breezyweather/unit/WeatherUnit.kt` through its translated strings, without Android's CLDR names. |
 | `src/Localization/Icu.cs` | No file. It calls Windows' ICU, which Android's `android.icu` classes are built on. |
+| `src/Localization/DateFormatting.cs` | `getFormattedShortDayAndMonth` in `app/src/main/kotlin/org/breezyweather/common/extensions/DateExtensions.kt`. It keeps the ICU boundary inside Core and uses `MM-dd` when ICU cannot format the date. |
 | `src/Localization/DurationFormatting.cs` | `format` and `formatWithAndroidTranslations` in `weather-unit/src/main/kotlin/org/breezyweather/unit/duration/Duration.kt`, and `formatTime` in `app/src/main/kotlin/org/breezyweather/common/extensions/UnitExtensions.kt`, for hours with minutes or seconds. |
 | `src/Localization/RelativeTimeFormatting.cs` | `getRelativeTime` in `app/src/main/kotlin/org/breezyweather/common/extensions/DateExtensions.kt`. The rules it calls are Android's `RelativeDateTimeFormatter`, which is not part of Breezy Weather. |
 | `src/Localization/Strings.cs` | No file. It replaces Android's string resources. |
@@ -142,6 +143,43 @@ The Breezy Weather files each C# file ports. Paths on the right are relative to 
 | `Localization/SystemStrings.cs` | No file. It takes the Cancel text from Windows, as Breezy Weather takes it from Android. |
 | `App.xaml.cs`, `Localization/TranslateExtension.cs` | No file. |
 | `Icons/SeasonalWindowIcon.cs` | No file. It gives the main window Libreccio Weather's icon for the current season, which Breezy Weather does not have. |
+
+## Main-screen scrolling and forecasts
+
+Both interface modes use the scrolling weather screen in `app/Views/WeatherView.xaml`. Its header wraps its content, as `container_main_header.xml` does, and shares the vertical scroll viewer with the forecast cards. Daily and hourly cards follow their order in `SettingsManager.CardDisplayList`, and are omitted when their corresponding forecast is empty or their temperature display is disabled. Desktop mode shows native scrollbars; touch mode keeps them hidden. Both modes support vertical wheel scrolling, and Shift+wheel scrolls a forecast horizontally.
+
+| File | Breezy Weather file |
+|---|---|
+| `app/Appearance/WeatherBackground.cs` | `WeatherImplementorFactory.getBackgroundId` in `ui-weather-view/src/main/kotlin/org/breezyweather/ui/theme/weatherView/materialWeatherView/`, with weather-code mapping from `WeatherViewController.kt`. |
+| `app/Theme/WeatherBackgrounds.xaml` | The gradients in `ui-weather-view/src/main/res/drawable-night/weather_background_*.xml`, falling back to `drawable/` where there is no night-qualified resource. The application uses its existing dark theme. |
+| `app/Icons/WeatherIcons.cs`, `assets/weather/weather_*.png` | Static weather artwork from `app/src/main/res/drawable/`, selected by weather code and daylight. |
+| `app/ViewModels/Forecast/ForecastCardViewModel.cs` | `DailyTemperatureAdapter.kt`, `HourlyTemperatureAdapter.kt` and their base classes under `app/src/main/kotlin/org/breezyweather/ui/main/adapters/trend/`. Raw temperature values and interpolated midpoints retain 32-bit precision; normal temperatures participate in the bounds. |
+| `app/Controls/Forecast/PolylineAndHistogramView.cs` | Temperature lines, shadow, time line and precipitation histogram from `app/src/main/kotlin/org/breezyweather/ui/common/widgets/trend/chart/PolylineAndHistogramView.kt`. |
+| `src/Charts/TrendCoordinates.cs` | `computeSingleCoordinate` in the same file, including the saturating `Float.toInt()` conversion. |
+| `app/Views/Weather/ForecastCardView.xaml`, `ForecastCardView.xaml.cs` | `DailyViewHolder.kt`, `HourlyViewHolder.kt`, their `container_main_*_trend_card.xml` layouts, `DailyTrendItemView.kt` and `HourlyTrendItemView.kt`. Columns are 67 pixels wide, icons 32, daily columns 318 high and hourly columns 206 high in WPF device-independent pixels. |
+| `tests/Charts/TrendCoordinatesTests.cs` | No upstream test. Checks the C# conversion difference when equal chart bounds yield non-finite coordinates. |
+
+The static background gradients are included; the animated weather implementors are not. Daylight uses the forecast's first current-hour flag while solar calculations are unavailable. The temperature renderer uses the current theme's primary color, rather than weather-derived theme colors, and WPF text metrics. Normal-temperature reference lines, other trend tabs, detail navigation and the other main-screen card types are not implemented. Without ICU date formatting, numeric daily dates use `MM-dd`; 12-hour or 24-hour labels follow the selected language's time pattern rather than Android's system preference.
+
+## Experimental desktop interface
+
+The Appearance setting `DesktopInterfaceEnabled`, stored as `desktop_interface` and off by default, applies desktop adjustments to the existing interface. Both modes use the same `WeatherView`, `SearchView`, `ManagementView` and `SettingsView`, with the same colors, weather header, icons, typography and page layouts.
+
+The deliberate differences are smaller corner radii and button padding; a saved-location dropdown and compact location-list, refresh and settings actions in the weather screen's existing top bar; right-click location commands for opening, moving and deleting; keyboard access to preference cards and locations; and keyboard navigation. Deletion and reordering use the existing guards and undo behavior.
+
+| File | Desktop adjustments |
+|---|---|
+| `app/Theme/Theme.xaml`, `DesktopTheme.xaml` | Theme resources parameterize corners and padding. Desktop overrides contain no palette or typography changes. The location dropdown uses the existing colors. |
+| `app/MainWindow.xaml`, `MainWindow.xaml.cs` | The same page template in both modes; application resources switch the shape overrides. Desktop dialogs keep keyboard focus until closed. |
+| `app/Views/WeatherView.xaml` | The existing top bar offers a location dropdown and compact actions in desktop mode. The weather content is unchanged. |
+| `app/Views/ManagementView.xaml`, `ManagementView.xaml.cs` | The existing cards gain desktop context menus and keyboard focus. Enter opens, Delete removes, and Ctrl+Up or Ctrl+Down reorders. |
+| `app/Views/SettingsView.xaml` | Existing preference groups use smaller corners and padding in desktop mode; focused preferences respond to Enter or Space. |
+| `app/Views/SearchView.xaml` | Enter chooses the selected search result. |
+| `app/ViewModels/MainViewModel.cs` | Direct location selection and desktop commands. Ctrl+1 opens the weather, Ctrl+L locations, Ctrl+F search, Ctrl+, appearance, Alt+Left goes back and F5 refreshes. Shortcuts are enabled only in desktop mode and while no dialog is open. |
+| `app/ViewModels/ManagementViewModel.cs` | Context-menu and keyboard commands call the existing deletion and reorder methods. |
+| `resources/InterfaceStrings.resx`, `InterfaceStrings.fr.resx` | Application-specific English and French labels, loaded through `Strings` separately from generated translations. |
+
+`SettingsPages.Appearance` adds the switch, saved by `SettingsManager`. The active page is recreated when the option or language changes.
 
 ## Tests
 

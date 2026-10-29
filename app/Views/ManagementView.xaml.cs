@@ -53,6 +53,11 @@ public partial class ManagementView : UserControl
     private void OnCardMouseDown(object sender, MouseButtonEventArgs e)
     {
         Border card = (Border)sender;
+        if (card.Focusable)
+        {
+            card.Focus();
+        }
+
         _swipeStart = e.GetPosition(this);
         _isSwiping = false;
         card.CaptureMouse();

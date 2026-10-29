@@ -62,7 +62,10 @@
                      Visibility="{Binding IsSearching, Converter={StaticResource BooleanToVisibility}}" />
 
         <Grid Grid.Row="3" Margin="0,8,0,0">
-            <ListBox Style="{StaticResource ResultList}" ItemsSource="{Binding Results}">
+            <ListBox x:Name="ResultsList" Style="{StaticResource ResultList}" ItemsSource="{Binding Results}">
+                <ListBox.InputBindings>
+                    <KeyBinding Key="Enter" Command="{Binding ChooseCommand}" CommandParameter="{Binding SelectedItem.Location, ElementName=ResultsList}" />
+                </ListBox.InputBindings>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Background="Transparent">

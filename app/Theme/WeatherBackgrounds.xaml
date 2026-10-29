@@ -1,0 +1,77 @@
+<!--
+  This file is part of Libreccio Weather.
+
+  Libreccio Weather is free software: you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the Free
+  Software Foundation, version 3 of the License.
+
+  Libreccio Weather is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  more details.
+
+  You should have received a copy of the GNU General Public License along
+  with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <LinearGradientBrush x:Key="WeatherBackground.clear_day" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#592B19" Offset="0" />
+        <GradientStop Color="#CC6143" Offset="0.5" />
+        <GradientStop Color="#D18268" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="WeatherBackground.clear_night" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#171D52" Offset="0" />
+        <GradientStop Color="#3F4DBA" Offset="0.5" />
+        <GradientStop Color="#5E68BD" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="WeatherBackground.cloudy" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#23262C" Offset="0" />
+        <GradientStop Color="#525D66" Offset="0.5" />
+        <GradientStop Color="#6B8394" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="WeatherBackground.fog" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#131B45" Offset="0" />
+        <GradientStop Color="#2A5476" Offset="0.5" />
+        <GradientStop Color="#918EAF" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="WeatherBackground.hail" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#335A7E" Offset="0" />
+        <GradientStop Color="#435A6F" Offset="0.5" />
+        <GradientStop Color="#303742" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="WeatherBackground.haze" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#4D3314" Offset="0" />
+        <GradientStop Color="#755125" Offset="0.5" />
+        <GradientStop Color="#C5AF9D" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="WeatherBackground.partly_cloudy" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#1C2F75" Offset="0" />
+        <GradientStop Color="#585D6D" Offset="0.5" />
+        <GradientStop Color="#747B99" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="WeatherBackground.rain" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#233361" Offset="0" />
+        <GradientStop Color="#2F4997" Offset="0.5" />
+        <GradientStop Color="#252731" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="WeatherBackground.sleet" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#23306B" Offset="0" />
+        <GradientStop Color="#3549A4" Offset="0.5" />
+        <GradientStop Color="#23262F" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="WeatherBackground.snow" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#353A47" Offset="0" />
+        <GradientStop Color="#455762" Offset="0.5" />
+        <GradientStop Color="#414F83" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="WeatherBackground.thunder" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#2F2B38" Offset="0" />
+        <GradientStop Color="#50406D" Offset="0.5" />
+        <GradientStop Color="#2C1C4D" Offset="1" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="WeatherBackground.wind" StartPoint="0,0" EndPoint="0,1">
+        <GradientStop Color="#313E3A" Offset="0" />
+        <GradientStop Color="#529B73" Offset="0.5" />
+        <GradientStop Color="#638170" Offset="1" />
+    </LinearGradientBrush>
+</ResourceDictionary>

@@ -64,7 +64,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Language taken from Windows
   - [x] Language setting
   - [x] String arrays in the importer
-  - [ ] A place for Libreccio Weather's own text
+  - [ ] Libreccio Weather's own English and French interface text in resource files
 
 ### Main window
 
@@ -76,9 +76,15 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Temperatures of the next day and night halves, which depend on the time of day
   - [x] Time since the last refresh
   - [ ] Weather background
+    - [ ] Static weather gradients from the weather-view resources
+    - [ ] Animated sun, clouds, precipitation and stars
   - [ ] Temperature animation
   - [ ] Descriptions read by screen readers
-- [ ] Cards: hourly, daily, precipitation nowcast, air quality, pollen, alerts, wind, humidity, pressure, visibility, UV, sun, moon, clock and footer
+- [ ] Vertical scrolling of the header and forecast cards
+- [ ] Cards
+  - [ ] Daily and hourly temperature plots with weather icons and precipitation probability
+  - [ ] Other daily and hourly chart tabs, normal-temperature reference lines and detail navigation
+  - [ ] Precipitation nowcast, air quality, pollen, alerts, wind, humidity, pressure, visibility, UV, sun, moon, clock and footer
 - [ ] Daily and hourly detail screens
 - [ ] Location search (`SearchActivity`)
   - [x] Search by name, with each result's region and country
@@ -109,6 +115,13 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 - [ ] Single instance, and closing the window to the tray
 - [x] Main window icon of the current season at the location on screen, reversed in the southern hemisphere
 
+### Experimental desktop interface
+
+- [ ] Appearance option applying desktop adjustments to the existing views
+- [ ] Smaller corner radii and compact controls using the existing palette, typography and layouts
+- [ ] Location dropdown and compact actions in the existing weather top bar
+- [ ] Context menus and keyboard controls for locations, settings and navigation
+
 ### Mistray
 
 - [ ] Tray icon with the temperature or a condition icon, tooltip and menu
@@ -129,6 +142,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Breezy Weather's number formatting tests
   - [ ] Breezy Weather's tests for card and chart lists and option names
   - [ ] Settings file storage
+  - [ ] Chart coordinate checks for equal minimum and maximum values
 - [ ] Third-party notices for the ported parts that come from other projects
 - [ ] Libreccio Weather's logo
 - [ ] Installer and releases

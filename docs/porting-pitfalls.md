@@ -51,6 +51,7 @@ Kotlin's `/` and `%` behave like C#'s.
 | Upstream | Upstream behaviour | .NET difference | Reproduce with |
 |---|---|---|---|
 | `Float` values and literals such as `60f` | 32-bit precision. | `double` keeps more digits, so a comparison or a stored value can differ. | `float` wherever the result is compared, stored or displayed at full precision. |
+| `Float.toInt()` | Truncates finite values towards zero, converts `NaN` to zero and saturates infinities and out-of-range values to integer bounds. | An unchecked C# floating-point cast does not guarantee these results. | Explicit `NaN` and bound checks before casting, as in `TrendCoordinates.ComputeSingleCoordinate`. An equal chart minimum and maximum can produce `NaN`. |
 | `==` on `Double?` or other values not typed as `Double` | Uses `equals`: `NaN == NaN` is true and `0.0 == -0.0` is false. | `==` on `double?` follows IEEE 754: `NaN == NaN` is false. | `.Equals` where upstream compares nullable or boxed values. |
 
 ## Collections
@@ -88,6 +89,8 @@ Kotlin's `/` and `%` behave like C#'s.
 | Upstream | Upstream behaviour | WPF difference | Reproduce with |
 |---|---|---|---|
 | A view's translation, such as `translationX` while a card slides | Each view has its own position that code can change. | A transform declared in a `DataTemplate` is frozen and shared, so changing it throws `InvalidOperationException`. | A new transform created in code for the element that moves. |
+| Theme resources while constructing a view | Android's themed context supplies the resources during inflation. | A WPF user control loads its XAML in its constructor, before it is attached to its parent. Static resource references cannot depend on that parent's resource dictionary at this point. | Install the active theme in application resources before constructing the views, or provide the required resources locally. |
+| A vertical layout with `wrap_content` height | Its height is the content's height. | A WPF child in a star-sized grid row can occupy the entire remaining window. Bottom alignment then leaves an empty area above the content. | A stack panel measured by a scroll viewer, without a viewport-sized minimum height. |
 
 ## Android resources
 

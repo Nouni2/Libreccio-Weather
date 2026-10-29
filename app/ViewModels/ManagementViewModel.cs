@@ -29,6 +29,7 @@ namespace LibreccioWeather.ViewModels;
 public sealed partial class ManagementViewModel : ObservableObject
 {
     private readonly MainViewModel _main;
+    private bool _desktopEditInProgress;
 
     public ManagementViewModel(MainViewModel main)
     {
@@ -83,6 +84,60 @@ public sealed partial class ManagementViewModel : ObservableObject
         if (item is not null)
         {
             _main.ShowLocation(item.Location);
+        }
+    }
+
+    [RelayCommand]
+    private async Task RemoveAsync(LocationItemViewModel? item)
+    {
+        if (item is null || _desktopEditInProgress)
+        {
+            return;
+        }
+
+        _desktopEditInProgress = true;
+        try
+        {
+            await DeleteAsync(item);
+        }
+        finally
+        {
+            _desktopEditInProgress = false;
+        }
+    }
+
+    [RelayCommand]
+    private Task MoveUpAsync(LocationItemViewModel? item)
+    {
+        return MoveFromButtonAsync(item, -1);
+    }
+
+    [RelayCommand]
+    private Task MoveDownAsync(LocationItemViewModel? item)
+    {
+        return MoveFromButtonAsync(item, 1);
+    }
+
+    private async Task MoveFromButtonAsync(LocationItemViewModel? item, int direction)
+    {
+        if (item is null || _desktopEditInProgress)
+        {
+            return;
+        }
+
+        int from = Items.IndexOf(item);
+        int to = from + direction;
+        if (from >= 0 && to >= 0 && to < Items.Count)
+        {
+            _desktopEditInProgress = true;
+            try
+            {
+                await EndDragAsync(from, to);
+            }
+            finally
+            {
+                _desktopEditInProgress = false;
+            }
         }
     }
 

@@ -16,6 +16,7 @@
 
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using LibreccioWeather.Core.Background;
 using LibreccioWeather.Core.Database;
 using LibreccioWeather.Core.Localization;
@@ -51,10 +52,21 @@ public sealed partial class MainViewModel : ObservableObject
     private ObservableObject? _currentPage;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(
+        nameof(DesktopHomeCommand), nameof(DesktopLocationsCommand), nameof(DesktopSearchCommand),
+        nameof(DesktopSettingsCommand), nameof(DesktopAppearanceCommand), nameof(DesktopRefreshCommand),
+        nameof(DesktopBackCommand))]
     private ObservableObject? _dialog;
 
     [ObservableProperty]
     private SnackbarViewModel? _snackbar;
+
+    [ObservableProperty]
+    [NotifyCanExecuteChangedFor(
+        nameof(DesktopHomeCommand), nameof(DesktopLocationsCommand), nameof(DesktopSearchCommand),
+        nameof(DesktopSettingsCommand), nameof(DesktopAppearanceCommand), nameof(DesktopRefreshCommand),
+        nameof(DesktopBackCommand))]
+    private bool _isDesktopInterfaceEnabled;
 
     public MainViewModel(
         OpenMeteoService openMeteo,
@@ -71,6 +83,7 @@ public sealed partial class MainViewModel : ObservableObject
         _weatherRepository = weatherRepository;
         _settings = settings;
         _regionCode = regionCode;
+        IsDesktopInterfaceEnabled = settings.DesktopInterfaceEnabled;
 
         _snackbarTimer = new DispatcherTimer { Interval = SnackbarDuration };
         _snackbarTimer.Tick += (_, _) =>
@@ -94,7 +107,19 @@ public sealed partial class MainViewModel : ObservableObject
         };
 
         // Units and other settings change what the main screen shows, so it is built again with them.
-        settings.SettingsChanged += (_, _) => RebuildMainScreen();
+        settings.SettingsChanged += (_, _) =>
+        {
+            if (IsDesktopInterfaceEnabled != settings.DesktopInterfaceEnabled)
+            {
+                IsDesktopInterfaceEnabled = settings.DesktopInterfaceEnabled;
+            }
+            else
+            {
+                RebuildMainScreen();
+            }
+
+            NotifyDesktopLocationsChanged();
+        };
     }
 
     /// <summary>
@@ -109,6 +134,117 @@ public sealed partial class MainViewModel : ObservableObject
     public SettingsManager Settings => _settings;
 
     public string RegionCode => _regionCode;
+
+    public string InterfaceCulture => Strings.Culture.Name;
+
+    public IReadOnlyList<LocationItemViewModel> DesktopLocations => _locations
+        .Select(location => new LocationItemViewModel(location, location.FormattedId == _currentFormattedId, _settings))
+        .ToList();
+
+    public string? SelectedDesktopLocationId
+    {
+        get => _currentFormattedId;
+        set
+        {
+            if (CanUseDesktopNavigation && value is not null && value != _currentFormattedId
+                && _locations.FirstOrDefault(item => item.FormattedId == value) is { } location)
+            {
+                ShowLocation(location);
+            }
+        }
+    }
+
+    private bool CanUseDesktopNavigation => IsDesktopInterfaceEnabled && Dialog is null;
+
+    private void NotifyDesktopLocationsChanged()
+    {
+        OnPropertyChanged(nameof(DesktopLocations));
+        OnPropertyChanged(nameof(SelectedDesktopLocationId));
+    }
+
+    partial void OnCurrentPageChanged(ObservableObject? value)
+    {
+        NotifyDesktopLocationsChanged();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanUseDesktopNavigation))]
+    private void DesktopHome()
+    {
+        if (FindMainScreen() is { } weather)
+        {
+            _backStack.Clear();
+            CurrentPage = weather;
+        }
+        else if (CurrentLocation() is { } location)
+        {
+            ShowLocation(location);
+        }
+        else
+        {
+            _ = DesktopLocationsAsync();
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanUseDesktopNavigation))]
+    private async Task DesktopLocationsAsync()
+    {
+        if (CurrentPage is ManagementViewModel)
+        {
+            return;
+        }
+
+        await ReloadLocationsAsync();
+        NavigateDesktop(new ManagementViewModel(this));
+    }
+
+    [RelayCommand(CanExecute = nameof(CanUseDesktopNavigation))]
+    private void DesktopSearch()
+    {
+        if (CurrentPage is not SearchViewModel)
+        {
+            OpenSearch();
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(CanUseDesktopNavigation))]
+    private void DesktopSettings()
+    {
+        NavigateDesktop(SettingsPages.Root(this));
+    }
+
+    [RelayCommand(CanExecute = nameof(CanUseDesktopNavigation))]
+    private void DesktopAppearance()
+    {
+        NavigateDesktop(SettingsPages.Appearance(this));
+    }
+
+    [RelayCommand(CanExecute = nameof(CanUseDesktopNavigation))]
+    private void DesktopBack()
+    {
+        GoBack();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanUseDesktopNavigation))]
+    private void DesktopRefresh()
+    {
+        WeatherViewModel? weather = FindMainScreen();
+        if (weather?.RefreshCommand.CanExecute(null) == true)
+        {
+            weather.RefreshCommand.Execute(null);
+        }
+    }
+
+    private void NavigateDesktop(ObservableObject page)
+    {
+        WeatherViewModel? weather = FindMainScreen();
+        _backStack.Clear();
+        if (weather is not null)
+        {
+            _backStack.Push(weather);
+        }
+
+        CurrentPage = page;
+    }
 
     /// <summary>
     /// Opens on the first saved location, or on the empty location list when none is saved.
@@ -150,6 +286,10 @@ public sealed partial class MainViewModel : ObservableObject
         else if (CurrentLocation() is { } current)
         {
             ShowLocation(current);
+        }
+        else if (IsDesktopInterfaceEnabled && CurrentPage is not ManagementViewModel)
+        {
+            _ = DesktopLocationsAsync();
         }
     }
 
@@ -240,6 +380,7 @@ public sealed partial class MainViewModel : ObservableObject
         locations.Insert(to, moved);
         _locations = locations;
         await _locationRepository.AddAllAsync(_locations);
+        NotifyDesktopLocationsChanged();
     }
 
     /// <summary>
@@ -256,6 +397,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
 
         await _locationRepository.DeleteAsync(location.FormattedId);
+        NotifyDesktopLocationsChanged();
         return location;
     }
 
@@ -276,6 +418,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
 
         await _locationRepository.AddAllAsync(_locations);
+        NotifyDesktopLocationsChanged();
     }
 
     /// <summary>
@@ -284,6 +427,7 @@ public sealed partial class MainViewModel : ObservableObject
     public async Task ReloadLocationsAsync()
     {
         _locations = await LoadLocationsWithWeatherAsync();
+        NotifyDesktopLocationsChanged();
     }
 
     /// <summary>
@@ -308,6 +452,8 @@ public sealed partial class MainViewModel : ObservableObject
         {
             CurrentPage = Rebuilt(CurrentPage);
         }
+
+        OnPropertyChanged(nameof(InterfaceCulture));
     }
 
     private ObservableObject Rebuilt(ObservableObject screen)
@@ -360,6 +506,8 @@ public sealed partial class MainViewModel : ObservableObject
         {
             management.Refresh();
         }
+
+        NotifyDesktopLocationsChanged();
     }
 
     private void RebuildMainScreen()

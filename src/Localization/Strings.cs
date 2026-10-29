@@ -32,6 +32,9 @@ public static class Strings
     private static readonly ResourceManager UnitText =
         new("LibreccioWeather.Core.translations.UnitStrings", typeof(Strings).Assembly);
 
+    private static readonly ResourceManager InterfaceText =
+        new("LibreccioWeather.Core.resources.InterfaceStrings", typeof(Strings).Assembly);
+
     /// <summary>
     /// The selected language. Also used to format numbers and dates.
     /// </summary>
@@ -39,7 +42,7 @@ public static class Strings
 
     public static string Get(string key)
     {
-        return AppText.GetString(key, Culture) ?? throw MissingKey(key);
+        return AppText.GetString(key, Culture) ?? InterfaceText.GetString(key, Culture) ?? throw MissingKey(key);
     }
 
     public static string Format(string key, params object?[] args)
