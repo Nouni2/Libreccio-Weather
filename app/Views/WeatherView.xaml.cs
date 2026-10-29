@@ -15,13 +15,25 @@
  */
 
 using System.Windows.Controls;
+using System.Windows.Threading;
+using LibreccioWeather.ViewModels;
 
 namespace LibreccioWeather.Views;
 
 public partial class WeatherView : UserControl
 {
+    // The time since the last refresh is written again every minute, and only while the screen is shown.
+    private readonly DispatcherTimer _clock = new() { Interval = TimeSpan.FromMinutes(1) };
+
     public WeatherView()
     {
         InitializeComponent();
+        _clock.Tick += (_, _) => (DataContext as WeatherViewModel)?.UpdateRefreshTime();
+        Loaded += (_, _) =>
+        {
+            (DataContext as WeatherViewModel)?.UpdateRefreshTime();
+            _clock.Start();
+        };
+        Unloaded += (_, _) => _clock.Stop();
     }
 }

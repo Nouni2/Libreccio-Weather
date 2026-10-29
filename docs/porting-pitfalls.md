@@ -31,6 +31,12 @@ Upstream formats numbers with `Number.format` in `weather-unit/.../formatting/Nu
 | ICU grouping | Thousands are grouped following the locale's minimum grouping digits: "1,013" in English. | `"F"` and `"0.#"` never group, and `"N"` always groups. | A format with a group separator, such as `"#,##0.#"`, checked against the locale's minimum grouping digits. |
 | `SignDisplay.ALWAYS` | A plus sign before positive values. | Standard formats show no plus sign. | A section format such as `"+0;-0;0"`. |
 
+## CLDR text
+
+| Upstream | Upstream behaviour | .NET difference | Reproduce with |
+|---|---|---|---|
+| `MeasureFormat`, `NumberFormatter` with a unit, `RelativeDateTimeFormatter`, `ListFormatter` | Unit names, durations, relative times and lists in CLDR's words, such as "1 hour, 30 minutes" or "5 min. ago". | .NET formats numbers and dates, but has no unit names, relative times or list patterns. | `Icu` in `src/Localization/`, which calls Windows' `icu.dll`, with upstream's string fallback when a function is missing. |
+
 ## Integer arithmetic
 
 | Upstream | Upstream behaviour | .NET difference | Reproduce with |
@@ -77,9 +83,16 @@ Kotlin's `/` and `%` behave like C#'s.
 |---|---|---|---|
 | Android's network check before a refresh | Without a connection, the refresh stops with a network error and the saved weather is left untouched. | `NetworkInterface.GetIsNetworkAvailable()` is true whenever any adapter is up, including VPN and Hyper-V virtual adapters, so most offline cases pass. | Windows' connectivity level for the internet connection profile. |
 
+## Views
+
+| Upstream | Upstream behaviour | WPF difference | Reproduce with |
+|---|---|---|---|
+| A view's translation, such as `translationX` while a card slides | Each view has its own position that code can change. | A transform declared in a `DataTemplate` is frozen and shared, so changing it throws `InvalidOperationException`. | A new transform created in code for the element that moves. |
+
 ## Android resources
 
 | Upstream | Upstream behaviour | .NET difference | Reproduce with |
 |---|---|---|---|
 | `getQuantityString` | Picks the plural form with the CLDR rules of the language. | `.resx` has no plurals. | `PluralRules`. |
 | String resources | A string missing from a language falls back to the default language. | `ResourceManager` falls back through parent cultures. | `Strings`, which falls back to English. |
+| `@string/` references, in strings and arrays | Resolved in the current language when the app runs, so an untranslated alias such as `openmeteo_weather_text_clear_sky` shows the French text of the string it points to. | A `.resx` file holds plain text, so a reference resolved once in English stays English in every language. | The string importer, which writes each language's resolution of every reference into that language's file. |

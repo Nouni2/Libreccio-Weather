@@ -11,6 +11,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Resource Include="assets\icons\icon.ico" />
+    <!-- The main window takes the icon of the current season. -->
+    <Resource Include="assets\icons\winter.ico" />
+    <Resource Include="assets\icons\spring.ico" />
+    <Resource Include="assets\icons\summer.ico" />
+    <Resource Include="assets\icons\autumn.ico" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="app\**\*.cs" />

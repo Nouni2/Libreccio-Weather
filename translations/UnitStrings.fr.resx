@@ -31,14 +31,53 @@
   <data name="area_m2_per_long" xml:space="preserve">
     <value>{0} par mètre carré</value>
   </data>
+  <data name="duration_day_display_name_long" xml:space="preserve">
+    <value>day</value>
+  </data>
+  <data name="duration_day_nominative_long" xml:space="preserve">
+    <value>{0} d</value>
+  </data>
+  <data name="duration_day_per_long" xml:space="preserve">
+    <value>{0}/d</value>
+  </data>
+  <data name="duration_hr_display_name_long" xml:space="preserve">
+    <value>hr</value>
+  </data>
   <data name="duration_hr_nominative_long" xml:space="preserve">
     <value>{0} heures</value>
   </data>
   <data name="duration_hr_per_long" xml:space="preserve">
     <value>{0} par heure</value>
   </data>
+  <data name="duration_micros_display_name_long" xml:space="preserve">
+    <value>μs</value>
+  </data>
+  <data name="duration_micros_nominative_long" xml:space="preserve">
+    <value>{0} μs</value>
+  </data>
+  <data name="duration_min_display_name_long" xml:space="preserve">
+    <value>min</value>
+  </data>
   <data name="duration_min_nominative_long" xml:space="preserve">
     <value>{0} minutes</value>
+  </data>
+  <data name="duration_min_per_long" xml:space="preserve">
+    <value>{0}/min</value>
+  </data>
+  <data name="duration_ms_display_name_long" xml:space="preserve">
+    <value>ms</value>
+  </data>
+  <data name="duration_ms_nominative_long" xml:space="preserve">
+    <value>{0} ms</value>
+  </data>
+  <data name="duration_ns_display_name_long" xml:space="preserve">
+    <value>ns</value>
+  </data>
+  <data name="duration_ns_nominative_long" xml:space="preserve">
+    <value>{0} ns</value>
+  </data>
+  <data name="duration_sec_display_name_long" xml:space="preserve">
+    <value>sec</value>
   </data>
   <data name="duration_sec_nominative_long" xml:space="preserve">
     <value>{0} secondes</value>

@@ -17,11 +17,14 @@
 using System.Globalization;
 using System.Net.Http;
 using System.Windows;
+using LibreccioWeather.Background;
+using LibreccioWeather.Core.Background;
 using LibreccioWeather.Core.Database;
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Refresh;
+using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Sources.OpenMeteo;
-using LibreccioWeather.Core.Units;
+using LibreccioWeather.Icons;
 using LibreccioWeather.ViewModels;
 
 namespace LibreccioWeather;
@@ -32,25 +35,47 @@ public partial class App : System.Windows.Application
     // One client for the whole app, so connections are reused across requests.
     private static readonly HttpClient HttpClient = CreateHttpClient();
 
+    private WeatherUpdateScheduler? _updateScheduler;
+    private SeasonalWindowIcon? _windowIcon;
+
     // Startup is an event handler, so it is the one place where async void is the only way to await.
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
+        SettingsManager settings = new(new ConfigStore(SettingsManager.DefaultPath));
+
         // The language is set before the first window opens, because translated text is read when XAML loads.
-        Strings.Culture = AppLanguages.Resolve(chosenLanguageCode: null, CultureInfo.CurrentUICulture);
+        Strings.Culture = AppLanguages.Resolve(settings.Language, CultureInfo.CurrentUICulture);
 
         WeatherDatabase database = new(WeatherDatabase.DefaultPath);
         database.EnsureCreated();
 
-        TemperatureUnit temperatureUnit = TemperatureUnit.GetDefaultUnit(RegionInfo.CurrentRegion.TwoLetterISORegionName);
         OpenMeteoService openMeteo = new(HttpClient);
         WeatherRepository weather = new(database);
+        LocationRepository locations = new(database);
+        WeatherRefresher refresher = new(openMeteo, weather, settings);
+        WeatherUpdateJob updateJob = new(refresher, locations, weather, settings);
         MainViewModel viewModel = new(
-            openMeteo, new WeatherRefresher(openMeteo, weather), new LocationRepository(database), weather, temperatureUnit);
+            openMeteo, refresher, locations, weather, updateJob, settings, RegionInfo.CurrentRegion.TwoLetterISORegionName);
         MainWindow window = new() { DataContext = viewModel };
-        window.Show();
+        _windowIcon = new SeasonalWindowIcon(window);
+        viewModel.ShownLocationChanged += (_, location) => _windowIcon.ShowLocation(location);
+
+        // The window opens once the first location is known, so it never shows another season's icon first.
         await viewModel.LoadAsync();
+        window.Show();
+
+        // Started after the first screen has loaded, so a due update does not compete with its refresh.
+        _updateScheduler = new WeatherUpdateScheduler(updateJob, settings);
+        _updateScheduler.Start();
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        _updateScheduler?.Dispose();
+        _windowIcon?.Dispose();
+        base.OnExit(e);
     }
 
     private static HttpClient CreateHttpClient()

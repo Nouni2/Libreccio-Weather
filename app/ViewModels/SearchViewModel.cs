@@ -32,11 +32,19 @@ public sealed partial class SearchViewModel : ObservableObject
 {
     private readonly OpenMeteoService _openMeteo;
     private readonly Action<Location> _onLocationChosen;
+    private readonly Action _onBack;
 
-    public SearchViewModel(OpenMeteoService openMeteo, Action<Location> onLocationChosen)
+    public SearchViewModel(OpenMeteoService openMeteo, Action<Location> onLocationChosen, Action onBack)
     {
         _openMeteo = openMeteo;
         _onLocationChosen = onLocationChosen;
+        _onBack = onBack;
+    }
+
+    [RelayCommand]
+    private void Back()
+    {
+        _onBack();
     }
 
     public ObservableCollection<LocationResult> Results { get; } = [];

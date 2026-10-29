@@ -37,10 +37,38 @@ The Breezy Weather files each C# file ports. Paths on the right are relative to 
 | C# file | Breezy Weather file |
 |---|---|
 | `src/Localization/NumberFormatting.cs` | `weather-unit/src/main/kotlin/org/breezyweather/unit/formatting/NumberFormatting.kt` |
-| `src/Localization/UnitFormatting.cs` | `weather-unit/src/main/kotlin/org/breezyweather/unit/formatting/MeasureUnitFormatting.kt` |
+| `src/Localization/UnitFormatting.cs` | `weather-unit/src/main/kotlin/org/breezyweather/unit/formatting/MeasureUnitFormatting.kt`, and `getDisplayName` in `weather-unit/src/main/kotlin/org/breezyweather/unit/WeatherUnit.kt` through its translated strings, without Android's CLDR names. |
+| `src/Localization/Icu.cs` | No file. It calls Windows' ICU, which Android's `android.icu` classes are built on. |
+| `src/Localization/DurationFormatting.cs` | `format` and `formatWithAndroidTranslations` in `weather-unit/src/main/kotlin/org/breezyweather/unit/duration/Duration.kt`, and `formatTime` in `app/src/main/kotlin/org/breezyweather/common/extensions/UnitExtensions.kt`, for hours with minutes or seconds. |
+| `src/Localization/RelativeTimeFormatting.cs` | `getRelativeTime` in `app/src/main/kotlin/org/breezyweather/common/extensions/DateExtensions.kt`. The rules it calls are Android's `RelativeDateTimeFormatter`, which is not part of Breezy Weather. |
 | `src/Localization/Strings.cs` | No file. It replaces Android's string resources. |
 | `src/Localization/PluralRules.cs` | No file. It replaces Android's plural resources. |
 | `src/Localization/AppLanguages.cs` | No file. |
+
+## Settings
+
+| C# file | Breezy Weather file |
+|---|---|
+| `src/Settings/SettingsManager.cs` | `app/src/main/kotlin/org/breezyweather/domain/settings/SettingsManager.kt`. Settings with no meaning on Windows are left out: the icon provider, the gravity sensor, home screen widgets and the choice of Android number formatters. The language is stored under `language`, where Android keeps it outside the app's settings, and changing it sets `language_update_last_timestamp`. |
+| `src/Settings/ConfigStore.cs` | `app/src/main/kotlin/org/breezyweather/domain/settings/ConfigStore.kt`. A JSON file replaces Android's shared preferences. |
+| `src/Settings/Options/DarkMode.cs`, `UpdateInterval.cs`, `NotificationStyle.cs` | `app/src/main/kotlin/org/breezyweather/common/options/` |
+| `src/Settings/Options/BackgroundAnimationMode.cs`, `CardDisplay.cs`, `DailyTrendDisplay.cs`, `HourlyTrendDisplay.cs` | `app/src/main/kotlin/org/breezyweather/common/options/appearance/` |
+| `src/Settings/Options/OptionNames.cs` | `getName` and `getNameByValue` in `app/src/main/kotlin/org/breezyweather/common/utils/UnitUtils.kt` |
+
+## Background
+
+| C# file | Breezy Weather file |
+|---|---|
+| `src/Background/WeatherUpdateJob.cs` | `app/src/main/kotlin/org/breezyweather/background/weather/WeatherUpdateJob.kt`. The location itself is not refreshed, as current position and reverse geocoding are not ported. Widgets, shortcuts, data broadcasts and app update checks have no Windows counterpart. Error, alert and precipitation notifications are not ported. |
+| `app/Background/WeatherUpdateScheduler.cs` | `setupTask` in `WeatherUpdateJob.kt`, with Android's WorkManager replaced by a timer counted from `weather_update_last_timestamp`. Windows' Battery saver takes the place of Android's low battery state: updates wait while it is on. |
+| `app/Background/BatterySaver.cs` | No file. It reads whether Windows' Battery saver is on. |
+| `src/Refresh/NetworkStatus.cs` | `isOnline` in `app/src/main/kotlin/org/breezyweather/common/extensions/NetworkExtensions.kt` |
+
+## Seasons
+
+| C# file | Breezy Weather file |
+|---|---|
+| `src/Seasons/Season.cs`, `src/Seasons/MeteorologicalSeasons.cs` | No file. They give the season that chooses Libreccio Weather's window icon, which Breezy Weather does not have. |
 
 ## Model
 
@@ -104,11 +132,20 @@ The Breezy Weather files each C# file ports. Paths on the right are relative to 
 | `ViewModels/SearchViewModel.cs` | `search/SearchViewModel.kt` |
 | `Views/SearchView.xaml.cs` | `search/SearchActivity.kt` |
 | `ViewModels/LocationResult.cs` | No file. |
+| `ViewModels/MainViewModel.cs` | `main/MainActivity.kt`, `main/MainActivityViewModel.kt`, for the screens, the location list and the messages. |
+| `ViewModels/ManagementViewModel.cs`, `Views/ManagementView.xaml.cs` | `main/fragments/ManagementFragment.kt`, `main/widgets/LocationItemTouchCallback.kt`. A mouse drag stands for a finger swipe; sliding towards the start only slides back, as source settings are not ported. |
+| `ViewModels/LocationItemViewModel.cs` | `main/adapters/location/LocationModel.kt`, `LocationHolder.kt`. Without ICU, outdated weather does not show "Last updated". |
+| `ViewModels/SnackbarViewModel.cs` | `app/src/main/kotlin/org/breezyweather/common/utils/helpers/SnackbarHelper.kt` |
+| `ViewModels/Settings/SettingsPages.cs` | `settings/compose/RootSettingsScreen.kt`, `BackgroundUpdatesSettingsScreen.kt`, `AppearanceSettingsScreen.kt`, `UnitSettingsScreen.kt`. Categories not ported are shown disabled. Without ICU, unit and interval names come from strings, as in Breezy Weather with "use measure format" off. |
+| `ViewModels/Settings/PreferenceItems.cs`, `ListDialogViewModel.cs`, `SettingsPageViewModel.cs` | `settings/preference/` |
+| `ViewModels/Settings/NeverRefreshDialogViewModel.cs` | The dialog in `settings/compose/BackgroundUpdatesSettingsScreen.kt` |
+| `Localization/SystemStrings.cs` | No file. It takes the Cancel text from Windows, as Breezy Weather takes it from Android. |
 | `App.xaml.cs`, `Localization/TranslateExtension.cs` | No file. |
+| `Icons/SeasonalWindowIcon.cs` | No file. It gives the main window Libreccio Weather's icon for the current season, which Breezy Weather does not have. |
 
 ## Tests
 
-`tests/` ports `weather-unit/src/test/kotlin/org/breezyweather/unit/`.
+Short paths are relative to `weather-unit/src/test/kotlin/org/breezyweather/unit/`.
 
 | C# file | Breezy Weather file |
 |---|---|
@@ -116,5 +153,9 @@ The Breezy Weather files each C# file ports. Paths on the right are relative to 
 | `Calculations/TemperatureCalculationsTests.cs` | `computing/TemperatureComputingTest.kt` |
 | `Units/TemperatureTests.cs` | `temperature/TemperatureTest.kt` |
 | `Localization/NumberFormattingTests.cs` | `formatting/NumberFormattingTest.kt` |
+| `Settings/CardDisplayTests.cs` | `app/src/test/kotlin/org/breezyweather/option/appearance/CardDisplayTest.kt` |
+| `Settings/DailyTrendDisplayTests.cs` | `app/src/test/kotlin/org/breezyweather/option/appearance/DailyTrendDisplayTest.kt` |
+| `Settings/OptionNamesTests.cs` | `app/src/test/kotlin/org/breezyweather/option/utils/UtilsTest.kt` |
+| `Settings/ConfigStoreTests.cs` | No file. |
 | `Units/SpeedTests.cs` | No file. |
 | `Database/WeatherRepositoryTests.cs` | No file. |

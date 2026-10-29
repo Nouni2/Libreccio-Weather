@@ -25,29 +25,35 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0">
-            <TextBox x:Name="SearchInput"
-                     Style="{StaticResource SearchBox}"
-                     Text="{Binding Query, UpdateSourceTrigger=PropertyChanged}">
-                <TextBox.InputBindings>
-                    <KeyBinding Key="Enter" Command="{Binding SearchCommand}" />
-                </TextBox.InputBindings>
-            </TextBox>
-            <TextBlock Margin="18,0" VerticalAlignment="Center" IsHitTestVisible="False" FontSize="16"
-                       Foreground="{StaticResource OnSurfaceVariantBrush}"
-                       Text="{l:Translate location_search_placeholder}">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Visibility" Value="Collapsed" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding Text.Length, ElementName=SearchInput}" Value="0">
-                                <Setter Property="Visibility" Value="Visible" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
-        </Grid>
+        <DockPanel Grid.Row="0">
+            <Button DockPanel.Dock="Left" Margin="0,0,8,0" Style="{StaticResource IconButton}" Command="{Binding BackCommand}"
+                    ToolTip="{l:Translate action_back}" AutomationProperties.Name="{l:Translate action_back}">
+                <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconArrowBack}" />
+            </Button>
+            <Grid>
+                <TextBox x:Name="SearchInput"
+                         Style="{StaticResource SearchBox}"
+                         Text="{Binding Query, UpdateSourceTrigger=PropertyChanged}">
+                    <TextBox.InputBindings>
+                        <KeyBinding Key="Enter" Command="{Binding SearchCommand}" />
+                    </TextBox.InputBindings>
+                </TextBox>
+                <TextBlock Margin="18,0" VerticalAlignment="Center" IsHitTestVisible="False" FontSize="16"
+                           Foreground="{StaticResource OnSurfaceVariantBrush}"
+                           Text="{l:Translate location_search_placeholder}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Text.Length, ElementName=SearchInput}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+        </DockPanel>
 
         <TextBlock Grid.Row="1" Margin="16,8,16,0" Style="{StaticResource BodySmallText}" Text="{Binding Attribution}" />
 

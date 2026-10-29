@@ -21,6 +21,8 @@
 
 Download the latest version from the [releases page](https://github.com/Nouni2/Libreccio-Weather/releases/latest). Libreccio Weather was developed and tested on Windows 11.
 
+Unit names, durations and relative times, such as "kilometers per hour", "1 hour, 30 minutes" and "5 min. ago", use the ICU library included in Windows from Windows 10 version 1903. On Windows without it, units and durations use short forms such as "km/h" and "1 h, 30 min", and relative times are not shown.
+
 ## Screenshots
 
 <p align="center">

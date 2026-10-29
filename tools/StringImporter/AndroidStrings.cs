@@ -64,6 +64,47 @@ internal static partial class AndroidStrings
     }
 
     /// <summary>
+    /// String arrays of the given files, keyed by name, with each item converted like a string.
+    /// Items are kept as written, so "@string/name" references can be resolved in each language.
+    /// Files that do not exist are skipped.
+    /// </summary>
+    public static Dictionary<string, List<string>> ReadArrays(IEnumerable<string> files)
+    {
+        Dictionary<string, List<string>> arrays = [];
+        foreach (string file in files.Where(File.Exists))
+        {
+            XElement root = XDocument.Load(file).Root ?? throw new InvalidDataException($"Empty resource file: {file}");
+            foreach (XElement element in root.Elements("string-array"))
+            {
+                if (element.Attribute("name")?.Value is { } name)
+                {
+                    arrays[name] = element.Elements("item").Select(Convert).ToList();
+                }
+            }
+        }
+
+        return arrays;
+    }
+
+    /// <summary>
+    /// Adds each array item as a string keyed by the array name and the item's position, such as "dark_modes_0".
+    /// </summary>
+    public static void AddArrays(Dictionary<string, string> strings, IReadOnlyDictionary<string, List<string>> arrays)
+    {
+        foreach ((string name, List<string> items) in arrays)
+        {
+            for (int index = 0; index < items.Count; index++)
+            {
+                string key = name + "_" + index.ToString(CultureInfo.InvariantCulture);
+                if (!strings.TryAdd(key, items[index]))
+                {
+                    throw new InvalidDataException($"The array item '{key}' has the same key as a string.");
+                }
+            }
+        }
+    }
+
+    /// <summary>
     /// Replaces "@string/name" values with the text they point to, looked up first in the same language,
     /// then in the default language.
     /// </summary>

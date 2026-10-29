@@ -15,11 +15,11 @@
  */
 
 using System.Globalization;
-using System.Net.NetworkInformation;
 using LibreccioWeather.Core.Database;
 using LibreccioWeather.Core.Locations;
 using LibreccioWeather.Core.Models;
 using LibreccioWeather.Core.Models.Wrappers;
+using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Sources;
 using LibreccioWeather.Core.Sources.OpenMeteo;
 
@@ -53,11 +53,13 @@ public sealed class WeatherRefresher
 
     private readonly OpenMeteoService _openMeteo;
     private readonly WeatherRepository _weatherRepository;
+    private readonly SettingsManager _settings;
 
-    public WeatherRefresher(OpenMeteoService openMeteo, WeatherRepository weatherRepository)
+    public WeatherRefresher(OpenMeteoService openMeteo, WeatherRepository weatherRepository, SettingsManager settings)
     {
         _openMeteo = openMeteo;
         _weatherRepository = weatherRepository;
+        _settings = settings;
     }
 
     /// <param name="ignoreCaching">Requests every feature even when its cached data is still fresh.</param>
@@ -82,7 +84,7 @@ public sealed class WeatherRefresher
 
             DateTimeOffset yesterdayMidnight = StartOfDay(WeatherCompletion.IsoDate(now.AddDays(-1), location.TimeZone), location.TimeZone);
 
-            if (!NetworkInterface.GetIsNetworkAvailable())
+            if (!NetworkStatus.IsOnline())
             {
                 return new WeatherResult(location.Weather, [new RefreshError(RefreshErrorType.NetworkUnavailable)]);
             }
@@ -249,6 +251,8 @@ public sealed class WeatherRefresher
             return null;
         }
 
+        // Data saved before the last language change is outdated, because its texts are in the previous language.
+        DateTimeOffset languageUpdateTime = DateTimeOffset.FromUnixTimeMilliseconds(_settings.LanguageUpdateLastTimestamp);
         List<SourceFeature> featuresToUpdate = features
             .Where(feature =>
             {
@@ -261,7 +265,7 @@ public sealed class WeatherRefresher
 
                 return true;
             })
-            .Where(feature => ignoreCaching || !IsWeatherDataStillValid(location, feature))
+            .Where(feature => ignoreCaching || !IsWeatherDataStillValid(location, feature, languageUpdateTime))
             .ToList();
 
         if (featuresToUpdate.Count == 0)
@@ -416,7 +420,8 @@ public sealed class WeatherRefresher
         return value;
     }
 
-    private static bool IsWeatherDataStillValid(Location location, SourceFeature feature)
+    // Normals do not depend on the language, so the minimum time does not apply to them.
+    private static bool IsWeatherDataStillValid(Location location, SourceFeature feature, DateTimeOffset minimumTime)
     {
         if (location.Weather is not { } weather)
         {
@@ -427,16 +432,18 @@ public sealed class WeatherRefresher
         switch (feature)
         {
             case SourceFeature.Current:
-                return IsUpdateStillValid(weatherBase.CurrentUpdateTime, WaitCurrent);
+                return IsUpdateStillValid(weatherBase.CurrentUpdateTime, WaitCurrent, minimumTime);
             case SourceFeature.AirQuality:
-                return IsUpdateStillValid(weatherBase.AirQualityUpdateTime, WaitAirQuality);
+                return IsUpdateStillValid(weatherBase.AirQualityUpdateTime, WaitAirQuality, minimumTime);
             case SourceFeature.Pollen:
-                return IsUpdateStillValid(weatherBase.PollenUpdateTime, WaitPollen);
+                return IsUpdateStillValid(weatherBase.PollenUpdateTime, WaitPollen, minimumTime);
             case SourceFeature.Minutely:
                 bool precipitationComing = weather.MinutelyForecast.Any(minutely => (minutely.PrecipitationIntensity?.InMicrometers ?? 0.0) > 0);
-                return IsUpdateStillValid(weatherBase.MinutelyUpdateTime, precipitationComing ? WaitMinutelyOngoing : WaitMinutely);
+                return IsUpdateStillValid(
+                    weatherBase.MinutelyUpdateTime, precipitationComing ? WaitMinutelyOngoing : WaitMinutely, minimumTime);
             case SourceFeature.Alert:
-                return IsUpdateStillValid(weatherBase.AlertsUpdateTime, weather.CurrentAlertList.Count == 0 ? WaitAlerts : WaitAlertsOngoing);
+                return IsUpdateStillValid(
+                    weatherBase.AlertsUpdateTime, weather.CurrentAlertList.Count == 0 ? WaitAlerts : WaitAlertsOngoing, minimumTime);
             case SourceFeature.Normals:
                 if (weatherBase.NormalsUpdateTime is null
                     || weatherBase.NormalsUpdateLongitude == 0.0
@@ -458,13 +465,14 @@ public sealed class WeatherRefresher
                 return weather.Normals.TryGetValue(month, out Normals? normals)
                     && (normals.DaytimeTemperature is not null || normals.NighttimeTemperature is not null);
             default:
-                return IsUpdateStillValid(weatherBase.ForecastUpdateTime, WaitMain);
+                return IsUpdateStillValid(weatherBase.ForecastUpdateTime, WaitMain, minimumTime);
         }
     }
 
-    private static bool IsUpdateStillValid(DateTimeOffset? updateTime, int waitMinutes)
+    // An update made before the minimum time is never valid.
+    private static bool IsUpdateStillValid(DateTimeOffset? updateTime, int waitMinutes, DateTimeOffset minimumTime = default)
     {
-        if (updateTime is not { } time)
+        if (updateTime is not { } time || time < minimumTime)
         {
             return false;
         }

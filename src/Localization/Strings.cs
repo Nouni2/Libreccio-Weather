@@ -58,6 +58,20 @@ public static class Strings
         return string.Format(Culture, text, args);
     }
 
+    /// <summary>
+    /// The items of a string array, stored as keys ending in their position such as "dark_modes_0".
+    /// </summary>
+    public static IReadOnlyList<string> GetArray(string key)
+    {
+        List<string> items = [];
+        while (AppText.GetString(key + "_" + items.Count.ToString(CultureInfo.InvariantCulture), Culture) is { } item)
+        {
+            items.Add(item);
+        }
+
+        return items.Count > 0 ? items : throw MissingKey(key);
+    }
+
     public static string GetUnit(string key)
     {
         return UnitText.GetString(key, Culture) ?? throw MissingKey(key);

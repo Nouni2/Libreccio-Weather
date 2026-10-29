@@ -70,6 +70,78 @@
   <data name="about_update_check_eol" xml:space="preserve">
     <value>Cette version d’Android n’est plus supportée</value>
   </data>
+  <data name="accu_preference_day_values_0" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="accu_preference_day_values_1" xml:space="preserve">
+    <value>5</value>
+  </data>
+  <data name="accu_preference_day_values_2" xml:space="preserve">
+    <value>10</value>
+  </data>
+  <data name="accu_preference_day_values_3" xml:space="preserve">
+    <value>15</value>
+  </data>
+  <data name="accu_preference_days_0" xml:space="preserve">
+    <value>1 jour</value>
+  </data>
+  <data name="accu_preference_days_1" xml:space="preserve">
+    <value>5 jours</value>
+  </data>
+  <data name="accu_preference_days_2" xml:space="preserve">
+    <value>10 jours</value>
+  </data>
+  <data name="accu_preference_days_3" xml:space="preserve">
+    <value>15 jours</value>
+  </data>
+  <data name="accu_preference_hour_values_0" xml:space="preserve">
+    <value>1</value>
+  </data>
+  <data name="accu_preference_hour_values_1" xml:space="preserve">
+    <value>12</value>
+  </data>
+  <data name="accu_preference_hour_values_2" xml:space="preserve">
+    <value>24</value>
+  </data>
+  <data name="accu_preference_hour_values_3" xml:space="preserve">
+    <value>72</value>
+  </data>
+  <data name="accu_preference_hour_values_4" xml:space="preserve">
+    <value>120</value>
+  </data>
+  <data name="accu_preference_hour_values_5" xml:space="preserve">
+    <value>240</value>
+  </data>
+  <data name="accu_preference_hours_0" xml:space="preserve">
+    <value>1 heure</value>
+  </data>
+  <data name="accu_preference_hours_1" xml:space="preserve">
+    <value>12 heures</value>
+  </data>
+  <data name="accu_preference_hours_2" xml:space="preserve">
+    <value>24 heures</value>
+  </data>
+  <data name="accu_preference_hours_3" xml:space="preserve">
+    <value>72 heures</value>
+  </data>
+  <data name="accu_preference_hours_4" xml:space="preserve">
+    <value>120 heures</value>
+  </data>
+  <data name="accu_preference_hours_5" xml:space="preserve">
+    <value>240 heures</value>
+  </data>
+  <data name="accu_preference_portal_0" xml:space="preserve">
+    <value>Developer</value>
+  </data>
+  <data name="accu_preference_portal_1" xml:space="preserve">
+    <value>Enterprise</value>
+  </data>
+  <data name="accu_preference_portal_values_0" xml:space="preserve">
+    <value>developer</value>
+  </data>
+  <data name="accu_preference_portal_values_1" xml:space="preserve">
+    <value>enterprise</value>
+  </data>
   <data name="action_about" xml:space="preserve">
     <value>À propos</value>
   </data>
@@ -108,6 +180,9 @@
   </data>
   <data name="action_delete" xml:space="preserve">
     <value>Supprimer</value>
+  </data>
+  <data name="action_dependencies" xml:space="preserve">
+    <value>Dépendences</value>
   </data>
   <data name="action_done" xml:space="preserve">
     <value>OK</value>
@@ -205,6 +280,9 @@
   <data name="air_quality" xml:space="preserve">
     <value>Qualité de l’air</value>
   </data>
+  <data name="air_quality_average" xml:space="preserve">
+    <value>Moyenne</value>
+  </data>
   <data name="air_quality_co_about" xml:space="preserve">
     <value>À propos du monoxyde de carbone ({0})</value>
   </data>
@@ -234,6 +312,9 @@
   </data>
   <data name="air_quality_index_about_description_2" xml:space="preserve">
     <value>L’échelle utilisée dans cette appli est basée sur les recommandations de l’Organisation Mondiale de la Santé, plutôt que sur les réglementations locales, pour avoir des catégories représentatives et permettre de comparer plus facilement les niveaux de pollution entre pays.</value>
+  </data>
+  <data name="air_quality_index_description" xml:space="preserve">
+    <value>Description</value>
   </data>
   <data name="air_quality_index_harmless_exposure" xml:space="preserve">
     <value>Exposition sans danger</value>
@@ -297,6 +378,60 @@
   </data>
   <data name="air_quality_level_6_harmless_exposure" xml:space="preserve">
     <value>&lt; 1 minute</value>
+  </data>
+  <data name="air_quality_level_descriptions_0" xml:space="preserve">
+    <value>La qualité d’air est idéale pour la plupart des individus ; profitez de vos activités en extérieur habituelles.</value>
+  </data>
+  <data name="air_quality_level_descriptions_1" xml:space="preserve">
+    <value>La qualité d’air est généralement acceptable pour la plupart des individus. Cependant, les personnes sensibles risquent de faire l’expérience de symptômes légers à modérés en cas d’exposition à long terme.</value>
+  </data>
+  <data name="air_quality_level_descriptions_2" xml:space="preserve">
+    <value>L’air a atteint un degré élevé de pollution et n’est pas sain pour les personnes sensibles. Réduisez le temps passé en extérieur si vous ressentez des symptômes, tels que des difficultés respiratoires ou des irritations de la gorge.</value>
+  </data>
+  <data name="air_quality_level_descriptions_3" xml:space="preserve">
+    <value>Les effets sur la santé peuvent être ressentis immédiatement par les personnes sensibles. Les individus en bonne santé peuvent éprouver des gênes respiratoires et des irritations de la gorge en cas d’exposition prolongée. Limitez les activités en extérieur.</value>
+  </data>
+  <data name="air_quality_level_descriptions_4" xml:space="preserve">
+    <value>Les effets sur la santé risquent d’être ressentis immédiatement par les personnes sensibles et ces dernières doivent éviter les activités en extérieur. Les individus en bonne santé risquent d’éprouver des difficultés respiratoires et des irritations de la gorge ; envisagez de rester à l’intérieur et de repousser les activités en extérieur.</value>
+  </data>
+  <data name="air_quality_level_descriptions_5" xml:space="preserve">
+    <value>Toute exposition à l’air, y compris pendant quelques minutes, risque de déboucher sur des problèmes de santé graves pour tous. Évitez les activités en extérieur.</value>
+  </data>
+  <data name="air_quality_level_harmless_exposures_0" xml:space="preserve">
+    <value>&gt; 1 an</value>
+  </data>
+  <data name="air_quality_level_harmless_exposures_1" xml:space="preserve">
+    <value>&lt; 1 an</value>
+  </data>
+  <data name="air_quality_level_harmless_exposures_2" xml:space="preserve">
+    <value>&lt; 1 jour</value>
+  </data>
+  <data name="air_quality_level_harmless_exposures_3" xml:space="preserve">
+    <value>&lt; 1 heure</value>
+  </data>
+  <data name="air_quality_level_harmless_exposures_4" xml:space="preserve">
+    <value>&lt; quelques minutes</value>
+  </data>
+  <data name="air_quality_level_harmless_exposures_5" xml:space="preserve">
+    <value>&lt; 1 minute</value>
+  </data>
+  <data name="air_quality_levels_0" xml:space="preserve">
+    <value>Excellent</value>
+  </data>
+  <data name="air_quality_levels_1" xml:space="preserve">
+    <value>Correct</value>
+  </data>
+  <data name="air_quality_levels_2" xml:space="preserve">
+    <value>Mauvais</value>
+  </data>
+  <data name="air_quality_levels_3" xml:space="preserve">
+    <value>Risque de santé</value>
+  </data>
+  <data name="air_quality_levels_4" xml:space="preserve">
+    <value>Risque marqué de santé</value>
+  </data>
+  <data name="air_quality_levels_5" xml:space="preserve">
+    <value>Dangereux</value>
   </data>
   <data name="air_quality_no2_about" xml:space="preserve">
     <value>À propos du dioxyde d’azote ({0})</value>
@@ -399,6 +534,78 @@
   </data>
   <data name="app_name" xml:space="preserve">
     <value>Météo</value>
+  </data>
+  <data name="automatic_refresh_rate_values_0" xml:space="preserve">
+    <value>never</value>
+  </data>
+  <data name="automatic_refresh_rate_values_1" xml:space="preserve">
+    <value>0:30</value>
+  </data>
+  <data name="automatic_refresh_rate_values_2" xml:space="preserve">
+    <value>1:00</value>
+  </data>
+  <data name="automatic_refresh_rate_values_3" xml:space="preserve">
+    <value>1:30</value>
+  </data>
+  <data name="automatic_refresh_rate_values_4" xml:space="preserve">
+    <value>2:00</value>
+  </data>
+  <data name="automatic_refresh_rate_values_5" xml:space="preserve">
+    <value>3:00</value>
+  </data>
+  <data name="automatic_refresh_rate_values_6" xml:space="preserve">
+    <value>6:00</value>
+  </data>
+  <data name="automatic_refresh_rate_values_7" xml:space="preserve">
+    <value>12:00</value>
+  </data>
+  <data name="automatic_refresh_rate_values_8" xml:space="preserve">
+    <value>24:00</value>
+  </data>
+  <data name="automatic_refresh_rates_0" xml:space="preserve">
+    <value>Jamais</value>
+  </data>
+  <data name="automatic_refresh_rates_1" xml:space="preserve">
+    <value>30 min</value>
+  </data>
+  <data name="automatic_refresh_rates_2" xml:space="preserve">
+    <value>1 hr</value>
+  </data>
+  <data name="automatic_refresh_rates_3" xml:space="preserve">
+    <value>1 hr and 30 min</value>
+  </data>
+  <data name="automatic_refresh_rates_4" xml:space="preserve">
+    <value>2 hr</value>
+  </data>
+  <data name="automatic_refresh_rates_5" xml:space="preserve">
+    <value>3 hr</value>
+  </data>
+  <data name="automatic_refresh_rates_6" xml:space="preserve">
+    <value>6 hr</value>
+  </data>
+  <data name="automatic_refresh_rates_7" xml:space="preserve">
+    <value>12 hr</value>
+  </data>
+  <data name="automatic_refresh_rates_8" xml:space="preserve">
+    <value>24 hr</value>
+  </data>
+  <data name="background_animation_0" xml:space="preserve">
+    <value>Préférence système</value>
+  </data>
+  <data name="background_animation_1" xml:space="preserve">
+    <value>Activée</value>
+  </data>
+  <data name="background_animation_2" xml:space="preserve">
+    <value>Désactivée</value>
+  </data>
+  <data name="background_animation_values_0" xml:space="preserve">
+    <value>system</value>
+  </data>
+  <data name="background_animation_values_1" xml:space="preserve">
+    <value>enabled</value>
+  </data>
+  <data name="background_animation_values_2" xml:space="preserve">
+    <value>disabled</value>
   </data>
   <data name="broadcast_source_breezy_weather_update_notifier" xml:space="preserve">
     <value>Notification des mises à jour d’emplacements {0}</value>
@@ -655,6 +862,36 @@
   <data name="daily_yesterday_short" xml:space="preserve">
     <value>Hier</value>
   </data>
+  <data name="dark_mode_location_values_0" xml:space="preserve">
+    <value>day_night</value>
+  </data>
+  <data name="dark_mode_location_values_1" xml:space="preserve">
+    <value>dark</value>
+  </data>
+  <data name="dark_mode_values_0" xml:space="preserve">
+    <value>system</value>
+  </data>
+  <data name="dark_mode_values_1" xml:space="preserve">
+    <value>light</value>
+  </data>
+  <data name="dark_mode_values_2" xml:space="preserve">
+    <value>dark</value>
+  </data>
+  <data name="dark_modes_0" xml:space="preserve">
+    <value>Préférence système</value>
+  </data>
+  <data name="dark_modes_1" xml:space="preserve">
+    <value>Clair</value>
+  </data>
+  <data name="dark_modes_2" xml:space="preserve">
+    <value>Sombre</value>
+  </data>
+  <data name="dark_modes_location_0" xml:space="preserve">
+    <value>En fonction du jour ou de la nuit</value>
+  </data>
+  <data name="dark_modes_location_1" xml:space="preserve">
+    <value>Toujours sombre quand l’application est en mode sombre</value>
+  </data>
   <data name="data_modified" xml:space="preserve">
     <value>Ce contenu a été modifié par {0} par rapport à l’original, principalement pour calculer ou extrapoler des données manquantes.</value>
   </data>
@@ -796,8 +1033,71 @@
   <data name="ephemeris_sunset_at" xml:space="preserve">
     <value>Coucher de soleil à {0}</value>
   </data>
+  <data name="fmi_weather_text_ice_crystals" xml:space="preserve">
+    <value>Ice crystals</value>
+  </data>
   <data name="forecast" xml:space="preserve">
     <value>Prévisions</value>
+  </data>
+  <data name="hko_weather_text_cloudy" xml:space="preserve">
+    <value>Nuageux</value>
+  </data>
+  <data name="hko_weather_text_cold" xml:space="preserve">
+    <value>Froid</value>
+  </data>
+  <data name="hko_weather_text_cool" xml:space="preserve">
+    <value>Frais</value>
+  </data>
+  <data name="hko_weather_text_dry" xml:space="preserve">
+    <value>Sec</value>
+  </data>
+  <data name="hko_weather_text_fine" xml:space="preserve">
+    <value>Ciel dégagé</value>
+  </data>
+  <data name="hko_weather_text_fog" xml:space="preserve">
+    <value>Brouillard</value>
+  </data>
+  <data name="hko_weather_text_haze" xml:space="preserve">
+    <value>Brume sèche</value>
+  </data>
+  <data name="hko_weather_text_heavy_rain" xml:space="preserve">
+    <value>Pluie forte</value>
+  </data>
+  <data name="hko_weather_text_hot" xml:space="preserve">
+    <value>Chaud</value>
+  </data>
+  <data name="hko_weather_text_humid" xml:space="preserve">
+    <value>Humide</value>
+  </data>
+  <data name="hko_weather_text_light_rain" xml:space="preserve">
+    <value>Pluie faible</value>
+  </data>
+  <data name="hko_weather_text_mainly_cloudy" xml:space="preserve">
+    <value>Principalement couvert</value>
+  </data>
+  <data name="hko_weather_text_mainly_fine" xml:space="preserve">
+    <value>Principalement dégagé</value>
+  </data>
+  <data name="hko_weather_text_mist" xml:space="preserve">
+    <value>Brume</value>
+  </data>
+  <data name="hko_weather_text_overcast" xml:space="preserve">
+    <value>Couvert</value>
+  </data>
+  <data name="hko_weather_text_rain" xml:space="preserve">
+    <value>Pluie</value>
+  </data>
+  <data name="hko_weather_text_sunny" xml:space="preserve">
+    <value>Ciel dégagé</value>
+  </data>
+  <data name="hko_weather_text_thunderstorms" xml:space="preserve">
+    <value>Orage</value>
+  </data>
+  <data name="hko_weather_text_warm" xml:space="preserve">
+    <value>Doux</value>
+  </data>
+  <data name="hko_weather_text_windy" xml:space="preserve">
+    <value>Vent</value>
   </data>
   <data name="hourly_forecast" xml:space="preserve">
     <value>Prévisions heure par heure</value>
@@ -820,6 +1120,27 @@
   <data name="humidity_short" xml:space="preserve">
     <value>Humidité</value>
   </data>
+  <data name="knmi_weather_text_cloudy_with_sun" xml:space="preserve">
+    <value>Principalement couvert</value>
+  </data>
+  <data name="knmi_weather_text_fog" xml:space="preserve">
+    <value>Brouillard</value>
+  </data>
+  <data name="knmi_weather_text_heavy_clouds" xml:space="preserve">
+    <value>Nuageux</value>
+  </data>
+  <data name="knmi_weather_text_heavy_rain_with_sun" xml:space="preserve">
+    <value>Averses de pluie fortes</value>
+  </data>
+  <data name="knmi_weather_text_light_rain_with_sun" xml:space="preserve">
+    <value>Averses de pluie légères</value>
+  </data>
+  <data name="knmi_weather_text_moderate_rain_with_sun" xml:space="preserve">
+    <value>Averses de pluie modérées</value>
+  </data>
+  <data name="knmi_weather_text_sunny" xml:space="preserve">
+    <value>Ciel dégagé</value>
+  </data>
   <data name="label_collapsed" xml:space="preserve">
     <value>Réduit</value>
   </data>
@@ -828,6 +1149,102 @@
   </data>
   <data name="label_expanded" xml:space="preserve">
     <value>Développé</value>
+  </data>
+  <data name="live_wallpaper_day_night_type_values_0" xml:space="preserve">
+    <value>auto</value>
+  </data>
+  <data name="live_wallpaper_day_night_type_values_1" xml:space="preserve">
+    <value>day</value>
+  </data>
+  <data name="live_wallpaper_day_night_type_values_2" xml:space="preserve">
+    <value>night</value>
+  </data>
+  <data name="live_wallpaper_day_night_types_0" xml:space="preserve">
+    <value>Automatique</value>
+  </data>
+  <data name="live_wallpaper_day_night_types_1" xml:space="preserve">
+    <value>Toujours de jour</value>
+  </data>
+  <data name="live_wallpaper_day_night_types_2" xml:space="preserve">
+    <value>Toujours de nuit</value>
+  </data>
+  <data name="live_wallpaper_weather_kind_values_0" xml:space="preserve">
+    <value>auto</value>
+  </data>
+  <data name="live_wallpaper_weather_kind_values_1" xml:space="preserve">
+    <value>CLEAR</value>
+  </data>
+  <data name="live_wallpaper_weather_kind_values_10" xml:space="preserve">
+    <value>THUNDER</value>
+  </data>
+  <data name="live_wallpaper_weather_kind_values_11" xml:space="preserve">
+    <value>THUNDERSTORM</value>
+  </data>
+  <data name="live_wallpaper_weather_kind_values_12" xml:space="preserve">
+    <value>WIND</value>
+  </data>
+  <data name="live_wallpaper_weather_kind_values_2" xml:space="preserve">
+    <value>PARTLY_CLOUDY</value>
+  </data>
+  <data name="live_wallpaper_weather_kind_values_3" xml:space="preserve">
+    <value>CLOUDY</value>
+  </data>
+  <data name="live_wallpaper_weather_kind_values_4" xml:space="preserve">
+    <value>RAIN</value>
+  </data>
+  <data name="live_wallpaper_weather_kind_values_5" xml:space="preserve">
+    <value>SNOW</value>
+  </data>
+  <data name="live_wallpaper_weather_kind_values_6" xml:space="preserve">
+    <value>SLEET</value>
+  </data>
+  <data name="live_wallpaper_weather_kind_values_7" xml:space="preserve">
+    <value>HAIL</value>
+  </data>
+  <data name="live_wallpaper_weather_kind_values_8" xml:space="preserve">
+    <value>FOG</value>
+  </data>
+  <data name="live_wallpaper_weather_kind_values_9" xml:space="preserve">
+    <value>HAZE</value>
+  </data>
+  <data name="live_wallpaper_weather_kinds_0" xml:space="preserve">
+    <value>Automatique</value>
+  </data>
+  <data name="live_wallpaper_weather_kinds_1" xml:space="preserve">
+    <value>Ciel dégagé</value>
+  </data>
+  <data name="live_wallpaper_weather_kinds_10" xml:space="preserve">
+    <value>Tonnerre</value>
+  </data>
+  <data name="live_wallpaper_weather_kinds_11" xml:space="preserve">
+    <value>Orage</value>
+  </data>
+  <data name="live_wallpaper_weather_kinds_12" xml:space="preserve">
+    <value>Vent</value>
+  </data>
+  <data name="live_wallpaper_weather_kinds_2" xml:space="preserve">
+    <value>Partiellement couvert</value>
+  </data>
+  <data name="live_wallpaper_weather_kinds_3" xml:space="preserve">
+    <value>Nuageux</value>
+  </data>
+  <data name="live_wallpaper_weather_kinds_4" xml:space="preserve">
+    <value>Pluie</value>
+  </data>
+  <data name="live_wallpaper_weather_kinds_5" xml:space="preserve">
+    <value>Neige</value>
+  </data>
+  <data name="live_wallpaper_weather_kinds_6" xml:space="preserve">
+    <value>Neige mouillée</value>
+  </data>
+  <data name="live_wallpaper_weather_kinds_7" xml:space="preserve">
+    <value>Grêle</value>
+  </data>
+  <data name="live_wallpaper_weather_kinds_8" xml:space="preserve">
+    <value>Brouillard</value>
+  </data>
+  <data name="live_wallpaper_weather_kinds_9" xml:space="preserve">
+    <value>Brume sèche</value>
   </data>
   <data name="location_current" xml:space="preserve">
     <value>Ma position</value>
@@ -976,6 +1393,54 @@
   <data name="message_tap_again_to_exit" xml:space="preserve">
     <value>Appuyez à nouveau pour quitter</value>
   </data>
+  <data name="meteoam_weather_text_clear_sky" xml:space="preserve">
+    <value>Ciel dégagé</value>
+  </data>
+  <data name="meteoam_weather_text_cloudy" xml:space="preserve">
+    <value>Nuageux</value>
+  </data>
+  <data name="meteoam_weather_text_fog" xml:space="preserve">
+    <value>Brouillard</value>
+  </data>
+  <data name="meteoam_weather_text_hail" xml:space="preserve">
+    <value>Grêle</value>
+  </data>
+  <data name="meteoam_weather_text_haze" xml:space="preserve">
+    <value>Brume sèche</value>
+  </data>
+  <data name="meteoam_weather_text_mainly_cloudy" xml:space="preserve">
+    <value>Principalement couvert</value>
+  </data>
+  <data name="meteoam_weather_text_overcast" xml:space="preserve">
+    <value>Couvert</value>
+  </data>
+  <data name="meteoam_weather_text_partly_cloudy" xml:space="preserve">
+    <value>Partiellement couvert</value>
+  </data>
+  <data name="meteoam_weather_text_rain_freezing" xml:space="preserve">
+    <value>Pluie verglaçante</value>
+  </data>
+  <data name="meteoam_weather_text_rain_heavy" xml:space="preserve">
+    <value>Pluie forte</value>
+  </data>
+  <data name="meteoam_weather_text_rain_light" xml:space="preserve">
+    <value>Pluie faible</value>
+  </data>
+  <data name="meteoam_weather_text_rain_snow_mixed" xml:space="preserve">
+    <value>Neige mouillée</value>
+  </data>
+  <data name="meteoam_weather_text_sand_storm" xml:space="preserve">
+    <value>Tempête de sable</value>
+  </data>
+  <data name="meteoam_weather_text_smoke" xml:space="preserve">
+    <value>Fumée</value>
+  </data>
+  <data name="meteoam_weather_text_snow" xml:space="preserve">
+    <value>Neige</value>
+  </data>
+  <data name="meteoam_weather_text_thunderstorm" xml:space="preserve">
+    <value>Orage</value>
+  </data>
   <data name="meteoam_weather_text_tornado_watersprout" xml:space="preserve">
     <value>Trombe terrestre ou marine</value>
   </data>
@@ -1020,6 +1485,75 @@
   </data>
   <data name="metno_weather_text_andthunder" xml:space="preserve">
     <value>{0} et tonnerre</value>
+  </data>
+  <data name="metno_weather_text_clearsky" xml:space="preserve">
+    <value>Ciel dégagé</value>
+  </data>
+  <data name="metno_weather_text_cloudy" xml:space="preserve">
+    <value>Nuageux</value>
+  </data>
+  <data name="metno_weather_text_fair" xml:space="preserve">
+    <value>Principalement dégagé</value>
+  </data>
+  <data name="metno_weather_text_fog" xml:space="preserve">
+    <value>Brouillard</value>
+  </data>
+  <data name="metno_weather_text_heavyrain" xml:space="preserve">
+    <value>Pluie forte</value>
+  </data>
+  <data name="metno_weather_text_heavyrainshowers" xml:space="preserve">
+    <value>Averses de pluie fortes</value>
+  </data>
+  <data name="metno_weather_text_heavysleet" xml:space="preserve">
+    <value>Neige mouillée forte</value>
+  </data>
+  <data name="metno_weather_text_heavysleetshowers" xml:space="preserve">
+    <value>Averses de neige mouillée fortes</value>
+  </data>
+  <data name="metno_weather_text_heavysnow" xml:space="preserve">
+    <value>Neige forte</value>
+  </data>
+  <data name="metno_weather_text_heavysnowshowers" xml:space="preserve">
+    <value>Averses de neige fortes</value>
+  </data>
+  <data name="metno_weather_text_lightrain" xml:space="preserve">
+    <value>Pluie faible</value>
+  </data>
+  <data name="metno_weather_text_lightrainshowers" xml:space="preserve">
+    <value>Averses de pluie légères</value>
+  </data>
+  <data name="metno_weather_text_lightsleet" xml:space="preserve">
+    <value>Neige mouillée légère</value>
+  </data>
+  <data name="metno_weather_text_lightsleetshowers" xml:space="preserve">
+    <value>Averses de neige mouillée fortes</value>
+  </data>
+  <data name="metno_weather_text_lightsnow" xml:space="preserve">
+    <value>Neige légère</value>
+  </data>
+  <data name="metno_weather_text_lightsnowshowers" xml:space="preserve">
+    <value>Averses de neige légères</value>
+  </data>
+  <data name="metno_weather_text_partlycloudy" xml:space="preserve">
+    <value>Partiellement couvert</value>
+  </data>
+  <data name="metno_weather_text_rain" xml:space="preserve">
+    <value>Pluie</value>
+  </data>
+  <data name="metno_weather_text_rainshowers" xml:space="preserve">
+    <value>Averses de pluie</value>
+  </data>
+  <data name="metno_weather_text_sleet" xml:space="preserve">
+    <value>Neige mouillée</value>
+  </data>
+  <data name="metno_weather_text_sleetshowers" xml:space="preserve">
+    <value>Averses de neige mouillée</value>
+  </data>
+  <data name="metno_weather_text_snow" xml:space="preserve">
+    <value>Neige</value>
+  </data>
+  <data name="metno_weather_text_snowshowers" xml:space="preserve">
+    <value>Averses de neige</value>
   </data>
   <data name="nighttime" xml:space="preserve">
     <value>Nuit</value>
@@ -1081,6 +1615,48 @@
   <data name="notification_style_native" xml:space="preserve">
     <value>Natif</value>
   </data>
+  <data name="notification_style_values_0" xml:space="preserve">
+    <value>native</value>
+  </data>
+  <data name="notification_style_values_1" xml:space="preserve">
+    <value>cities</value>
+  </data>
+  <data name="notification_style_values_2" xml:space="preserve">
+    <value>daily</value>
+  </data>
+  <data name="notification_style_values_3" xml:space="preserve">
+    <value>hourly</value>
+  </data>
+  <data name="notification_styles_0" xml:space="preserve">
+    <value>Natif</value>
+  </data>
+  <data name="notification_styles_1" xml:space="preserve">
+    <value>Villes</value>
+  </data>
+  <data name="notification_styles_2" xml:space="preserve">
+    <value>Prévisions quotidiennes</value>
+  </data>
+  <data name="notification_styles_3" xml:space="preserve">
+    <value>Prévisions heure par heure</value>
+  </data>
+  <data name="notification_text_color_values_0" xml:space="preserve">
+    <value>dark</value>
+  </data>
+  <data name="notification_text_color_values_1" xml:space="preserve">
+    <value>grey</value>
+  </data>
+  <data name="notification_text_color_values_2" xml:space="preserve">
+    <value>light</value>
+  </data>
+  <data name="notification_text_colors_0" xml:space="preserve">
+    <value>Sombre</value>
+  </data>
+  <data name="notification_text_colors_1" xml:space="preserve">
+    <value>Gris</value>
+  </data>
+  <data name="notification_text_colors_2" xml:space="preserve">
+    <value>Clair</value>
+  </data>
   <data name="notification_update_error_many" xml:space="preserve">
     <value>{0} mises à jour en échec</value>
   </data>
@@ -1096,8 +1672,392 @@
   <data name="null_data_text" xml:space="preserve">
     <value>N/A</value>
   </data>
+  <data name="open_meteo_weather_models_0" xml:space="preserve">
+    <value>Best match</value>
+  </data>
+  <data name="open_meteo_weather_models_1" xml:space="preserve">
+    <value>ECMWF IFS HRES 9 km</value>
+  </data>
+  <data name="open_meteo_weather_models_10" xml:space="preserve">
+    <value>NCEP NAM U.S. Conus</value>
+  </data>
+  <data name="open_meteo_weather_models_11" xml:space="preserve">
+    <value>NCEP AIGFS 0.25°</value>
+  </data>
+  <data name="open_meteo_weather_models_12" xml:space="preserve">
+    <value>NCEP HGEFS 0.25° Ensemble Mean</value>
+  </data>
+  <data name="open_meteo_weather_models_13" xml:space="preserve">
+    <value>JMA Seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_14" xml:space="preserve">
+    <value>JMA MSM</value>
+  </data>
+  <data name="open_meteo_weather_models_15" xml:space="preserve">
+    <value>JMA GSM</value>
+  </data>
+  <data name="open_meteo_weather_models_16" xml:space="preserve">
+    <value>KMA Seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_17" xml:space="preserve">
+    <value>KMA LDPS</value>
+  </data>
+  <data name="open_meteo_weather_models_18" xml:space="preserve">
+    <value>KMA GDPS</value>
+  </data>
+  <data name="open_meteo_weather_models_19" xml:space="preserve">
+    <value>DWD ICON Seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_2" xml:space="preserve">
+    <value>ECMWF IFS 0.25°</value>
+  </data>
+  <data name="open_meteo_weather_models_20" xml:space="preserve">
+    <value>DWD ICON Global</value>
+  </data>
+  <data name="open_meteo_weather_models_21" xml:space="preserve">
+    <value>DWD ICON EU</value>
+  </data>
+  <data name="open_meteo_weather_models_22" xml:space="preserve">
+    <value>DWD ICON D2</value>
+  </data>
+  <data name="open_meteo_weather_models_23" xml:space="preserve">
+    <value>GEM Seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_24" xml:space="preserve">
+    <value>GEM Global</value>
+  </data>
+  <data name="open_meteo_weather_models_25" xml:space="preserve">
+    <value>GEM Regional</value>
+  </data>
+  <data name="open_meteo_weather_models_26" xml:space="preserve">
+    <value>GEM HRDPS Continental</value>
+  </data>
+  <data name="open_meteo_weather_models_27" xml:space="preserve">
+    <value>GEM HRDPS West</value>
+  </data>
+  <data name="open_meteo_weather_models_28" xml:space="preserve">
+    <value>Météo-France Seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_29" xml:space="preserve">
+    <value>Météo-France ARPEGE World</value>
+  </data>
+  <data name="open_meteo_weather_models_3" xml:space="preserve">
+    <value>ECMWF AIFS 0.25° Single</value>
+  </data>
+  <data name="open_meteo_weather_models_30" xml:space="preserve">
+    <value>Météo-France ARPEGE Europe</value>
+  </data>
+  <data name="open_meteo_weather_models_31" xml:space="preserve">
+    <value>Météo-France AROME France</value>
+  </data>
+  <data name="open_meteo_weather_models_32" xml:space="preserve">
+    <value>Météo-France AROME France HD</value>
+  </data>
+  <data name="open_meteo_weather_models_33" xml:space="preserve">
+    <value>ItaliaMeteo ARPAE ICON 2I</value>
+  </data>
+  <data name="open_meteo_weather_models_34" xml:space="preserve">
+    <value>MET Norway Nordic (with ECMWF) Seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_35" xml:space="preserve">
+    <value>MET Norway Nordic</value>
+  </data>
+  <data name="open_meteo_weather_models_36" xml:space="preserve">
+    <value>KNMI (with ECMWF) Seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_37" xml:space="preserve">
+    <value>KNMI HARMONIE-AROME Europe</value>
+  </data>
+  <data name="open_meteo_weather_models_38" xml:space="preserve">
+    <value>KNMI HARMONIE-AROME Netherlands</value>
+  </data>
+  <data name="open_meteo_weather_models_39" xml:space="preserve">
+    <value>DMI (with ECMWF) Seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_4" xml:space="preserve">
+    <value>CMA GRAPES Global</value>
+  </data>
+  <data name="open_meteo_weather_models_40" xml:space="preserve">
+    <value>DMI HARMONIE-AROME Europe</value>
+  </data>
+  <data name="open_meteo_weather_models_41" xml:space="preserve">
+    <value>UK Met Office Seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_42" xml:space="preserve">
+    <value>UK Met Office Global 10 km</value>
+  </data>
+  <data name="open_meteo_weather_models_43" xml:space="preserve">
+    <value>UK Met Office UK 2 km</value>
+  </data>
+  <data name="open_meteo_weather_models_44" xml:space="preserve">
+    <value>MeteoSwiss ICON Seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_45" xml:space="preserve">
+    <value>MeteoSwiss ICON CH1</value>
+  </data>
+  <data name="open_meteo_weather_models_46" xml:space="preserve">
+    <value>MeteoSwiss ICON CH2</value>
+  </data>
+  <data name="open_meteo_weather_models_47" xml:space="preserve">
+    <value>GeoSphere (with ECMWF) Seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_48" xml:space="preserve">
+    <value>GeoSphere AROME Austria</value>
+  </data>
+  <data name="open_meteo_weather_models_49" xml:space="preserve">
+    <value>CHMI Aladin Seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_5" xml:space="preserve">
+    <value>BOM ACCESS Global</value>
+  </data>
+  <data name="open_meteo_weather_models_50" xml:space="preserve">
+    <value>CHMI Aladin Central Europe 2 km</value>
+  </data>
+  <data name="open_meteo_weather_models_51" xml:space="preserve">
+    <value>CHMI Aladin CZ 1 km</value>
+  </data>
+  <data name="open_meteo_weather_models_6" xml:space="preserve">
+    <value>NCEP GFS Seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_7" xml:space="preserve">
+    <value>NCEP GFS Global 0.11° / 0.25°</value>
+  </data>
+  <data name="open_meteo_weather_models_8" xml:space="preserve">
+    <value>NCEP HRRR U.S. Conus</value>
+  </data>
+  <data name="open_meteo_weather_models_9" xml:space="preserve">
+    <value>NCEP NBM U.S. Conus</value>
+  </data>
+  <data name="open_meteo_weather_models_values_0" xml:space="preserve">
+    <value>best_match</value>
+  </data>
+  <data name="open_meteo_weather_models_values_1" xml:space="preserve">
+    <value>ecmwf_ifs</value>
+  </data>
+  <data name="open_meteo_weather_models_values_10" xml:space="preserve">
+    <value>ncep_nam_conus</value>
+  </data>
+  <data name="open_meteo_weather_models_values_11" xml:space="preserve">
+    <value>ncep_aigfs025</value>
+  </data>
+  <data name="open_meteo_weather_models_values_12" xml:space="preserve">
+    <value>ncep_hgefs025_ensemble_mean</value>
+  </data>
+  <data name="open_meteo_weather_models_values_13" xml:space="preserve">
+    <value>jma_seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_values_14" xml:space="preserve">
+    <value>jma_msm</value>
+  </data>
+  <data name="open_meteo_weather_models_values_15" xml:space="preserve">
+    <value>jma_gsm</value>
+  </data>
+  <data name="open_meteo_weather_models_values_16" xml:space="preserve">
+    <value>kma_seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_values_17" xml:space="preserve">
+    <value>kma_ldps</value>
+  </data>
+  <data name="open_meteo_weather_models_values_18" xml:space="preserve">
+    <value>kma_gdps</value>
+  </data>
+  <data name="open_meteo_weather_models_values_19" xml:space="preserve">
+    <value>dwd_icon_seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_values_2" xml:space="preserve">
+    <value>ecmwf_ifs025</value>
+  </data>
+  <data name="open_meteo_weather_models_values_20" xml:space="preserve">
+    <value>dwd_icon_global</value>
+  </data>
+  <data name="open_meteo_weather_models_values_21" xml:space="preserve">
+    <value>dwd_icon_eu</value>
+  </data>
+  <data name="open_meteo_weather_models_values_22" xml:space="preserve">
+    <value>dwd_icon_d2</value>
+  </data>
+  <data name="open_meteo_weather_models_values_23" xml:space="preserve">
+    <value>cmc_gem_seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_values_24" xml:space="preserve">
+    <value>cmc_gem_gdps</value>
+  </data>
+  <data name="open_meteo_weather_models_values_25" xml:space="preserve">
+    <value>cmc_gem_rdps</value>
+  </data>
+  <data name="open_meteo_weather_models_values_26" xml:space="preserve">
+    <value>cmc_gem_hrdps</value>
+  </data>
+  <data name="open_meteo_weather_models_values_27" xml:space="preserve">
+    <value>cmc_gem_hrdps_west</value>
+  </data>
+  <data name="open_meteo_weather_models_values_28" xml:space="preserve">
+    <value>meteofrance_seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_values_29" xml:space="preserve">
+    <value>meteofrance_arpege_world</value>
+  </data>
+  <data name="open_meteo_weather_models_values_3" xml:space="preserve">
+    <value>ecmwf_aifs025_single</value>
+  </data>
+  <data name="open_meteo_weather_models_values_30" xml:space="preserve">
+    <value>meteofrance_arpege_europe</value>
+  </data>
+  <data name="open_meteo_weather_models_values_31" xml:space="preserve">
+    <value>meteofrance_arome_france</value>
+  </data>
+  <data name="open_meteo_weather_models_values_32" xml:space="preserve">
+    <value>meteofrance_arome_france_hd</value>
+  </data>
+  <data name="open_meteo_weather_models_values_33" xml:space="preserve">
+    <value>italia_meteo_arpae_icon_2i</value>
+  </data>
+  <data name="open_meteo_weather_models_values_34" xml:space="preserve">
+    <value>metno_seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_values_35" xml:space="preserve">
+    <value>metno_nordic</value>
+  </data>
+  <data name="open_meteo_weather_models_values_36" xml:space="preserve">
+    <value>knmi_seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_values_37" xml:space="preserve">
+    <value>knmi_harmonie_arome_europe</value>
+  </data>
+  <data name="open_meteo_weather_models_values_38" xml:space="preserve">
+    <value>knmi_harmonie_arome_netherlands</value>
+  </data>
+  <data name="open_meteo_weather_models_values_39" xml:space="preserve">
+    <value>dmi_seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_values_4" xml:space="preserve">
+    <value>cma_grapes_global</value>
+  </data>
+  <data name="open_meteo_weather_models_values_40" xml:space="preserve">
+    <value>dmi_harmonie_arome_europe</value>
+  </data>
+  <data name="open_meteo_weather_models_values_41" xml:space="preserve">
+    <value>ukmo_seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_values_42" xml:space="preserve">
+    <value>ukmo_global_deterministic_10km</value>
+  </data>
+  <data name="open_meteo_weather_models_values_43" xml:space="preserve">
+    <value>ukmo_uk_deterministic_2km</value>
+  </data>
+  <data name="open_meteo_weather_models_values_44" xml:space="preserve">
+    <value>meteoswiss_icon_seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_values_45" xml:space="preserve">
+    <value>meteoswiss_icon_ch1</value>
+  </data>
+  <data name="open_meteo_weather_models_values_46" xml:space="preserve">
+    <value>meteoswiss_icon_ch2</value>
+  </data>
+  <data name="open_meteo_weather_models_values_47" xml:space="preserve">
+    <value>geosphere_seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_values_48" xml:space="preserve">
+    <value>geosphere_arome_austria</value>
+  </data>
+  <data name="open_meteo_weather_models_values_49" xml:space="preserve">
+    <value>chmi_aladin_seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_values_5" xml:space="preserve">
+    <value>bom_access_global</value>
+  </data>
+  <data name="open_meteo_weather_models_values_50" xml:space="preserve">
+    <value>chmi_aladin_central_europe_2km</value>
+  </data>
+  <data name="open_meteo_weather_models_values_51" xml:space="preserve">
+    <value>chmi_aladin_cz_1km</value>
+  </data>
+  <data name="open_meteo_weather_models_values_6" xml:space="preserve">
+    <value>ncep_gfs_seamless</value>
+  </data>
+  <data name="open_meteo_weather_models_values_7" xml:space="preserve">
+    <value>ncep_gfs_global</value>
+  </data>
+  <data name="open_meteo_weather_models_values_8" xml:space="preserve">
+    <value>ncep_hrrr_conus</value>
+  </data>
+  <data name="open_meteo_weather_models_values_9" xml:space="preserve">
+    <value>ncep_nbm_conus</value>
+  </data>
+  <data name="openmeteo_weather_text_clear_sky" xml:space="preserve">
+    <value>Ciel dégagé</value>
+  </data>
   <data name="openmeteo_weather_text_depositing_rime_fog" xml:space="preserve">
     <value>Dépôt d’un brouillard de givre</value>
+  </data>
+  <data name="openmeteo_weather_text_drizzle_dense_intensity" xml:space="preserve">
+    <value>Bruine forte</value>
+  </data>
+  <data name="openmeteo_weather_text_drizzle_light_intensity" xml:space="preserve">
+    <value>Bruine légère</value>
+  </data>
+  <data name="openmeteo_weather_text_drizzle_moderate_intensity" xml:space="preserve">
+    <value>Bruine modérée</value>
+  </data>
+  <data name="openmeteo_weather_text_fog" xml:space="preserve">
+    <value>Brouillard</value>
+  </data>
+  <data name="openmeteo_weather_text_freezing_drizzle_dense_intensity" xml:space="preserve">
+    <value>Bruine verglaçante forte</value>
+  </data>
+  <data name="openmeteo_weather_text_freezing_drizzle_light_intensity" xml:space="preserve">
+    <value>Bruine verglaçante légère</value>
+  </data>
+  <data name="openmeteo_weather_text_freezing_rain_heavy_intensity" xml:space="preserve">
+    <value>Pluie verglaçante forte</value>
+  </data>
+  <data name="openmeteo_weather_text_freezing_rain_light_intensity" xml:space="preserve">
+    <value>Pluie verglaçante légère</value>
+  </data>
+  <data name="openmeteo_weather_text_mainly_clear" xml:space="preserve">
+    <value>Principalement dégagé</value>
+  </data>
+  <data name="openmeteo_weather_text_overcast" xml:space="preserve">
+    <value>Couvert</value>
+  </data>
+  <data name="openmeteo_weather_text_partly_cloudy" xml:space="preserve">
+    <value>Partiellement couvert</value>
+  </data>
+  <data name="openmeteo_weather_text_rain_heavy_intensity" xml:space="preserve">
+    <value>Pluie forte</value>
+  </data>
+  <data name="openmeteo_weather_text_rain_moderate_intensity" xml:space="preserve">
+    <value>Pluie modérée</value>
+  </data>
+  <data name="openmeteo_weather_text_rain_showers_moderate" xml:space="preserve">
+    <value>Averses de pluie modérées</value>
+  </data>
+  <data name="openmeteo_weather_text_rain_showers_slight" xml:space="preserve">
+    <value>Averses de pluie légères</value>
+  </data>
+  <data name="openmeteo_weather_text_rain_showers_violent" xml:space="preserve">
+    <value>Averses de pluie fortes</value>
+  </data>
+  <data name="openmeteo_weather_text_rain_slight_intensity" xml:space="preserve">
+    <value>Pluie faible</value>
+  </data>
+  <data name="openmeteo_weather_text_snow_grains" xml:space="preserve">
+    <value>Neige en grains</value>
+  </data>
+  <data name="openmeteo_weather_text_snow_heavy_intensity" xml:space="preserve">
+    <value>Neige forte</value>
+  </data>
+  <data name="openmeteo_weather_text_snow_moderate_intensity" xml:space="preserve">
+    <value>Neige modérée</value>
+  </data>
+  <data name="openmeteo_weather_text_snow_showers_heavy" xml:space="preserve">
+    <value>Averses de neige fortes</value>
+  </data>
+  <data name="openmeteo_weather_text_snow_showers_slight" xml:space="preserve">
+    <value>Averses de neige légères</value>
+  </data>
+  <data name="openmeteo_weather_text_snow_slight_intensity" xml:space="preserve">
+    <value>Neige légère</value>
   </data>
   <data name="openmeteo_weather_text_thunderstorm_slight_or_moderate" xml:space="preserve">
     <value>Orage léger ou modéré</value>
@@ -1171,6 +2131,21 @@
   <data name="pollen_level_5" xml:space="preserve">
     <value>Très fort</value>
   </data>
+  <data name="pollen_levels_0" xml:space="preserve">
+    <value>Négligeable</value>
+  </data>
+  <data name="pollen_levels_1" xml:space="preserve">
+    <value>Faible</value>
+  </data>
+  <data name="pollen_levels_2" xml:space="preserve">
+    <value>Modéré</value>
+  </data>
+  <data name="pollen_levels_3" xml:space="preserve">
+    <value>Fort</value>
+  </data>
+  <data name="pollen_levels_4" xml:space="preserve">
+    <value>Très fort</value>
+  </data>
   <data name="pollen_mold" xml:space="preserve">
     <value>Moisissure</value>
   </data>
@@ -1191,6 +2166,21 @@
   </data>
   <data name="pollen_poaeceae" xml:space="preserve">
     <value>Graminées</value>
+  </data>
+  <data name="pollen_polleninfo_levels_0" xml:space="preserve">
+    <value>Aucun</value>
+  </data>
+  <data name="pollen_polleninfo_levels_1" xml:space="preserve">
+    <value>Faible</value>
+  </data>
+  <data name="pollen_polleninfo_levels_2" xml:space="preserve">
+    <value>Modéré</value>
+  </data>
+  <data name="pollen_polleninfo_levels_3" xml:space="preserve">
+    <value>Fort</value>
+  </data>
+  <data name="pollen_polleninfo_levels_4" xml:space="preserve">
+    <value>Très fort</value>
   </data>
   <data name="pollen_populus" xml:space="preserve">
     <value>Peuplier</value>
@@ -1287,6 +2277,9 @@
   </data>
   <data name="pressure_about_description2" xml:space="preserve">
     <value>Les variations importantes et rapides de la pression sont utilisées pour prévoir les changements météorologiques. Par exemple, une baisse de pression peut signifier que de la pluie ou de la neige se prépare, et une hausse de pression peut signifier que le temps va s’améliorer. Une pression atmosphérique anormale peut provoquer, entre autres, des maux de tête, des douleurs articulaires et de la fatigue.</value>
+  </data>
+  <data name="pressure_average" xml:space="preserve">
+    <value>Moyenne</value>
   </data>
   <data name="pressure_falling" xml:space="preserve">
     <value>En baisse</value>
@@ -1386,6 +2379,9 @@
   </data>
   <data name="settings_background_updates_refresh_title" xml:space="preserve">
     <value>Fréquence de rafraîchissement</value>
+  </data>
+  <data name="settings_background_updates_section_general" xml:space="preserve">
+    <value>Général</value>
   </data>
   <data name="settings_background_updates_section_troubleshoot" xml:space="preserve">
     <value>Résolution de problèmes</value>
@@ -1519,8 +2515,14 @@
   <data name="settings_location_access_switch_title" xml:space="preserve">
     <value>Accès à la position</value>
   </data>
+  <data name="settings_location_section_general" xml:space="preserve">
+    <value>Général</value>
+  </data>
   <data name="settings_location_service" xml:space="preserve">
     <value>Service de localisation</value>
+  </data>
+  <data name="settings_location_source_baidu_ip_api_key" xml:space="preserve">
+    <value>Clé API</value>
   </data>
   <data name="settings_location_summary" xml:space="preserve">
     <value>Paramètres des services de localisation</value>
@@ -1618,6 +2620,9 @@
   <data name="settings_modules_notification_widget_title" xml:space="preserve">
     <value>Notification widget</value>
   </data>
+  <data name="settings_modules_section_general" xml:space="preserve">
+    <value>Général</value>
+  </data>
   <data name="settings_modules_section_notification_widget" xml:space="preserve">
     <value>Notification widget</value>
   </data>
@@ -1666,6 +2671,9 @@
   <data name="settings_notifications_section_forecast" xml:space="preserve">
     <value>Prévisions</value>
   </data>
+  <data name="settings_notifications_section_general" xml:space="preserve">
+    <value>Général</value>
+  </data>
   <data name="settings_notifications_summary" xml:space="preserve">
     <value>Notifications de vigilances météo, précipitations ou prévisions pour le premier emplacement</value>
   </data>
@@ -1692,6 +2700,9 @@
   </data>
   <data name="settings_source_default_value" xml:space="preserve">
     <value>Par défaut (inchangé)</value>
+  </data>
+  <data name="settings_source_geonames_api_key" xml:space="preserve">
+    <value>Clé API</value>
   </data>
   <data name="settings_source_instance" xml:space="preserve">
     <value>Instance</value>
@@ -1729,14 +2740,113 @@
   <data name="settings_units_temperature" xml:space="preserve">
     <value>Unité de température</value>
   </data>
+  <data name="settings_weather_source_accu_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_aemet_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_anam_bf_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_anamet_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_atmo_aura_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_atmo_france_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_atmo_grand_est_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_atmo_hdf_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_atmo_sud_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_bmkg_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_bright_sky_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
   <data name="settings_weather_source_current_position_disclaimer" xml:space="preserve">
     <value>D’autres sources pourraient devenir disponibles pour votre emplacement après une première mise à jour.</value>
+  </data>
+  <data name="settings_weather_source_cwa_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_dccms_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_dmn_ne_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_dwr_gm_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_eccc_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_ethiomet_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_fpas_instance" xml:space="preserve">
+    <value>Instance</value>
   </data>
   <data name="settings_weather_source_freenet_disclaimer" xml:space="preserve">
     <value>Vous utilisez la version Freenet de l’application. Passez à la version Standard si vous souhaitez pouvoir utiliser des services réseau non libres.</value>
   </data>
+  <data name="settings_weather_source_gmet_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_here_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_igebu_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_imngb_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_infoplaza_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_knmi_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_mali_meteo_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_met_ie_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_met_office_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_meteo_benin_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_meteo_tchad_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_mettelsat_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_mf_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_msd_zw_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
   <data name="settings_weather_source_no_longer_exists" xml:space="preserve">
     <value>{0} (n’existe plus)</value>
+  </data>
+  <data name="settings_weather_source_nominatim_instance" xml:space="preserve">
+    <value>Instance</value>
   </data>
   <data name="settings_weather_source_non_freenet" xml:space="preserve">
     <value>{0} (service réseau non libre)</value>
@@ -1753,6 +2863,9 @@
   <data name="settings_weather_source_open_meteo_instance_forecast" xml:space="preserve">
     <value>Instance des prévisions</value>
   </data>
+  <data name="settings_weather_source_open_meteo_instance_geocoding" xml:space="preserve">
+    <value>Instance de géocodage</value>
+  </data>
   <data name="settings_weather_source_open_meteo_weather_models" xml:space="preserve">
     <value>Modèles météo</value>
   </data>
@@ -1768,8 +2881,29 @@
   <data name="settings_weather_source_open_meteo_weather_models_seamless_description" xml:space="preserve">
     <value>Combine tous les modèles météo de ce fournisseur en une prévision homogène</value>
   </data>
+  <data name="settings_weather_source_open_weather_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_pirate_weather_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
+  <data name="settings_weather_source_pirate_weather_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_polleninfo_api_key" xml:space="preserve">
+    <value>Clé API</value>
+  </data>
   <data name="settings_weather_source_portal" xml:space="preserve">
     <value>Portail</value>
+  </data>
+  <data name="settings_weather_source_sma_sc_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_sma_su_instance" xml:space="preserve">
+    <value>Instance</value>
+  </data>
+  <data name="settings_weather_source_ssms_instance" xml:space="preserve">
+    <value>Instance</value>
   </data>
   <data name="settings_weather_source_unavailable" xml:space="preserve">
     <value>{0} (indisponible)</value>
@@ -1783,6 +2917,9 @@
   <data name="settings_weather_sources_per_location_summary" xml:space="preserve">
     <value>Personnalisez les sources de données météo utilisées pour cet emplacement</value>
   </data>
+  <data name="settings_weather_sources_section_general" xml:space="preserve">
+    <value>Général</value>
+  </data>
   <data name="settings_weather_sources_summary" xml:space="preserve">
     <value>Source météo par défaut pour les nouveaux emplacements, clés API personnalisées, autres paramètres de source</value>
   </data>
@@ -1791,6 +2928,39 @@
   </data>
   <data name="sunshine_duration" xml:space="preserve">
     <value>Durée d’ensoleillement</value>
+  </data>
+  <data name="tag_aqi" xml:space="preserve">
+    <value>Qualité de l’air</value>
+  </data>
+  <data name="tag_cloud_cover" xml:space="preserve">
+    <value>Couverture nuageuse</value>
+  </data>
+  <data name="tag_feels_like" xml:space="preserve">
+    <value>Ressenti</value>
+  </data>
+  <data name="tag_humidity_dew_point" xml:space="preserve">
+    <value>Humidité / Point de rosée</value>
+  </data>
+  <data name="tag_precipitation" xml:space="preserve">
+    <value>Précipitation</value>
+  </data>
+  <data name="tag_pressure" xml:space="preserve">
+    <value>Pression</value>
+  </data>
+  <data name="tag_sunshine" xml:space="preserve">
+    <value>Ensoleillement</value>
+  </data>
+  <data name="tag_temperature" xml:space="preserve">
+    <value>Conditions</value>
+  </data>
+  <data name="tag_uv" xml:space="preserve">
+    <value>Indice UV</value>
+  </data>
+  <data name="tag_visibility" xml:space="preserve">
+    <value>Visibilité</value>
+  </data>
+  <data name="tag_wind" xml:space="preserve">
+    <value>Vent</value>
   </data>
   <data name="temperature" xml:space="preserve">
     <value>Température</value>
@@ -1876,6 +3046,12 @@
   <data name="uv_index_about_description" xml:space="preserve">
     <value>L’indice UV mesure l’intensité du rayonnement ultraviolet émis par le soleil. Plus elle est élevée, plus elle risque de provoquer rapidement des coups de soleil, des cancers de la peau et des lésions oculaires.</value>
   </data>
+  <data name="uv_index_description" xml:space="preserve">
+    <value>Description</value>
+  </data>
+  <data name="uv_index_maximum_value" xml:space="preserve">
+    <value>Valeur maximale</value>
+  </data>
   <data name="uv_index_scale" xml:space="preserve">
     <value>Échelle de l’indice UV</value>
   </data>
@@ -1945,11 +3121,32 @@
   <data name="weather_api_unauthorized_title" xml:space="preserve">
     <value>Accès API non autorisé</value>
   </data>
+  <data name="weather_kind_clear" xml:space="preserve">
+    <value>Ciel dégagé</value>
+  </data>
+  <data name="weather_kind_cloudy" xml:space="preserve">
+    <value>Nuageux</value>
+  </data>
+  <data name="weather_kind_fog" xml:space="preserve">
+    <value>Brouillard</value>
+  </data>
   <data name="weather_kind_hail" xml:space="preserve">
     <value>Grêle</value>
   </data>
   <data name="weather_kind_haze" xml:space="preserve">
     <value>Brume sèche</value>
+  </data>
+  <data name="weather_kind_partly_cloudy" xml:space="preserve">
+    <value>Partiellement couvert</value>
+  </data>
+  <data name="weather_kind_rain" xml:space="preserve">
+    <value>Pluie</value>
+  </data>
+  <data name="weather_kind_sleet" xml:space="preserve">
+    <value>Neige mouillée</value>
+  </data>
+  <data name="weather_kind_snow" xml:space="preserve">
+    <value>Neige</value>
   </data>
   <data name="weather_kind_thunder" xml:space="preserve">
     <value>Tonnerre</value>
@@ -2026,6 +3223,48 @@
   <data name="weather_source_recommended" xml:space="preserve">
     <value>Recommandations</value>
   </data>
+  <data name="week_icon_mode_values_0" xml:space="preserve">
+    <value>auto</value>
+  </data>
+  <data name="week_icon_mode_values_1" xml:space="preserve">
+    <value>day</value>
+  </data>
+  <data name="week_icon_mode_values_2" xml:space="preserve">
+    <value>night</value>
+  </data>
+  <data name="week_icon_modes_0" xml:space="preserve">
+    <value>Jour / Nuit</value>
+  </data>
+  <data name="week_icon_modes_1" xml:space="preserve">
+    <value>Toujours de jour</value>
+  </data>
+  <data name="week_icon_modes_2" xml:space="preserve">
+    <value>Toujours de nuit</value>
+  </data>
+  <data name="widget_card_style_values_0" xml:space="preserve">
+    <value>none</value>
+  </data>
+  <data name="widget_card_style_values_1" xml:space="preserve">
+    <value>auto</value>
+  </data>
+  <data name="widget_card_style_values_2" xml:space="preserve">
+    <value>light</value>
+  </data>
+  <data name="widget_card_style_values_3" xml:space="preserve">
+    <value>dark</value>
+  </data>
+  <data name="widget_card_styles_0" xml:space="preserve">
+    <value>Aucun</value>
+  </data>
+  <data name="widget_card_styles_1" xml:space="preserve">
+    <value>Automatique</value>
+  </data>
+  <data name="widget_card_styles_2" xml:space="preserve">
+    <value>Clair</value>
+  </data>
+  <data name="widget_card_styles_3" xml:space="preserve">
+    <value>Sombre</value>
+  </data>
   <data name="widget_clock_day_details" xml:space="preserve">
     <value>Horloge + Jours (détaillé)</value>
   </data>
@@ -2049,6 +3288,30 @@
   </data>
   <data name="widget_clock_font_sans_serif_light" xml:space="preserve">
     <value>Sans Serif Light</value>
+  </data>
+  <data name="widget_clock_font_values_0" xml:space="preserve">
+    <value>light</value>
+  </data>
+  <data name="widget_clock_font_values_1" xml:space="preserve">
+    <value>normal</value>
+  </data>
+  <data name="widget_clock_font_values_2" xml:space="preserve">
+    <value>black</value>
+  </data>
+  <data name="widget_clock_font_values_3" xml:space="preserve">
+    <value>analog</value>
+  </data>
+  <data name="widget_clock_fonts_0" xml:space="preserve">
+    <value>Sans Serif Light</value>
+  </data>
+  <data name="widget_clock_fonts_1" xml:space="preserve">
+    <value>Sans Serif</value>
+  </data>
+  <data name="widget_clock_fonts_2" xml:space="preserve">
+    <value>Sans Serif Black</value>
+  </data>
+  <data name="widget_clock_fonts_3" xml:space="preserve">
+    <value>Analogue</value>
   </data>
   <data name="widget_custom_subtitle_alert_box_title" xml:space="preserve">
     <value>Aide du sous-titre personnalisé</value>
@@ -2120,6 +3383,9 @@ Par example, « La météo actuelle est : $cw$. » s’affichera « La météo a
   </data>
   <data name="widget_custom_subtitle_keyword_lat_description" xml:space="preserve">
     <value>Latitude</value>
+  </data>
+  <data name="widget_custom_subtitle_keyword_lc_description" xml:space="preserve">
+    <value>Calendrier alternatif</value>
   </data>
   <data name="widget_custom_subtitle_keyword_lon_description" xml:space="preserve">
     <value>Longitude</value>
@@ -2277,8 +3543,83 @@ Par example, « La météo actuelle est : $cw$. » s’affichera « La météo a
   <data name="widget_style_tile" xml:space="preserve">
     <value>Carreau</value>
   </data>
+  <data name="widget_style_values_0" xml:space="preserve">
+    <value>rectangle</value>
+  </data>
+  <data name="widget_style_values_1" xml:space="preserve">
+    <value>symmetry</value>
+  </data>
+  <data name="widget_style_values_2" xml:space="preserve">
+    <value>tile</value>
+  </data>
+  <data name="widget_style_values_3" xml:space="preserve">
+    <value>mini</value>
+  </data>
+  <data name="widget_style_values_4" xml:space="preserve">
+    <value>nano</value>
+  </data>
+  <data name="widget_style_values_5" xml:space="preserve">
+    <value>pixel</value>
+  </data>
+  <data name="widget_style_values_6" xml:space="preserve">
+    <value>vertical</value>
+  </data>
+  <data name="widget_style_values_7" xml:space="preserve">
+    <value>oreo</value>
+  </data>
+  <data name="widget_style_values_8" xml:space="preserve">
+    <value>temp</value>
+  </data>
   <data name="widget_style_vertical" xml:space="preserve">
     <value>Vertical</value>
+  </data>
+  <data name="widget_styles_0" xml:space="preserve">
+    <value>Rectangle</value>
+  </data>
+  <data name="widget_styles_1" xml:space="preserve">
+    <value>Symétrie</value>
+  </data>
+  <data name="widget_styles_2" xml:space="preserve">
+    <value>Carreau</value>
+  </data>
+  <data name="widget_styles_3" xml:space="preserve">
+    <value>Mini</value>
+  </data>
+  <data name="widget_styles_4" xml:space="preserve">
+    <value>Nano</value>
+  </data>
+  <data name="widget_styles_5" xml:space="preserve">
+    <value>Pixel</value>
+  </data>
+  <data name="widget_styles_6" xml:space="preserve">
+    <value>Vertical</value>
+  </data>
+  <data name="widget_styles_7" xml:space="preserve">
+    <value>Oreo</value>
+  </data>
+  <data name="widget_styles_8" xml:space="preserve">
+    <value>Température</value>
+  </data>
+  <data name="widget_subtitle_data_0" xml:space="preserve">
+    <value>Heure de rafraichissement</value>
+  </data>
+  <data name="widget_subtitle_data_1" xml:space="preserve">
+    <value>Qualité de l’air</value>
+  </data>
+  <data name="widget_subtitle_data_2" xml:space="preserve">
+    <value>Vent</value>
+  </data>
+  <data name="widget_subtitle_data_3" xml:space="preserve">
+    <value>Température ressentie</value>
+  </data>
+  <data name="widget_subtitle_data_4" xml:space="preserve">
+    <value>Calendrier alternatif</value>
+  </data>
+  <data name="widget_subtitle_data_5" xml:space="preserve">
+    <value>Personnalisé</value>
+  </data>
+  <data name="widget_subtitle_data_alternate_calendar" xml:space="preserve">
+    <value>Calendrier alternatif</value>
   </data>
   <data name="widget_subtitle_data_aqi" xml:space="preserve">
     <value>Qualité de l’air</value>
@@ -2292,11 +3633,47 @@ Par example, « La météo actuelle est : $cw$. » s’affichera « La météo a
   <data name="widget_subtitle_data_time" xml:space="preserve">
     <value>Heure de rafraichissement</value>
   </data>
+  <data name="widget_subtitle_data_values_0" xml:space="preserve">
+    <value>time</value>
+  </data>
+  <data name="widget_subtitle_data_values_1" xml:space="preserve">
+    <value>aqi</value>
+  </data>
+  <data name="widget_subtitle_data_values_2" xml:space="preserve">
+    <value>wind</value>
+  </data>
+  <data name="widget_subtitle_data_values_3" xml:space="preserve">
+    <value>feels_like</value>
+  </data>
+  <data name="widget_subtitle_data_values_4" xml:space="preserve">
+    <value>lunar</value>
+  </data>
+  <data name="widget_subtitle_data_values_5" xml:space="preserve">
+    <value>custom</value>
+  </data>
   <data name="widget_subtitle_data_wind" xml:space="preserve">
     <value>Vent</value>
   </data>
   <data name="widget_text" xml:space="preserve">
     <value>Textuel</value>
+  </data>
+  <data name="widget_text_color_values_0" xml:space="preserve">
+    <value>light</value>
+  </data>
+  <data name="widget_text_color_values_1" xml:space="preserve">
+    <value>dark</value>
+  </data>
+  <data name="widget_text_color_values_2" xml:space="preserve">
+    <value>auto</value>
+  </data>
+  <data name="widget_text_colors_0" xml:space="preserve">
+    <value>Clair</value>
+  </data>
+  <data name="widget_text_colors_1" xml:space="preserve">
+    <value>Sombre</value>
+  </data>
+  <data name="widget_text_colors_2" xml:space="preserve">
+    <value>Automatique</value>
   </data>
   <data name="widget_trend_daily" xml:space="preserve">
     <value>Tendances quotidiennes</value>
@@ -2312,6 +3689,18 @@ Par example, « La météo actuelle est : $cw$. » s’affichera « La météo a
   </data>
   <data name="widget_week_style_5_days" xml:space="preserve">
     <value>5 jours</value>
+  </data>
+  <data name="widget_week_style_values_0" xml:space="preserve">
+    <value>5_days</value>
+  </data>
+  <data name="widget_week_style_values_1" xml:space="preserve">
+    <value>3_days</value>
+  </data>
+  <data name="widget_week_styles_0" xml:space="preserve">
+    <value>5 jours</value>
+  </data>
+  <data name="widget_week_styles_1" xml:space="preserve">
+    <value>3 jours</value>
   </data>
   <data name="wind" xml:space="preserve">
     <value>Vent</value>
@@ -2418,7 +3807,49 @@ Par example, « La météo actuelle est : $cw$. » s’affichera « La météo a
   <data name="wind_strength_9" xml:space="preserve">
     <value>Fort coup de vent</value>
   </data>
+  <data name="wind_strength_descriptions_0" xml:space="preserve">
+    <value>Calme</value>
+  </data>
+  <data name="wind_strength_descriptions_1" xml:space="preserve">
+    <value>Très légère brise</value>
+  </data>
+  <data name="wind_strength_descriptions_10" xml:space="preserve">
+    <value>Tempête</value>
+  </data>
+  <data name="wind_strength_descriptions_11" xml:space="preserve">
+    <value>Violente tempête</value>
+  </data>
+  <data name="wind_strength_descriptions_12" xml:space="preserve">
+    <value>Vent d’ouragan</value>
+  </data>
+  <data name="wind_strength_descriptions_2" xml:space="preserve">
+    <value>Légère brise</value>
+  </data>
+  <data name="wind_strength_descriptions_3" xml:space="preserve">
+    <value>Petite brise</value>
+  </data>
+  <data name="wind_strength_descriptions_4" xml:space="preserve">
+    <value>Jolie brise</value>
+  </data>
+  <data name="wind_strength_descriptions_5" xml:space="preserve">
+    <value>Bonne brise</value>
+  </data>
+  <data name="wind_strength_descriptions_6" xml:space="preserve">
+    <value>Vent frais</value>
+  </data>
+  <data name="wind_strength_descriptions_7" xml:space="preserve">
+    <value>Grand frais</value>
+  </data>
+  <data name="wind_strength_descriptions_8" xml:space="preserve">
+    <value>Coup de vent</value>
+  </data>
+  <data name="wind_strength_descriptions_9" xml:space="preserve">
+    <value>Fort coup de vent</value>
+  </data>
   <data name="wind_strength_scale" xml:space="preserve">
     <value>Échelle de Beaufort</value>
+  </data>
+  <data name="wind_strength_scale_description" xml:space="preserve">
+    <value>Description</value>
   </data>
 </root>

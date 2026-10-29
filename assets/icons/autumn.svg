@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+<!--
+  This file is part of Libreccio Weather.
+
+  Libreccio Weather is free software: you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the Free
+  Software Foundation, version 3 of the License.
+
+  Libreccio Weather is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  more details.
+
+  You should have received a copy of the GNU General Public License along
+  with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
+-->
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="0.35">
+      <stop offset="0" stop-color="#9e0f2f"/>
+      <stop offset="0.45" stop-color="#cf2420"/>
+      <stop offset="1" stop-color="#e8461a"/>
+    </linearGradient>
+    <!-- The seasonal light stays in the top right corner, away from the mark, so the mark keeps its contrast. -->
+    <radialGradient id="accent" cx="0.94" cy="0.06" r="0.45">
+      <stop offset="0" stop-color="#ff9a1f"/>
+      <stop offset="1" stop-color="#ff9a1f" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="far-hill" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d2350f"/>
+      <stop offset="1" stop-color="#b8270d"/>
+    </linearGradient>
+    <linearGradient id="near-hill" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#9e1a12"/>
+      <stop offset="1" stop-color="#6e0f0c"/>
+    </linearGradient>
+    <clipPath id="tile"><rect width="1024" height="1024" rx="190"/></clipPath>
+  </defs>
+  <g clip-path="url(#tile)">
+    <rect width="1024" height="1024" fill="url(#sky)"/>
+    <rect width="1024" height="1024" fill="url(#accent)"/>
+    <path d="M0 560 C180 520 300 600 470 610 C640 620 800 470 1024 440 V1024 H0Z" fill="url(#far-hill)"/>
+    <path d="M0 760 C200 700 380 780 560 820 C740 860 880 800 1024 760 V1024 H0Z" fill="url(#near-hill)"/>
+    <!-- The mark is identical in every season. -->
+    <path d="M112.3 838.2C110.7 836.7 111.3 834.5 118.4 815.0C120.1 810.5 122.6 803.5 124.0 799.5C125.5 795.5 127.7 789.3 129.0 785.8C130.3 782.2 132.8 775.2 134.6 770.2C136.4 765.3 138.8 759.1 139.8 756.5C140.8 753.9 143.4 746.8 145.5 740.8C147.6 734.7 150.7 726.4 152.2 722.2C156.0 712.3 158.9 704.5 162.5 694.8C164.1 690.4 168.4 679.0 172.1 669.5C175.8 660.0 180.2 648.8 181.9 644.5C186.6 632.3 197.1 606.9 200.4 599.5C202.1 595.8 204.1 591.0 205.0 588.8C206.8 584.3 212.0 572.2 214.7 566.2C215.7 564.0 217.6 559.8 218.8 556.8C226.3 538.4 252.3 487.1 269.4 457.0C354.6 306.4 456.5 206.5 572.3 160.1C594.3 151.3 600.0 149.7 603.6 151.2C607.4 152.7 606.9 154.2 599.3 164.3C554.3 224.6 517.7 294.5 488.0 376.8C479.7 399.7 475.3 413.0 463.2 451.0C450.5 491.0 448.4 497.8 445.1 507.2C432.8 542.5 417.6 575.2 401.6 600.8C393.4 613.9 393.0 617.6 400.3 614.3C404.6 612.3 408.1 609.4 442.0 579.2C457.8 565.2 461.5 562.1 479.2 547.9C550.1 490.8 615.5 476.1 673.2 504.2C711.6 522.9 735.2 553.0 741.1 590.9C742.8 602.0 744.9 604.0 752.3 601.3C782.6 590.4 796.6 589.3 818.7 596.1C845.9 604.4 862.5 619.0 873.5 644.4C876.1 650.2 879.3 651.5 886.5 649.5C894.7 647.3 897.7 647.6 911.0 652.0C919.0 654.7 921.8 655.4 929.2 656.3C935.7 657.1 936.9 661.3 933.2 670.5C918.1 707.8 891.8 740.3 856.7 764.8C795.0 807.8 717.5 817.9 637.0 793.2C625.7 789.8 602.7 781.3 587.5 775.0C521.3 747.6 489.9 737.1 455.9 730.8C429.4 725.9 391.9 724.1 368.2 726.7C364.4 727.1 358.8 727.7 355.8 728.0C299.6 733.1 224.6 763.9 159.5 808.4C149.6 815.2 133.8 826.4 127.1 831.4C117.2 838.8 114.2 840.1 112.3 838.2Z" fill="#ffffff"/>
+  </g>
+</svg>

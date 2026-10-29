@@ -23,6 +23,26 @@
     <SolidColorBrush x:Key="OnSurfaceVariantBrush" Color="#CAC4D0" />
     <SolidColorBrush x:Key="PrimaryBrush" Color="#D0BCFF" />
     <SolidColorBrush x:Key="OutlineBrush" Color="#938F99" />
+    <SolidColorBrush x:Key="SurfaceContainerLowBrush" Color="#1D1B20" />
+    <SolidColorBrush x:Key="OnPrimaryBrush" Color="#381E72" />
+    <SolidColorBrush x:Key="PrimaryContainerBrush" Color="#4F378B" />
+    <SolidColorBrush x:Key="OnPrimaryContainerBrush" Color="#EADDFF" />
+    <SolidColorBrush x:Key="SecondaryContainerBrush" Color="#4A4458" />
+    <SolidColorBrush x:Key="OnSecondaryContainerBrush" Color="#E8DEF8" />
+    <SolidColorBrush x:Key="TertiaryBrush" Color="#EFB8C8" />
+    <SolidColorBrush x:Key="OnTertiaryBrush" Color="#492532" />
+    <SolidColorBrush x:Key="ErrorContainerBrush" Color="#8C1D18" />
+    <SolidColorBrush x:Key="OnErrorContainerBrush" Color="#F9DEDC" />
+    <SolidColorBrush x:Key="InverseSurfaceBrush" Color="#E6E0E9" />
+    <SolidColorBrush x:Key="InverseOnSurfaceBrush" Color="#322F35" />
+    <SolidColorBrush x:Key="InversePrimaryBrush" Color="#6750A4" />
+    <SolidColorBrush x:Key="ScrimBrush" Color="#99000000" />
+    <!-- Hover state layer: the content color at 8 % opacity. -->
+    <SolidColorBrush x:Key="HoverLayerBrush" Color="#14E6E0E9" />
+    <SolidColorBrush x:Key="AlertBackgroundBrush" Color="#410002" />
+    <SolidColorBrush x:Key="AlertTextBrush" Color="#FF897D" />
+
+    <Thickness x:Key="LargeMargin">20</Thickness>
 
     <Thickness x:Key="NormalMargin">16</Thickness>
     <Thickness x:Key="SmallMargin">8</Thickness>
@@ -78,6 +98,162 @@
                     <Border Background="{TemplateBinding Background}" CornerRadius="28" Padding="{TemplateBinding Padding}">
                         <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
                     </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="HeadlineSmallText" TargetType="TextBlock" BasedOn="{StaticResource OptionalText}">
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+        <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+
+    <Style x:Key="TopAppBarTitle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="22" />
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+
+    <!-- A round 48 pixel button holding one icon. -->
+    <Style x:Key="IconButton" TargetType="Button">
+        <Setter Property="Width" Value="48" />
+        <Setter Property="Height" Value="48" />
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid Background="Transparent">
+                        <Ellipse x:Name="Layer" Width="40" Height="40" Fill="Transparent" />
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Layer" Property="Fill" Value="{StaticResource HoverLayerBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="FilledButton" TargetType="Button">
+        <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource OnPrimaryBrush}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Padding" Value="24,10" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Container" Background="{TemplateBinding Background}" CornerRadius="20"
+                            BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Container" Property="Opacity" Value="0.92" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Container" Property="Opacity" Value="0.38" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="TextButton" TargetType="Button" BasedOn="{StaticResource FilledButton}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="Medium" />
+        <Setter Property="Padding" Value="12,10" />
+    </Style>
+
+    <!-- A floating action button, in the tertiary color as on Breezy Weather's location list. -->
+    <Style x:Key="FloatingActionButton" TargetType="Button">
+        <Setter Property="Width" Value="56" />
+        <Setter Property="Height" Value="56" />
+        <Setter Property="Background" Value="{StaticResource TertiaryBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource OnTertiaryBrush}" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Container" Background="{TemplateBinding Background}" CornerRadius="16">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Container" Property="Opacity" Value="0.92" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A choice in a list dialog: a radio mark followed by its name. -->
+    <Style x:Key="RadioOption" TargetType="RadioButton">
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RadioButton">
+                    <Border x:Name="Container" Background="Transparent" Padding="24,12">
+                        <StackPanel Orientation="Horizontal">
+                            <Grid Width="20" Height="20" VerticalAlignment="Center">
+                                <Ellipse x:Name="Ring" Stroke="{StaticResource OnSurfaceVariantBrush}" StrokeThickness="2" />
+                                <Ellipse x:Name="Dot" Width="10" Height="10" Fill="{StaticResource PrimaryBrush}" Visibility="Collapsed" />
+                            </Grid>
+                            <ContentPresenter Margin="16,0,0,0" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Ring" Property="Stroke" Value="{StaticResource PrimaryBrush}" />
+                            <Setter TargetName="Dot" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Container" Property="Background" Value="{StaticResource HoverLayerBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- A Material 3 switch. -->
+    <Style x:Key="Switch" TargetType="CheckBox">
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <Grid Width="52" Height="32">
+                        <Border x:Name="Track" CornerRadius="16" BorderThickness="2"
+                                Background="{StaticResource SurfaceContainerHighBrush}" BorderBrush="{StaticResource OutlineBrush}" />
+                        <Ellipse x:Name="Thumb" Width="16" Height="16" Margin="8,0" HorizontalAlignment="Left"
+                                 Fill="{StaticResource OutlineBrush}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="Track" Property="Background" Value="{StaticResource PrimaryBrush}" />
+                            <Setter TargetName="Track" Property="BorderBrush" Value="{StaticResource PrimaryBrush}" />
+                            <Setter TargetName="Thumb" Property="Fill" Value="{StaticResource OnPrimaryBrush}" />
+                            <Setter TargetName="Thumb" Property="Width" Value="24" />
+                            <Setter TargetName="Thumb" Property="Height" Value="24" />
+                            <Setter TargetName="Thumb" Property="Margin" Value="4,0" />
+                            <Setter TargetName="Thumb" Property="HorizontalAlignment" Value="Right" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.38" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

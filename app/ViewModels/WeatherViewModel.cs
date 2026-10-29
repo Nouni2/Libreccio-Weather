@@ -30,6 +30,7 @@ namespace LibreccioWeather.ViewModels;
 public sealed partial class WeatherViewModel : ObservableObject
 {
     private readonly WeatherRefresher _refresher;
+    private readonly MainViewModel _main;
     private readonly TemperatureUnit _temperatureUnit;
     private Location _location;
 
@@ -51,12 +52,19 @@ public sealed partial class WeatherViewModel : ObservableObject
     [ObservableProperty]
     private string? _errorText;
 
-    public WeatherViewModel(WeatherRefresher refresher, TemperatureUnit temperatureUnit, Location location)
+    [ObservableProperty]
+    private string? _refreshTimeText;
+
+    [ObservableProperty]
+    private string? _refreshTimeDescription;
+
+    public WeatherViewModel(WeatherRefresher refresher, MainViewModel main, Location location)
     {
         _refresher = refresher;
-        _temperatureUnit = temperatureUnit;
+        _main = main;
+        _temperatureUnit = main.Settings.GetTemperatureUnit(main.RegionCode);
         _location = location;
-        TemperatureUnitText = UnitFormatting.GetNominativeUnit(temperatureUnit);
+        TemperatureUnitText = UnitFormatting.GetNominativeUnit(_temperatureUnit);
         if (location.Weather is { } weather)
         {
             Show(weather);
@@ -65,7 +73,27 @@ public sealed partial class WeatherViewModel : ObservableObject
 
     public string Place => _location.GetPlace();
 
+    public string LocationFormattedId => _location.FormattedId;
+
+    /// <summary>
+    /// Shows weather that a background update brought for this location.
+    /// </summary>
+    public void UpdateFromBackground(Location location)
+    {
+        _location = location;
+        if (location.Weather is { } weather)
+        {
+            Show(weather);
+        }
+    }
+
     public string TemperatureUnitText { get; }
+
+    [RelayCommand]
+    private void OpenLocationList()
+    {
+        _main.OpenLocationList();
+    }
 
     [RelayCommand]
     private async Task RefreshAsync()
@@ -89,8 +117,22 @@ public sealed partial class WeatherViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Writes the time since the last refresh again. The view calls it every minute while it is shown.
+    /// </summary>
+    public void UpdateRefreshTime()
+    {
+        DateTimeOffset? refreshTime = _location.Weather?.Base.RefreshTime;
+        RefreshTimeText = refreshTime is { } time ? RelativeTimeFormatting.GetRelativeTime(time) : null;
+        RefreshTimeDescription = refreshTime is { } updated
+            && RelativeTimeFormatting.GetRelativeTimeInSentence(updated) is { } inSentence
+            ? Strings.Format("location_last_updated_x", inSentence)
+            : null;
+    }
+
     private void Show(Weather weather)
     {
+        UpdateRefreshTime();
         Current? current = weather.Current;
         WeatherText = current?.WeatherText is { Length: > 0 } text ? text : null;
 
