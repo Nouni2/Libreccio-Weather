@@ -15,6 +15,7 @@
  */
 
 using CommunityToolkit.Mvvm.ComponentModel;
+using LibreccioWeather.Core.Database;
 using LibreccioWeather.Core.Locations;
 using LibreccioWeather.Core.Refresh;
 using LibreccioWeather.Core.Sources.OpenMeteo;
@@ -23,21 +24,54 @@ using LibreccioWeather.Core.Units;
 namespace LibreccioWeather.ViewModels;
 
 /// <summary>
-/// Shows the location search until a place is chosen, then the weather for that place.
+/// Opens on the first saved location, or on the location search when none is saved.
+/// A place chosen in the search is saved at the end of the list and shown.
 /// </summary>
 public sealed partial class MainViewModel : ObservableObject
 {
+    private readonly OpenMeteoService _openMeteo;
     private readonly WeatherRefresher _refresher;
+    private readonly LocationRepository _locations;
     private readonly TemperatureUnit _temperatureUnit;
 
     [ObservableProperty]
     private ObservableObject? _currentPage;
 
-    public MainViewModel(OpenMeteoService openMeteo, WeatherRefresher refresher, TemperatureUnit temperatureUnit)
+    public MainViewModel(
+        OpenMeteoService openMeteo,
+        WeatherRefresher refresher,
+        LocationRepository locations,
+        TemperatureUnit temperatureUnit)
     {
+        _openMeteo = openMeteo;
         _refresher = refresher;
+        _locations = locations;
         _temperatureUnit = temperatureUnit;
-        CurrentPage = new SearchViewModel(openMeteo, ShowWeather);
+    }
+
+    public async Task LoadAsync()
+    {
+        Location? first = await _locations.GetFirstLocationAsync();
+        if (first is null)
+        {
+            CurrentPage = new SearchViewModel(_openMeteo, location => _ = AddAndShowAsync(location));
+        }
+        else
+        {
+            ShowWeather(first);
+        }
+    }
+
+    // A place already in the list is not added twice.
+    private async Task AddAndShowAsync(Location location)
+    {
+        IReadOnlyList<Location> saved = await _locations.GetAllLocationsAsync();
+        if (saved.All(existing => existing.FormattedId != location.FormattedId))
+        {
+            await _locations.AddAllAsync([.. saved, location]);
+        }
+
+        ShowWeather(location);
     }
 
     private void ShowWeather(Location location)

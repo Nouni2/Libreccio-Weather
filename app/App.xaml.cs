@@ -17,6 +17,7 @@
 using System.Globalization;
 using System.Net.Http;
 using System.Windows;
+using LibreccioWeather.Core.Database;
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Refresh;
 using LibreccioWeather.Core.Sources.OpenMeteo;
@@ -31,21 +32,23 @@ public partial class App : System.Windows.Application
     // One client for the whole app, so connections are reused across requests.
     private static readonly HttpClient HttpClient = CreateHttpClient();
 
-    protected override void OnStartup(StartupEventArgs e)
+    // Startup is an event handler, so it is the one place where async void is the only way to await.
+    protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
         // The language is set before the first window opens, because translated text is read when XAML loads.
         Strings.Culture = AppLanguages.Resolve(chosenLanguageCode: null, CultureInfo.CurrentUICulture);
 
+        WeatherDatabase database = new(WeatherDatabase.DefaultPath);
+        database.EnsureCreated();
+
         TemperatureUnit temperatureUnit = TemperatureUnit.GetDefaultUnit(RegionInfo.CurrentRegion.TwoLetterISORegionName);
         OpenMeteoService openMeteo = new(HttpClient);
-        WeatherRefresher refresher = new(openMeteo);
-        MainWindow window = new()
-        {
-            DataContext = new MainViewModel(openMeteo, refresher, temperatureUnit),
-        };
+        MainViewModel viewModel = new(openMeteo, new WeatherRefresher(openMeteo), new LocationRepository(database), temperatureUnit);
+        MainWindow window = new() { DataContext = viewModel };
         window.Show();
+        await viewModel.LoadAsync();
     }
 
     private static HttpClient CreateHttpClient()
