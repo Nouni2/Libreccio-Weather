@@ -16,6 +16,7 @@
 
 using System.Globalization;
 using System.Text;
+using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Models;
 
 namespace LibreccioWeather.Core.Locations;
@@ -135,6 +136,36 @@ public sealed record Location
 
     public bool HasValidCountryCode =>
         CountryCode is { Length: 2 } code && char.IsAsciiLetter(code[0]) && char.IsAsciiLetter(code[1]);
+
+    /// <summary>
+    /// The name to show for the location: its custom name, then its city and district, then its coordinates.
+    /// </summary>
+    /// <param name="showCurrentPositionInPriority">Names the current position as such before anything else.</param>
+    public string GetPlace(bool showCurrentPositionInPriority = false)
+    {
+        if (showCurrentPositionInPriority && IsCurrentPosition)
+        {
+            return Strings.Get("location_current");
+        }
+
+        if (!string.IsNullOrEmpty(CustomName))
+        {
+            return CustomName;
+        }
+
+        string cityAndDistrict = CityAndDistrict;
+        if (cityAndDistrict.Length > 0)
+        {
+            return cityAndDistrict;
+        }
+
+        if (IsCurrentPosition)
+        {
+            return Strings.Get("location_current");
+        }
+
+        return Latitude.ToString(CultureInfo.InvariantCulture) + ", " + Longitude.ToString(CultureInfo.InvariantCulture);
+    }
 
     /// <summary>
     /// The time zone for an IANA identifier, or GMT when the identifier is missing or unknown.

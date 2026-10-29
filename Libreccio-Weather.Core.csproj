@@ -6,5 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\**\*.cs" />
+    <!-- Each language file such as Strings.fr.resx becomes a satellite assembly that .NET loads for that language. -->
+    <EmbeddedResource Include="translations\*.resx" />
   </ItemGroup>
 </Project>

@@ -32,7 +32,7 @@ Building requires Windows and the [.NET 10 SDK](https://dotnet.microsoft.com/dow
 ```powershell
 git clone https://github.com/Nouni2/Libreccio-Weather.git
 cd Libreccio-Weather
-dotnet build
+dotnet build Libreccio-Weather.slnx
 dotnet test --solution Libreccio-Weather.slnx
 dotnet run --project Libreccio-Weather.csproj
 ```

@@ -66,7 +66,7 @@ Building requires the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet
 ```powershell
 git clone https://github.com/Nouni2/Libreccio-Weather.git
 cd Libreccio-Weather
-dotnet build
+dotnet build Libreccio-Weather.slnx
 dotnet run --project Libreccio-Weather.csproj
 ```
 
@@ -81,6 +81,8 @@ I wanted a good weather app on Windows. I tried plenty of them, and none were go
 ## Credits
 
 Libreccio Weather reproduces the design and behaviour of [Breezy Weather](https://github.com/breezy-weather/breezy-weather), created by the Breezy Weather developers and contributors.
+
+Its translations come from Breezy Weather's translators, under the GNU Lesser General Public License v3.0 only.
 
 ## Licence
 

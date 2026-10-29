@@ -15,6 +15,13 @@
     <Page Include="app\**\*.xaml" Exclude="app\App.xaml" Link="%(RecursiveDir)%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
+    <!-- Windows Forms is only used for the tray icon. Importing it everywhere would clash with WPF names such as UserControl. -->
+    <Using Remove="System.Windows.Forms" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="Libreccio-Weather.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" />
   </ItemGroup>
 </Project>

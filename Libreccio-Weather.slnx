@@ -2,4 +2,5 @@
   <Project Path="Libreccio-Weather.Core.csproj" />
   <Project Path="Libreccio-Weather.csproj" />
   <Project Path="Libreccio-Weather.Core.Tests.csproj" />
+  <Project Path="Libreccio-Weather.StringImporter.csproj" />
 </Solution>

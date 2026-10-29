@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>LibreccioWeather.StringImporter</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <!-- The project file sits at the root, so the default globs would pick up every folder. -->
+    <EnableDefaultItems>false</EnableDefaultItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="tools\StringImporter\**\*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- The list of shipped languages lives in Core, so the importer and the app always agree on it. -->
+    <ProjectReference Include="Libreccio-Weather.Core.csproj" />
+  </ItemGroup>
+</Project>
