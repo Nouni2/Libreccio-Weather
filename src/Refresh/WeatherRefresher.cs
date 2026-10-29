@@ -16,6 +16,7 @@
 
 using System.Globalization;
 using System.Net.NetworkInformation;
+using LibreccioWeather.Core.Database;
 using LibreccioWeather.Core.Locations;
 using LibreccioWeather.Core.Models;
 using LibreccioWeather.Core.Models.Wrappers;
@@ -51,10 +52,12 @@ public sealed class WeatherRefresher
     private const int MaxConcurrentSources = 5;
 
     private readonly OpenMeteoService _openMeteo;
+    private readonly WeatherRepository _weatherRepository;
 
-    public WeatherRefresher(OpenMeteoService openMeteo)
+    public WeatherRefresher(OpenMeteoService openMeteo, WeatherRepository weatherRepository)
     {
         _openMeteo = openMeteo;
+        _weatherRepository = weatherRepository;
     }
 
     /// <param name="ignoreCaching">Requests every feature even when its cached data is still fresh.</param>
@@ -181,6 +184,7 @@ public sealed class WeatherRefresher
                 AlertList = completed.AlertList ?? [],
                 Normals = completed.Normals ?? new Dictionary<Month, Normals>(),
             };
+            await _weatherRepository.InsertAsync(location, weather, cancellationToken).ConfigureAwait(false);
             return new WeatherResult(weather, errors);
         }
         catch (Exception exception) when (!(exception is OperationCanceledException && cancellationToken.IsCancellationRequested))

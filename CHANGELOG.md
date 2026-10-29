@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added
 
+- Libreccio Weather icon in SVG format at `assets/icons/icon.svg`.
 - README describing the project, its planned features, building from source, credits and licence.
 - GNU General Public License v3.0 in `LICENCE.md`.
 - `AGENTS.md` with the rules for contributors: comments, licence header, text and translations, changelog, naming, folder layout and code organization, pointing to `CONTRIBUTING.md` for code style.
@@ -27,6 +28,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Weather calculations in `src/Calculations/`: apparent temperature, wind chill, humidex, dew point, relative humidity, total precipitation with snow and ice converted to liquid, precipitation probability, mean sea level pressure and pollutant concentration conversions.
 - The weather model in `src/Models/`: current conditions, hourly, daily and half-day forecasts, minutely precipitation, alerts, air quality, pollen, wind, UV, sun and moon, normals, and the wrappers used before data from sources is merged.
 - Locations in `src/Locations/` and source features in `src/Sources/`.
+- SQLite storage for saved locations, their order, the source chosen for each weather feature and the parameters of those sources. The app opens on the first saved location, or on location search when no location is saved.
+- SQLite storage for current conditions, daily and hourly forecasts, minutely precipitation, alerts and temperature normals. A completed refresh replaces all parts of a location's weather in one transaction, keeping the previous forecast if saving fails. Quantities retain their internal integer units, dates are stored as Unix milliseconds and durations as nanoseconds.
+- A database migration that adds weather storage to existing location databases without recreating saved locations or their source parameters.
 - Translations in English and French:
   - The string importer turns Breezy Weather's Android strings, plurals and unit strings into `.resx` files in `translations/`, for each shipped language. Breezy Weather's translations are under LGPL-3.0-only.
   - Text is looked up by Breezy Weather's keys, with English used for any string missing from the selected language, and plurals follow the CLDR rules of English and French.
@@ -37,6 +41,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - A first interface:
   - A location search screen, listing each place with its region and country, with Open-Meteo's attribution and a message when nothing is found or the search fails.
   - The top of the main screen for the chosen place: condition, temperature with its unit, feels-like temperature when it differs, and today's and tonight's temperatures.
-  - Material 3 dark colors. Locations are not saved yet, so the app starts on the search screen.
+  - Material 3 dark colors.
 - Tests for temperature conversions, humidex, total precipitation, rounding and the Beaufort scale.
+- Three weather database tests covering migration of a location database, restoration of stored quantities and forecasts, and rollback of a failed save.
+- `ROADMAP.md` listing the ported and remaining parts of the engine, sources, translations, interface, Mistray and notifications.
 - This changelog.
+
+### Changed
+
+- The README logo points to `assets/icons/icon.svg`.
+- Saved weather is loaded and displayed before the startup refresh, so the last stored forecast remains available when the network is unavailable. Missing sun times stay absent when weather is loaded, preserving the source's day and night flags during forecast completion.
+- The native SQLite library used by `Microsoft.Data.Sqlite` is selected through an explicit `SQLitePCLRaw.bundle_e_sqlite3` 2.1.12 package reference.
+
+### Fixed
+
+- Weather database test compilation errors caused by unit type qualifiers resolving to the test namespace instead of the engine's units.
+- Weather database test build errors from xUnit's cancellation analyzer by passing the current test's cancellation token to asynchronous calls that accept one.

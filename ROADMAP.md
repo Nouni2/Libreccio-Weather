@@ -4,7 +4,7 @@ Libreccio Weather aims to reproduce [Breezy Weather](https://github.com/breezy-w
 
 ## Port status
 
-Each item names the part of Breezy Weather it ports. An item is ticked once every part under it is ported and has been built. Only the parts listed under Tests are checked by tests, and only the location search and the main screen header have been tried in the running app.
+Each item names the part of Breezy Weather it ports. An item is ticked once every part under it is ported and has been built. Only the parts listed under Tests are checked by tests, and only the location search, the main screen header and reopening on a saved location have been tried in the running app.
 
 ### Engine
 
@@ -21,12 +21,12 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Completion of hourly, daily and current data
   - [ ] Sources other than Open-Meteo
   - [ ] Location parameters and restricted sources
-  - [ ] Saving to the database
+  - [ ] Saving the completed weather to the database
   - [ ] Sun and moon times, with sun times from Seasonal-plus-plus and the moon later
 - [ ] Current location, reverse geocoding and time zone lookup (`RefreshHelper`)
 - [ ] Database
-  - [ ] Saved locations and the parameters of their sources (`LocationRepository`)
-  - [ ] Weather (`WeatherRepository`)
+  - [x] Saved locations and the parameters of their sources (`LocationRepository`)
+  - [ ] Weather (`WeatherRepository`): current conditions, daily and hourly forecasts, minutely precipitation, alerts and normals
 - [ ] Settings (`SettingsManager`)
 - [ ] Background refresh at the chosen interval, and after reconnecting or resuming (`WeatherUpdateJob`)
 
@@ -68,8 +68,9 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Search by name, with each result's region and country
   - [x] Attribution, and the no-results and failure messages
   - [ ] Changing the search source
-  - [ ] Adding the chosen place to saved locations
+  - [x] Adding the chosen place to saved locations
 - [ ] Location list and management
+- [ ] Loading saved weather before refreshing on startup
 - [ ] Settings and weather sources screens
 - [ ] Breezy Weather's colors and light theme, in place of the Material 3 baseline dark colors used now
 - [ ] Single instance, and closing the window to the tray
@@ -90,6 +91,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 - [ ] Tests
   - [x] Breezy Weather's tests for temperature conversions, humidex and total precipitation
   - [x] Checks on rounding and the Beaufort scale
+  - [ ] Weather database migrations, quantity storage and transaction rollback
   - [ ] Breezy Weather's formatting tests, which need unit formatting
 - [ ] Third-party notices for the ported parts that come from other projects
 - [ ] Libreccio Weather's logo

@@ -45,7 +45,9 @@ public partial class App : System.Windows.Application
 
         TemperatureUnit temperatureUnit = TemperatureUnit.GetDefaultUnit(RegionInfo.CurrentRegion.TwoLetterISORegionName);
         OpenMeteoService openMeteo = new(HttpClient);
-        MainViewModel viewModel = new(openMeteo, new WeatherRefresher(openMeteo), new LocationRepository(database), temperatureUnit);
+        WeatherRepository weather = new(database);
+        MainViewModel viewModel = new(
+            openMeteo, new WeatherRefresher(openMeteo, weather), new LocationRepository(database), weather, temperatureUnit);
         MainWindow window = new() { DataContext = viewModel };
         window.Show();
         await viewModel.LoadAsync();

@@ -57,6 +57,10 @@ public sealed partial class WeatherViewModel : ObservableObject
         _temperatureUnit = temperatureUnit;
         _location = location;
         TemperatureUnitText = UnitFormatting.GetNominativeUnit(temperatureUnit);
+        if (location.Weather is { } weather)
+        {
+            Show(weather);
+        }
     }
 
     public string Place => _location.GetPlace();

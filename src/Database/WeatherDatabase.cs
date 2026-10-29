@@ -19,12 +19,12 @@ using Microsoft.Data.Sqlite;
 namespace LibreccioWeather.Core.Database;
 
 /// <summary>
-/// The SQLite database holding saved locations.
+/// The SQLite database holding saved locations and their weather.
 /// </summary>
 public sealed class WeatherDatabase
 {
     // Stored in SQLite's user_version, so a later schema change can tell which version a file has.
-    private const int SchemaVersion = 1;
+    private const int SchemaVersion = 2;
 
     private const string CreateSchema = """
         CREATE TABLE locations(
@@ -79,7 +79,7 @@ public sealed class WeatherDatabase
     {
         _path = path;
 
-        // Foreign keys are off by default in SQLite, and parameters rely on them to go with their location.
+        // Foreign keys are off by default in SQLite; parameters and weather must be deleted with their location.
         _connectionString = new SqliteConnectionStringBuilder
         {
             DataSource = path,
@@ -114,7 +114,10 @@ public sealed class WeatherDatabase
         using SqliteTransaction transaction = connection.BeginTransaction();
         using SqliteCommand createCommand = connection.CreateCommand();
         createCommand.Transaction = transaction;
-        createCommand.CommandText = CreateSchema + $"PRAGMA user_version = {SchemaVersion};";
+        // Existing databases already have locations, so only the missing tables are added.
+        createCommand.CommandText = (version < 1 ? CreateSchema : "")
+            + WeatherSchema.Create
+            + $"PRAGMA user_version = {SchemaVersion};";
         createCommand.ExecuteNonQuery();
         transaction.Commit();
     }

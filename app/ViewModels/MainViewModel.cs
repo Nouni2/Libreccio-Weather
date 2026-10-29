@@ -32,6 +32,7 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly OpenMeteoService _openMeteo;
     private readonly WeatherRefresher _refresher;
     private readonly LocationRepository _locations;
+    private readonly WeatherRepository _weather;
     private readonly TemperatureUnit _temperatureUnit;
 
     [ObservableProperty]
@@ -41,11 +42,13 @@ public sealed partial class MainViewModel : ObservableObject
         OpenMeteoService openMeteo,
         WeatherRefresher refresher,
         LocationRepository locations,
+        WeatherRepository weather,
         TemperatureUnit temperatureUnit)
     {
         _openMeteo = openMeteo;
         _refresher = refresher;
         _locations = locations;
+        _weather = weather;
         _temperatureUnit = temperatureUnit;
     }
 
@@ -58,7 +61,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
         else
         {
-            ShowWeather(first);
+            await ShowWeatherAsync(first);
         }
     }
 
@@ -71,11 +74,12 @@ public sealed partial class MainViewModel : ObservableObject
             await _locations.AddAllAsync([.. saved, location]);
         }
 
-        ShowWeather(location);
+        await ShowWeatherAsync(location);
     }
 
-    private void ShowWeather(Location location)
+    private async Task ShowWeatherAsync(Location location)
     {
+        location = location with { Weather = await _weather.GetWeatherByLocationIdAsync(location.FormattedId) };
         WeatherViewModel weather = new(_refresher, _temperatureUnit, location);
         CurrentPage = weather;
         weather.RefreshCommand.Execute(null);

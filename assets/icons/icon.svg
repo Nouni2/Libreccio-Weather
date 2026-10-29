@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="992" height="994" viewBox="129 122 992 994">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0.91" y2="1">
+      <stop offset="0" stop-color="#003889"/>
+      <stop offset=".31" stop-color="#0065d2"/>
+      <stop offset=".69" stop-color="#34bcfa"/>
+      <stop offset="1" stop-color="#c8f6f5"/>
+    </linearGradient>
+    <radialGradient id="horizon-glow" cx=".76" cy=".63" r=".48" gradientTransform="matrix(1 0 0 .89 0 .07)">
+      <stop offset="0" stop-color="#f4fffa" stop-opacity=".96"/>
+      <stop offset=".24" stop-color="#d4f9f5" stop-opacity=".76"/>
+      <stop offset=".6" stop-color="#87e0fa" stop-opacity=".25"/>
+      <stop offset="1" stop-color="#66c8fb" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="water" x1=".25" y1="0" x2=".76" y2="1">
+      <stop offset="0" stop-color="#0670cb"/>
+      <stop offset=".29" stop-color="#128fe0"/>
+      <stop offset=".69" stop-color="#0278d2"/>
+      <stop offset="1" stop-color="#003c93"/>
+    </linearGradient>
+    <linearGradient id="deep-wave" x1="0" y1="0" x2=".85" y2="1">
+      <stop offset="0" stop-color="#0056b6"/>
+      <stop offset=".48" stop-color="#0759b4"/>
+      <stop offset="1" stop-color="#002873"/>
+    </linearGradient>
+    <linearGradient id="blade-blue" x1=".23" y1=".35" x2=".78" y2=".7">
+      <stop offset="0" stop-color="#0378d5"/>
+      <stop offset=".28" stop-color="#28b8fa"/>
+      <stop offset=".66" stop-color="#62d6ff"/>
+      <stop offset="1" stop-color="#078bd9"/>
+    </linearGradient>
+    <linearGradient id="blade-glass" x1=".12" y1=".3" x2=".95" y2=".85">
+      <stop offset="0" stop-color="#09a2ee"/>
+      <stop offset=".38" stop-color="#88e5ff"/>
+      <stop offset=".8" stop-color="#d2f6fb"/>
+      <stop offset="1" stop-color="#30b9f1"/>
+    </linearGradient>
+    <linearGradient id="blade-white" x1=".85" y1=".2" x2=".13" y2=".82">
+      <stop offset="0" stop-color="#f5ffff"/>
+      <stop offset=".25" stop-color="#f7ffff"/>
+      <stop offset=".65" stop-color="#dcf9ff"/>
+      <stop offset="1" stop-color="#b9edfd"/>
+    </linearGradient>
+    <linearGradient id="ribbon" x1="0" y1=".22" x2="1" y2=".82">
+      <stop offset="0" stop-color="#22b9f1"/>
+      <stop offset=".24" stop-color="#a6eeff"/>
+      <stop offset=".53" stop-color="#e6fdff"/>
+      <stop offset=".84" stop-color="#e5fbff"/>
+      <stop offset="1" stop-color="#fbffff"/>
+    </linearGradient>
+    <linearGradient id="ribbon-highlight" x1=".15" y1=".18" x2=".9" y2=".98">
+      <stop offset="0" stop-color="#eaffff"/>
+      <stop offset=".38" stop-color="#a6e9fc"/>
+      <stop offset=".71" stop-color="#bceefb"/>
+      <stop offset="1" stop-color="#4bb7f0"/>
+    </linearGradient>
+    <linearGradient id="soft-hills" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0052b0"/>
+      <stop offset="1" stop-color="#186cbe"/>
+    </linearGradient>
+    <linearGradient id="horizon-line" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#228dd8" stop-opacity=".2"/>
+      <stop offset=".57" stop-color="#d7fcfa" stop-opacity=".3"/>
+      <stop offset=".77" stop-color="#e7ffff" stop-opacity=".96"/>
+      <stop offset="1" stop-color="#54c6fc" stop-opacity=".2"/>
+    </linearGradient>
+    <filter id="shadow" x="-.25" y="-.25" width="1.5" height="1.65">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="11" result="blur"/>
+      <feOffset in="blur" dy="15" result="offset"/>
+      <feComponentTransfer in="offset" result="faded"><feFuncA type="linear" slope=".2"/></feComponentTransfer>
+      <feMerge><feMergeNode in="faded"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <clipPath id="icon-mask">
+      <rect x="129" y="122" width="992" height="994" rx="246" ry="246"/>
+    </clipPath>
+  </defs>
+  <rect x="129" y="122" width="992" height="994" rx="246" ry="246" fill="#005ec5"/>
+  <g clip-path="url(#icon-mask)">
+    <rect x="129" y="122" width="992" height="994" fill="url(#sky)"/>
+    <rect x="129" y="122" width="992" height="994" fill="url(#horizon-glow)"/>
+    <path d="M129 669 C181 654 206 665 249 682 C308 710 347 690 384 684 C451 680 497 697 552 708 C611 725 646 721 697 717 C753 718 775 735 833 733 C900 735 944 735 976 720 C1031 700 1075 703 1121 689 L1121 782 L129 782Z" fill="url(#soft-hills)"/>
+    <path d="M129 741 H1121 V1116 H129Z" fill="url(#water)"/>
+    <path d="M129 740 C359 738 583 739 734 738 S1006 737 1121 738 L1121 759 H129Z" fill="#49afea" opacity=".42"/>
+    <path d="M539 740 H1062 L1100 747 H513Z" fill="url(#horizon-line)" opacity=".86"/>
+    <path d="M610 749 H1085 V756 H588Z" fill="#a4eaf6" opacity=".22"/>
+    <path d="M507 774 H1121 V785 H495Z" fill="#64c6f4" opacity=".21"/>
+    <path d="M592 795 H1121 V807 H558Z" fill="#63c1f1" opacity=".18"/>
+    <path d="M762 759 H1054 L1016 763 H733Z" fill="#edfefa" opacity=".45"/>
+    <path d="M739 784 H1088 L1058 788 H696Z" fill="#c0f3f9" opacity=".22"/>
+    <path d="M803 808 H1022 L989 813 H779Z" fill="#b7eff9" opacity=".18"/>
+    <path d="M129 917 C334 904 434 910 550 929 C723 963 832 1043 1121 949 V1116 H129Z" fill="#067ed0" opacity=".75"/>
+    <path d="M129 967 C310 954 442 899 625 953 C772 996 935 1030 1121 947 V1116 H129Z" fill="url(#deep-wave)" opacity=".8"/>
+    <path d="M129 1012 C293 972 436 982 593 1022 C765 1064 961 1113 1121 1042 V1116 H129Z" fill="#00458e" opacity=".72"/>
+    <path d="M129 897 C214 895 305 869 386 847 C506 813 640 805 732 850 C819 890 947 933 1121 898 L1121 940 C958 994 812 976 682 918 C577 868 478 870 361 899 C276 920 191 929 129 924Z" fill="#1aa7eb" opacity=".5"/>
+    <path d="M132 903 C262 876 339 771 353 657 C364 564 318 516 290 464 C266 419 297 362 345 324 C422 271 532 254 646 214 C573 290 491 368 478 440 C460 541 533 614 510 684 C489 766 306 865 132 903Z" fill="url(#blade-blue)"/>
+    <path d="M132 903 C260 870 348 751 361 639 C382 531 350 493 363 425 C370 348 477 293 646 214 C554 301 478 377 477 466 C479 554 527 605 512 677 C493 765 312 863 132 903Z" fill="url(#blade-glass)" opacity=".92"/>
+    <path d="M132 903 C232 824 308 684 355 555 C402 409 472 295 646 214 C557 318 486 372 475 445 C460 526 506 591 506 653 C505 753 325 861 132 903Z" fill="url(#blade-white)"/>
+    <path d="M132 903 C257 814 329 683 365 565 C404 431 454 329 549 268 C465 363 423 475 384 610 C347 744 263 852 132 903Z" fill="#c6f5ff" opacity=".36"/>
+    <path d="M131 903 C271 836 403 771 545 778 C709 786 801 869 913 877 C976 882 1016 848 1048 828 C1006 901 940 938 855 924 C737 912 636 833 526 821 C372 804 258 887 131 903Z" fill="url(#ribbon)"/>
+    <path d="M131 903 C273 852 399 810 524 808 C679 800 791 873 917 879 C975 882 1018 847 1048 828 C1002 899 942 928 855 920 C742 906 653 833 526 823 C366 807 256 889 131 903Z" fill="url(#ribbon-highlight)" opacity=".56"/>
+    <path d="M132 903 C263 855 393 802 540 795 C693 795 807 868 918 878 C971 881 1017 853 1048 828" fill="none" stroke="#e7ffff" stroke-width="2" opacity=".66"/>
+  </g>
+</svg>

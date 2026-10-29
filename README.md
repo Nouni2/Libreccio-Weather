@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/images/logo.png" alt="Libreccio Weather logo" width="128">
+<img src="assets/icons/icon.svg" alt="Libreccio Weather logo" width="128">
 
 # Libreccio Weather
 
