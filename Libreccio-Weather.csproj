@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>LibreccioWeather</RootNamespace>
+    <UseWPF>true</UseWPF>
+    <!-- The tray icon uses System.Windows.Forms.NotifyIcon. -->
+    <UseWindowsForms>true</UseWindowsForms>
+    <!-- The project file sits at the root, so the default globs would pick up every folder. -->
+    <EnableDefaultItems>false</EnableDefaultItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="app\**\*.cs" />
+    <!-- Link drops the app\ prefix so XAML resource paths, such as StartupUri, stay relative to app\. -->
+    <ApplicationDefinition Include="app\App.xaml" Link="App.xaml" />
+    <Page Include="app\**\*.xaml" Exclude="app\App.xaml" Link="%(RecursiveDir)%(Filename)%(Extension)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="Libreccio-Weather.Core.csproj" />
+  </ItemGroup>
+</Project>

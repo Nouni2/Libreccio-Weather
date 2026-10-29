@@ -67,7 +67,7 @@ Building requires the [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet
 git clone https://github.com/Nouni2/Libreccio-Weather.git
 cd Libreccio-Weather
 dotnet build
-dotnet run --project app/Libreccio-Weather
+dotnet run --project Libreccio-Weather.csproj
 ```
 
 ## Contribute

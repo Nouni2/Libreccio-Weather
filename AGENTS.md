@@ -45,6 +45,10 @@ Every source file starts with this header, written in the file's comment syntax:
  */
 ```
 
+## Code style
+
+Follow the code style in `CONTRIBUTING.md`.
+
 ## Changelog
 
 Every commit updates `CHANGELOG.md`, which follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
@@ -63,14 +67,17 @@ Every commit updates `CHANGELOG.md`, which follows [Keep a Changelog](https://ke
 
 | Location | Holds |
 |---|---|
-| Root | Project-wide files only: README, `.gitignore`, solution file, `.editorconfig`, `Directory.Build.props`. Never implementation code. Except for an optional entry point file (main / index etc.) |
-| `src/` | The machinery: models, weather sources, merging, calculations, units, persistence, settings. |
-| `app/` | The application layer: windows, tray icon and popup, view models, startup composition. |
+| Root | Project-wide files only: README, `.gitignore`, solution file, project files (`.csproj`), `global.json`, `.editorconfig`, `.gitattributes`, `Directory.Build.props`, `Directory.Packages.props`. Never implementation code. Except for an optional entry point file (main / index etc.) |
+| `src/` | The machinery: models, weather sources, merging, calculations, units, persistence, settings. Code files only. |
+| `app/` | The application layer: windows, tray icon and popup, view models, startup composition. Code files only. |
+| `tests/` | Automated tests of the machinery. Code files only. |
+| `build/` | Build output from every project. Generated and git-ignored. |
 | `tools/` | Programs that work on the project itself, such as generators and converters. |
 | `scripts/` | Reserved for Bash programs that perform operating-system actions. Never general helpers. |
 | `docs/` | Long-form explanation that outgrows the README. |
 
 - `src/` owns the machinery. `app/` builds on it and never the other way around.
+- `src/`, `app/` and `tests/` hold code only, in folders named after their purpose. Project files stay in the root and build output goes to `build/`.
 - Name any other folder after its responsibility.
 - Do not create a folder that would stay empty once the project is populated.
 

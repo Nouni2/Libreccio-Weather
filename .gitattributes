@@ -1,0 +1,8 @@
+# Stored with LF in the repository and checked out with CRLF, matching .editorconfig.
+* text=auto eol=crlf
+
+# Bash fails on carriage returns.
+*.sh text eol=lf
+
+*.png binary
+*.ico binary
