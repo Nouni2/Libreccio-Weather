@@ -33,7 +33,13 @@ public sealed record ChartColorStop(double Value, Color Color);
 /// <summary>
 /// One line of a chart. X values are Unix milliseconds.
 /// </summary>
-public sealed record DetailsChartSeries(IReadOnlyList<long> X, IReadOnlyList<double> Y, IReadOnlyList<ChartColorStop> Colors);
+public sealed record DetailsChartSeries(IReadOnlyList<long> X, IReadOnlyList<double> Y, IReadOnlyList<ChartColorStop> Colors)
+{
+    /// <summary>
+    /// The colors of the area between the line and zero, or null for no area.
+    /// </summary>
+    public IReadOnlyList<ChartColorStop>? AreaColors { get; init; }
+}
 
 public sealed record ChartAxisLabel(double Value, string Text);
 
@@ -54,6 +60,11 @@ public sealed record DetailsChartData(
     Action<long?> SetActiveX)
 {
     public Color BarColor { get; init; }
+
+    /// <summary>
+    /// How strongly lines curve between points, in (0, 1], or 0 for straight lines.
+    /// </summary>
+    public double Curvature { get; init; }
 
     /// <summary>
     /// The hours that may get a text above the chart, and the text for each.

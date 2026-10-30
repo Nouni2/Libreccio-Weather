@@ -35,6 +35,12 @@
           CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <None Include="assets\fonts\LICENCE.md" Link="assets\fonts\LICENCE.md"
           CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="assets\fonts\roboto-licence.md" Link="assets\fonts\roboto-licence.md"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <!-- Sun times. The library is x64 only; a process of another architecture runs without them. -->
+    <None Include="native\spp.dll" Link="spp.dll" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="docs\apache-licence.md" Link="docs\apache-licence.md"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <None Include="docs\third-party-notices.md" Link="docs\third-party-notices.md"
           CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>

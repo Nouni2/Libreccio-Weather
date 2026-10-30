@@ -336,7 +336,12 @@ internal static partial class DetailsPage
         List<DetailsChartSeries> chartSeries = [];
         for (int i = 0; i < series.Count; i++)
         {
-            chartSeries.Add(new DetailsChartSeries(keys, series[i], colors.Count > i ? colors[i] : []));
+            IReadOnlyList<ChartColorStop> lineColors = colors.Count > i ? colors[i] : [];
+            chartSeries.Add(new DetailsChartSeries(keys, series[i], lineColors)
+            {
+                // Only the first line has an area, in its colors at half opacity.
+                AreaColors = i == 0 ? [.. lineColors.Select(stop => stop with { Color = WithAlpha(stop.Color, 128) })] : null,
+            });
         }
 
         return new DetailsChartData(
@@ -359,6 +364,9 @@ internal static partial class DetailsPage
     }
 
     private static Color Rgb(byte r, byte g, byte b, byte a = 255) => Color.FromArgb(a, r, g, b);
+
+    // Replaces the alpha rather than scaling it.
+    private static Color WithAlpha(Color color, byte alpha) => Color.FromArgb(alpha, color.R, color.G, color.B);
 
     private static void AddUnavailableChart(List<object> blocks, int size)
     {

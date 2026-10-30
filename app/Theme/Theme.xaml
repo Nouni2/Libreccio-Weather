@@ -31,6 +31,11 @@
     <Thickness x:Key="TextButtonPadding">12,10</Thickness>
     <SolidColorBrush x:Key="SurfaceBrush" Color="#141218" />
     <SolidColorBrush x:Key="SurfaceContainerBrush" Color="#211F26" />
+    <SolidColorBrush x:Key="MainCardBackgroundBrush" Color="#1B1B1D" />
+    <SolidColorBrush x:Key="MainCardArcRootBrush" Color="#1C1B1F" />
+    <SolidColorBrush x:Key="MainCardTitleBrush" Color="#E3E2E6" />
+    <SolidColorBrush x:Key="MainCardTextBrush" Color="#E3E2E6" />
+    <SolidColorBrush x:Key="BodyTextBrush" Color="#999999" />
     <SolidColorBrush x:Key="SurfaceContainerHighBrush" Color="#2B2930" />
     <SolidColorBrush x:Key="OnSurfaceBrush" Color="#E6E0E9" />
     <SolidColorBrush x:Key="OnSurfaceVariantBrush" Color="#CAC4D0" />

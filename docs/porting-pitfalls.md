@@ -82,7 +82,12 @@ Kotlin's `/` and `%` behave like C#'s.
 | `Duration.toComponents` | Whole hours truncate towards zero and the remaining minutes and seconds keep the duration's sign. | Flooring `TimeSpan.TotalHours` turns −90 minutes into −2 hours and −30 minutes. | Divide ticks by ticks per hour using integer division, then use the minute and second components, as checked by `DurationFormattingTests`. |
 | `Calendar.set(HOUR_OF_DAY, …)` on a lenient calendar | A local hour skipped by a daylight saving change is read with the offset before the change, so it moves forward by the skipped time. | `TimeZoneInfo` reports the hour as invalid, and a `DateTimeOffset` built from it needs an offset chosen by the caller. | Take the offset of the previous day for an invalid local time, as `DetailsChartAxes.GetHourOfDay` does. |
 | `DateFormatSymbols.getMonths()` | Month names in their formatting form, which differs from the standalone form in languages such as Polish. | `DateTimeFormatInfo.MonthNames` is the standalone form. | `DateTimeFormatInfo.MonthGenitiveNames`. |
+| `Math.signum(double)` | Returns NaN for NaN and the signed zero for zero. | `Math.Sign` returns an integer and throws on NaN. | `d > 0 ? 1.0 : d < 0 ? -1.0 : d`. |
 | `Collator.getInstance(locale).compare` | Sorts by the language's collation rules. | Ordinal comparison sorts by code point. | `StringComparer.Create(culture, ignoreCase: false)`. |
+
+## Native solar dates
+
+`DateOnly.AddDays` throws before year 1 and after year 9999, while the native solar calendar also represents earlier years. The adjacent UTC dates are therefore checked as day numbers before constructing them. A native event outside `DateTimeOffset`'s range returns no calculation instead of escaping as an exception. `SolarCalculatorTests` pins the .NET minimum date and dates above the native year limit.
 
 ## Platform
 
@@ -102,10 +107,18 @@ With foreign keys enabled, renaming a parent identifier does not rename the depe
 
 | Upstream | Upstream behaviour | WPF difference | Reproduce with |
 |---|---|---|---|
+| Vico `LineCartesianLayer.rememberLine` without an interpolator | Straight lines between points: the default is `Interpolator.Sharp`. | A smooth curve looks natural but is not the default. | Straight `LineTo` segments; curves only where upstream passes `Interpolator.cubic`, with Vico's control-point formula. |
+| Vico color scales (`LineFill.colorScale`, `AreaFill.colorScale`) | A Skia gradient from the top of the chart to its bottom; stops outside the visible range are pinned to the edges, each at least at the previous position. | A WPF gradient laid out over the values' own range blends colors beyond the edges. | Gradient stops at `1 − (value − min) / range`, clamped between the previous stop and 1. |
 | A view's translation, such as `translationX` while a card slides | Each view has its own position that code can change. | A transform declared in a `DataTemplate` is frozen and shared, so changing it throws `InvalidOperationException`. | A new transform created in code for the element that moves. |
 | Theme resources while constructing a view | Android's themed context supplies the resources during inflation. | A WPF user control loads its XAML in its constructor, before it is attached to its parent. Static resource references cannot depend on that parent's resource dictionary at this point. | Install the active theme in application resources before constructing the views, or provide the required resources locally. |
 | A vertical layout with `wrap_content` height | Its height is the content's height. | A WPF child in a star-sized grid row can occupy the entire remaining window. Bottom alignment then leaves an empty area above the content. | A stack panel measured by a scroll viewer, without a viewport-sized minimum height. |
 | `dpToPx(4.5f).toInt()` for a histogram half-width | Truncates after conversion to physical pixels. | A fixed 4.5-DIP WPF half-width keeps a fractional pixel instead. | Multiply by the display scale using float arithmetic, truncate, then divide by that scale before drawing in WPF. |
+
+## Card text and drawing
+
+A WPF `FormattedText` uses the selected Windows font and has no letter-spacing property. Sun/moon labels instead use the bundled Roboto faces and `TextFormatter`, keeping shaped glyph clusters together when applying the Material label spacing. Width limits include the added spacing, and ellipsizing removes whole text elements. Glyph runs returned by `TextLine.GetIndexedGlyphRuns` use baseline-relative origins; when the card supplies a line's top edge, add `TextLine.Baseline` to the drawing translation. Omitting it raises the text while leaving its title and phase icons in place.
+
+Perform the astro control's integer division and truncation after multiplying by display density. Dividing an odd physical width by two before the radius calculation differs from halving its DIP width. The sun/moon drawables also subtract two physical pixels from their radius, while the phase control truncates its four-DIP padding to an integer pixel count.
 
 ## Android resources
 

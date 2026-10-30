@@ -33,7 +33,10 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [ ] Sources other than Open-Meteo
   - [ ] Location parameters and restricted sources
   - [x] Saving the completed weather to the database
-  - [ ] Sun and moon times, with sun times from Seasonal-plus-plus and the moon later
+  - [x] Sun and moon times
+    - [x] Sunrise, sunset, civil twilight and day length from Seasonal++, with polar days and nights
+    - [x] Day or night for each hour from the Sun's altitude, with the source's flag when Seasonal++ cannot be loaded
+    - [x] Moonrise, moonset and moon phase (commons-suncalc)
 - [ ] Current location, reverse geocoding and time zone lookup (`RefreshHelper`)
 - [x] Database
   - [x] Saved locations and the parameters of their sources (`LocationRepository`)
@@ -91,6 +94,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [ ] Weather background
     - [x] Static weather gradients from the weather-view resources
     - [ ] Animated sun, clouds, precipitation and stars
+  - [x] Header fade sharing the card-entry delay queue
   - [ ] Temperature animation
   - [ ] Descriptions read by screen readers
 - [x] Vertical scrolling of the header and forecast cards
@@ -119,8 +123,12 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
     - [x] Visibility value and description
     - [x] Pressure value, selected unit and progress gauge
     - [x] Square cards in saved order, adapting to the available weather-pane width
-    - [ ] Card enter animations and detail actions
-    - [ ] Precipitation nowcast, alerts, sun, moon, clock and footer
+    - [x] Card enter animations with staggered fading, upward motion and scaling
+    - [x] Card detail actions
+    - [x] Sun and moon cards with rise and set arcs, polar-day and polar-night labels, moon phase and detail navigation
+    - [x] Sun and moon path, rotation and phase animations following the element-animation setting
+    - [x] Sun and moon card typography and icon alignment, elevation, compact spacing and physical-pixel measurements
+    - [ ] Precipitation nowcast, alerts, clock and footer
 - [ ] Daily and hourly detail screens (`DetailsActivity`)
   - [x] Updated weather reaches open detail screens and screens kept in navigation history, preserving the selected date and page
   - [x] Current wind appears when daily wind summaries are missing
@@ -131,8 +139,8 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [ ] Air quality with its index or each pollutant, pollutant details and scales
   - [ ] Pollen with the primary pollen and every measured pollen
   - [ ] UV, humidity with dew point, pressure with its trend, cloud cover with sunshine duration, and visibility, each with its scale or explanation
-  - [ ] Sun, twilight and moon times
-  - [ ] Sun and moon altitude chart and moon phase
+  - [x] Sun, twilight and moon times
+  - [x] Sun and moon altitude chart and moon phase
   - [ ] Swiping between days
 - [ ] Location search (`SearchActivity`)
   - [x] Search by name, with each result's region and country
@@ -223,6 +231,9 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Negative duration components and number formatting above the .NET decimal range
   - [x] Windows instance-gate lifetime and repeated activation through named pipes
   - [ ] Detail chart top-label saturation and hours skipped by a daylight saving change
+  - [x] Seasonal++'s reference days, the choice of a solar day for a local date, and the altitude at sunrise and sunset
+  - [x] Solar date selection at the .NET minimum date and beyond the native date range
+  - [x] commons-suncalc's moonrise, moonset, phase and altitude references
 - [ ] Third-party notices for the ported parts that come from other projects
 - [ ] Libreccio Weather's logo
 - [ ] Installer and releases

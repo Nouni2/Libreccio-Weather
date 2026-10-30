@@ -20,6 +20,7 @@ using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Locations;
 using LibreccioWeather.Core.Models;
 using LibreccioWeather.Core.Models.Wrappers;
+using LibreccioWeather.Core.Solar;
 using LibreccioWeather.Core.Units;
 
 namespace LibreccioWeather.Core.Refresh;
@@ -30,8 +31,9 @@ namespace LibreccioWeather.Core.Refresh;
 /// from the current hour.
 /// </summary>
 /// <remarks>
-/// Sun, twilight, moon and moon phase are not computed here, so they stay as the source gave them,
-/// and an hour without sun times for its day keeps the day or night flag of the source.
+/// Sun and twilight come from Spp and the moon from its own calculation. Each hour is day or night by the Sun's
+/// altitude. When Spp cannot be used, the sun times stay as the source gave them and each hour keeps the source's
+/// day or night flag.
 /// </remarks>
 public static class WeatherCompletion
 {
@@ -225,6 +227,10 @@ public static class WeatherCompletion
             {
                 Day = newDay,
                 Night = newNight,
+                Sun = AstroCalculation.GetSun(daily, location) ?? daily.Sun,
+                Twilight = AstroCalculation.GetTwilight(daily, location) ?? daily.Twilight,
+                Moon = AstroCalculation.GetMoon(daily, location),
+                MoonPhase = AstroCalculation.GetMoonPhase(daily),
                 DegreeDay = daily.DegreeDay?.Cooling is null || daily.DegreeDay.Heating is null
                     ? GetDegreeDay(newDay?.Temperature?.Value, newNight?.Temperature?.Value)
                     : daily.DegreeDay,
@@ -334,7 +340,11 @@ public static class WeatherCompletion
             .GroupBy(daily => IsoDate(daily.Date, timeZone))
             .ToDictionary(group => group.Key, group => group.First());
 
-        return hourlyList.Select(hourly =>
+        // The same horizon as sunrise and sunset, so polar days and nights need no special case.
+        double[]? altitudes = SolarCalculator.GetUpperLimbAltitudes(
+            location.Latitude, location.Longitude, [.. hourlyList.Select(hourly => hourly.Date)]);
+
+        return hourlyList.Select((hourly, index) =>
         {
             if (!dailyByDate.TryGetValue(IsoDate(hourly.Date, timeZone), out Daily? daily))
             {
@@ -345,8 +355,8 @@ public static class WeatherCompletion
             return hourly with
             {
                 AirQuality = hourlyAirQuality.GetValueOrDefault(hourly.Date),
-                // Without sun times, the flag given by the source is kept.
-                IsDaylight = sun is null ? hourly.IsDaylight : IsDaylight(sun.RiseDate, sun.SetDate, hourly.Date),
+                // Without Spp, the flag given by the source is kept.
+                IsDaylight = altitudes is null ? hourly.IsDaylight : altitudes[index] > 0.0,
                 UV = hourly.UV?.Index is >= 0.0
                     ? hourly.UV
                     : GetCurrentUVFromDayMax(daily.UV?.Index, hourly.Date, sun?.RiseDate, sun?.SetDate, timeZone),
@@ -964,17 +974,6 @@ public static class WeatherCompletion
     {
         List<TimeSpan> values = hours.OfType<TimeSpan>().ToList();
         return values.Count == 0 ? null : values.Aggregate(TimeSpan.Zero, (total, value) => total + value);
-    }
-
-    // No sunrise or sunset means polar night. A sunrise after the sunset counts as daylight.
-    private static bool IsDaylight(DateTimeOffset? sunrise, DateTimeOffset? sunset, DateTimeOffset current)
-    {
-        if (sunrise is not { } rise || sunset is not { } set)
-        {
-            return false;
-        }
-
-        return rise > set || (current >= rise && current < set);
     }
 
     // The UV follows a cosine from zero at sunrise to the daily maximum at solar noon and back to zero at sunset.
