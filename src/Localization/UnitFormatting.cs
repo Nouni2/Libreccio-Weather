@@ -14,6 +14,7 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Globalization;
 using LibreccioWeather.Core.Units;
 
 namespace LibreccioWeather.Core.Localization;
@@ -23,6 +24,73 @@ namespace LibreccioWeather.Core.Localization;
 /// </summary>
 public static class UnitFormatting
 {
+    public static string FormatValue(Speed speed, SpeedUnit unit, UnitWidth width = UnitWidth.Short)
+    {
+        return NumberFormatting.Format(speed.ToDouble(unit), unit.GetPrecision(width), Strings.Culture);
+    }
+
+    public static string Format(
+        Speed speed, SpeedUnit unit,
+        UnitWidth valueWidth = UnitWidth.Short, UnitWidth unitWidth = UnitWidth.Short)
+    {
+        return FormatMeasure(speed.ToDouble(unit), unit, valueWidth, unitWidth);
+    }
+
+    public static string FormatValue(Distance distance, DistanceUnit unit, UnitWidth width = UnitWidth.Short)
+    {
+        return NumberFormatting.Format(distance.ToDouble(unit), unit.GetPrecision(width), Strings.Culture);
+    }
+
+    public static string FormatValue(Pressure pressure, PressureUnit unit, UnitWidth width = UnitWidth.Short)
+    {
+        return NumberFormatting.Format(pressure.ToDouble(unit), unit.GetPrecision(width), Strings.Culture);
+    }
+
+    public static string Format(
+        Distance distance, DistanceUnit unit,
+        UnitWidth valueWidth = UnitWidth.Short, UnitWidth unitWidth = UnitWidth.Short)
+    {
+        return FormatMeasure(distance.ToDouble(unit), unit, valueWidth, unitWidth);
+    }
+
+    public static string Format(
+        Pressure pressure, PressureUnit unit,
+        UnitWidth valueWidth = UnitWidth.Short, UnitWidth unitWidth = UnitWidth.Short)
+    {
+        return FormatMeasure(pressure.ToDouble(unit), unit, valueWidth, unitWidth);
+    }
+
+    private static string FormatMeasure(double value, WeatherUnit unit, UnitWidth valueWidth, UnitWidth unitWidth)
+    {
+        UnitNames names = GetUnitNames(unit);
+        CultureInfo culture = Strings.Culture;
+        string language = culture.TwoLetterISOLanguageName;
+        bool useIcu = !(unit is PressureUnit && language == "eo")
+            && !(unit == SpeedUnit.Knot && language == "eo")
+            && !(unit == SpeedUnit.BeaufortScale && language is "eo" or "es" or "eu" or "ga" or "ja" or "zh");
+        string region = culture.Name.Split('-')[^1];
+        if (unit == SpeedUnit.BeaufortScale && language is "fr" or "de")
+        {
+            culture = CultureInfo.GetCultureInfo(language == "fr" ? "fr-CA" : "de-CH");
+        }
+        else if (language == "zh" && region is "TW" or "HK" or "MO" && unitWidth != UnitWidth.Long)
+        {
+            culture = CultureInfo.GetCultureInfo("en-001");
+        }
+
+        if (useIcu && names.IcuUnit is { } icuUnit
+            && FormatIcuMeasure(value, unit.GetPrecision(valueWidth), $"measure-unit/{icuUnit}"
+                + (names.IcuPer is not null ? " per-measure-unit/duration-second" : ""), unitWidth, culture) is { } formatted)
+        {
+            return formatted;
+        }
+
+        string suffix = unitWidth == UnitWidth.Long ? "long" : "short";
+        string text = string.Format(Strings.Culture, Strings.GetUnit($"{names.Name}_nominative_{suffix}"),
+            NumberFormatting.Format(value, unit.GetPrecision(valueWidth), culture));
+        return names.Per is null ? text : string.Format(Strings.Culture, Strings.GetUnit($"{names.Per}_per_{suffix}"), text);
+    }
+
     public static string FormatValue(Precipitation precipitation, PrecipitationUnit unit, UnitWidth width = UnitWidth.Short)
     {
         return NumberFormatting.Format(precipitation.ToDouble(unit), unit.GetPrecision(width), Strings.Culture);
@@ -52,7 +120,7 @@ public static class UnitFormatting
             ?? PercentFormatting.Format(ratio.InPercent, RatioUnit.Percent.GetPrecision(valueWidth), Strings.Culture);
     }
 
-    private static string? FormatIcuMeasure(double value, int precision, string measure, UnitWidth width)
+    private static string? FormatIcuMeasure(double value, int precision, string measure, UnitWidth width, CultureInfo? culture = null)
     {
         if (!Icu.SupportsUnitNames)
         {
@@ -67,7 +135,7 @@ public static class UnitFormatting
             _ => "unit-width-short",
         };
         double number = precision == 0 ? RoundToInt(value) : value;
-        return Icu.FormatNumber($"{measure} {unitWidth} {precisionSkeleton}", number, Strings.Culture)?.Text;
+        return Icu.FormatNumber($"{measure} {unitWidth} {precisionSkeleton}", number, culture ?? Strings.Culture)?.Text;
     }
 
     public static string Format(
@@ -174,6 +242,13 @@ public static class UnitFormatting
         return string.Format(Strings.Culture, Nominative("temperature", unit, width), "").Trim();
     }
 
+    public static string GetNominativeUnit(PressureUnit unit, UnitWidth width = UnitWidth.Short)
+    {
+        UnitNames names = GetUnitNames(unit);
+        string suffix = width == UnitWidth.Long ? "long" : "short";
+        return string.Format(Strings.Culture, Strings.GetUnit($"{names.Name}_nominative_{suffix}"), "").Trim();
+    }
+
     /// <summary>
     /// The value rounded to a whole number, half towards positive infinity, without its unit.
     /// </summary>
@@ -189,7 +264,7 @@ public static class UnitFormatting
             throw new ArgumentException("Cannot round NaN to an integer.", nameof(value));
         }
 
-        return (int)Math.Clamp(Math.Floor(value + 0.5), int.MinValue, int.MaxValue);
+        return (int)Math.Clamp(UnitRounding.RoundToLong(value), int.MinValue, int.MaxValue);
     }
 
     // Keys follow the upstream names, such as temperature_c_nominative_short.

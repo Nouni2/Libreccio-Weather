@@ -57,8 +57,23 @@ public class NumberFormattingTests
     [Theory]
     [InlineData(-2.5, "-2")]
     [InlineData(2.5, "3")]
+    [InlineData(0.49999999999999994, "0")]
+    [InlineData(double.PositiveInfinity, "2,147,483,647")]
+    [InlineData(double.NegativeInfinity, "-2,147,483,648")]
     public void Format_NoDecimalsHalf_RoundsTowardsPositiveInfinity(double value, string expected)
     {
         Assert.Equal(expected, NumberFormatting.Format(value, 0, English));
+    }
+
+    [Fact]
+    public void Format_NoDecimalsNaN_Throws()
+    {
+        Assert.Throws<ArgumentException>(() => NumberFormatting.Format(double.NaN, 0, English));
+    }
+
+    [Fact]
+    public void Format_AboveDecimalRange_PreservesNumber()
+    {
+        Assert.Equal("1,000,000,000,000,000,000,000,000,000,000", NumberFormatting.Format(1e30, 1, English));
     }
 }

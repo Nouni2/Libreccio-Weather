@@ -42,7 +42,7 @@ public readonly record struct Temperature : IComparable<Temperature>
     // A whole number is converted then truncated, while a fractional number is converted then rounded.
     public static Temperature From(long value, TemperatureUnit unit)
     {
-        return new Temperature((long)TemperatureUnit.Convert(value, unit, TemperatureUnit.DeciCelsius));
+        return new Temperature(UnitRounding.ToLong(TemperatureUnit.Convert(value, unit, TemperatureUnit.DeciCelsius)));
     }
 
     public static Temperature From(double value, TemperatureUnit unit)

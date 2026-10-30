@@ -15,14 +15,16 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [ ] Display of every other unit
     - [x] Unit names from CLDR through Windows' ICU, or from the translated unit strings without it
     - [x] Precipitation values in the selected unit and localized percentages
-    - [ ] Values of every other unit with their unit
+    - [x] Speed, distance and pressure values with selected precision and localized unit names
+    - [ ] Pollutant and pollen values with their units
   - [x] CLDR unit patterns
     - [x] Measured temperature and precipitation values through ICU, preserving translated narrow temperatures
     - [x] Locale-aware percentage fallback with half-even rounding and optional decimals
   - [x] Aggregate air-quality index and level names from the four contributing pollutants
   - [ ] Duration formatting
     - [x] Hours and minutes, such as "1 hour, 30 minutes", through ICU or the translated strings
-    - [ ] Single units with decimals
+    - [x] Hours with decimals, including the daily sunshine chart labels
+    - [ ] Other single duration units with decimals
   - [x] Relative times, such as "5 min. ago", through ICU
 - [x] Weather and location model (`domain`): weather, current, hourly, daily and half-day forecasts, minutely precipitation, alerts, air quality, pollen, normals, wrappers, locations and source features
 - [ ] Refresh (`RefreshHelper.getWeather`, `CommonConverter`)
@@ -88,16 +90,31 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 - [x] Vertical scrolling of the header and forecast cards
 - [ ] Cards
   - [x] Daily and hourly temperature plots with weather icons and precipitation probability
-  - [ ] Daily and hourly chart tabs
+  - [x] Daily and hourly chart tabs
     - [x] Temperature and feels-like selection following the saved chart order and available data
     - [x] Selected tabs retained across refreshes and location changes
     - [x] Daily precipitation with separate day and night bars and hourly precipitation amounts
     - [x] Hourly humidity percentages with a dew-point curve
-    - [ ] Air quality, wind, UV and the remaining daily and hourly charts
+    - [x] Daily and hourly UV bars with risk colors and an alert-level reference line
+    - [x] Hourly pressure and visibility curves, and cloud-cover bars
+    - [x] Daily and hourly air quality with index colors and reference levels
+    - [x] Daily and hourly wind speed, direction arrows and stronger-gust bars and labels
+    - [x] Daily sunshine duration, scaled against available day lengths or forecast sunshine
   - [x] Normal-temperature reference lines controlled by the horizontal-lines setting
   - [x] Chart label shadows, device-pixel histogram sizing and full forecast accessibility descriptions
   - [ ] Daily and hourly detail navigation
-  - [ ] Precipitation nowcast, air quality, pollen, alerts, wind, humidity, pressure, visibility, UV, sun, moon, clock and footer
+  - [ ] Current-weather cards
+    - [x] Half-day precipitation totals with rain and snow labels
+    - [x] Wind speed, direction and stronger gusts
+    - [x] Air-quality index and risk gauge, with today's data as a fallback
+    - [x] The two highest-risk pollens, with negligible-pollen and mold-exclusion rules
+    - [x] Humidity waves and dew point
+    - [x] UV index, risk label and source artwork
+    - [x] Visibility value and description
+    - [x] Pressure value, selected unit and progress gauge
+    - [x] Square cards in saved order, adapting to the available weather-pane width
+    - [ ] Card enter animations and detail actions
+    - [ ] Precipitation nowcast, alerts, sun, moon, clock and footer
 - [ ] Daily and hourly detail screens
 - [ ] Location search (`SearchActivity`)
   - [x] Search by name, with each result's region and country
@@ -183,6 +200,8 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Plot and reference-line coordinate checks for equal minimum and maximum values, and paired histogram coordinates with a zero maximum
   - [x] Percent-format checks for .NET rounding, optional decimals and English/French spacing differences
   - [x] Integer-rounding saturation and NaN rejection, and air-quality index saturation
+  - [x] Quantity conversion limits, large exact integers and values immediately below half-rounding boundaries
+  - [x] Negative duration components and number formatting above the .NET decimal range
   - [x] Windows instance-gate lifetime and repeated activation through named pipes
 - [ ] Third-party notices for the ported parts that come from other projects
 - [ ] Libreccio Weather's logo

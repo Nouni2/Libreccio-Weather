@@ -30,17 +30,31 @@ public static class NumberFormatting
     /// </summary>
     public static string Format(double value, int decimals, CultureInfo culture, bool showSign = false)
     {
-        if (!double.IsFinite(value))
+        double number = decimals == 0 ? UnitFormatting.RoundToInt(value) : value;
+        string precision = decimals == 0 ? "precision-integer" : "." + new string('#', decimals);
+        string sign = showSign ? "sign-always" : "sign-auto";
+        if (Icu.SupportsUnitNames && Icu.FormatNumber($"{precision} {sign}", number, culture)?.Text is { } formatted)
+        {
+            return formatted;
+        }
+
+        if (decimals != 0 && !double.IsFinite(value))
         {
             return value.ToString(culture);
+        }
+
+        string pattern = decimals == 0 ? "#,##0" : "#,##0." + new string('#', decimals);
+        if (Math.Abs(value) >= (double)decimal.MaxValue && decimals != 0)
+        {
+            return (showSign && value >= 0 ? culture.NumberFormat.PositiveSign : "") + value.ToString(pattern, culture);
         }
 
         decimal rounded;
         bool negative;
         if (decimals == 0)
         {
-            double whole = Math.Floor(value + 0.5);
-            rounded = (decimal)whole;
+            int whole = UnitFormatting.RoundToInt(value);
+            rounded = whole;
             negative = whole < 0;
         }
         else
@@ -55,7 +69,6 @@ public static class NumberFormatting
         }
 
         // English and French group every thousand, matching their minimum grouping digits of 1 in CLDR.
-        string pattern = decimals == 0 ? "#,##0" : "#,##0." + new string('#', decimals);
         string digits = Math.Abs(rounded).ToString(pattern, culture);
         if (negative)
         {

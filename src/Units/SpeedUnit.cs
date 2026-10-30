@@ -154,7 +154,7 @@ public sealed class SpeedUnit : WeatherUnit
     // Negative speeds map to force 0.
     private static double ToBeaufort(double centimetersPerSecond)
     {
-        long speed = (long)centimetersPerSecond;
+        long speed = UnitRounding.ToLong(centimetersPerSecond);
         if (speed < 0)
         {
             return 0.0;

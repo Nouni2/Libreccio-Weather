@@ -57,7 +57,7 @@ public partial class ForecastCardView : UserControl
 
         // Reference lines stay fixed to the viewport while the forecast columns scroll beneath them.
         Point origin = chart.TranslatePoint(new Point(0, 0), ForecastViewport);
-        ReferenceLines.ChartTop = (int)(origin.Y + (card.IsDaily ? 24 : 12));
+        ReferenceLines.ChartTop = (int)(origin.Y + (chart.Data?.HasTopPolylineLabel == true ? 24 : 12));
         ReferenceLines.ChartBottom = (int)(origin.Y + (int)chart.ActualHeight - 36);
     }
 

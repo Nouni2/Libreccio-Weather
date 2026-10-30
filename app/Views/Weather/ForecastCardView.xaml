@@ -98,14 +98,19 @@
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="48" />
+                                        <RowDefinition Height="Auto" />
                                         <RowDefinition Height="*" />
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="16" />
                                     </Grid.RowDefinitions>
                                     <TextBlock Margin="0,2" HorizontalAlignment="Center" Style="{StaticResource TitleMediumText}" Text="{Binding Label}" />
                                     <TextBlock Grid.Row="1" Margin="0,2" HorizontalAlignment="Center" Style="{StaticResource BodyMediumText}" Text="{Binding Date}" />
-                                    <Image Grid.Row="2" Width="32" Height="32" Source="{Binding DayIcon}" AutomationProperties.Name="{Binding Description}" />
+                                    <Border Grid.Row="2" Height="48" Visibility="{Binding ShowDayIcon, Converter={StaticResource BooleanToVisibility}}">
+                                        <Grid>
+                                            <Image Width="32" Height="32" Source="{Binding DayIcon}" AutomationProperties.Name="{Binding Description}" />
+                                            <Image Width="32" Height="32" Source="{Binding DayWindIcon}" AutomationProperties.Name="{Binding Description}" />
+                                        </Grid>
+                                    </Border>
                                     <c:PolylineAndHistogramView Grid.Row="3" Data="{Binding Chart}" ClipToBounds="True"
                                                                 Loaded="OnChartLoaded" SizeChanged="OnChartSizeChanged">
                                         <c:PolylineAndHistogramView.Style>
@@ -140,7 +145,10 @@
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
-                                        <Image Width="32" Height="32" Source="{Binding NightIcon}" AutomationProperties.Name="{Binding Description}" />
+                                        <Grid>
+                                            <Image Width="32" Height="32" Source="{Binding NightIcon}" AutomationProperties.Name="{Binding Description}" />
+                                            <Image Width="32" Height="32" Source="{Binding NightWindIcon}" AutomationProperties.Name="{Binding Description}" />
+                                        </Grid>
                                     </Border>
                                 </Grid>
                             </DataTemplate>

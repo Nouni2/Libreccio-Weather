@@ -22,6 +22,33 @@ internal static class UnitRounding
     // Math.Round would round half to even and store different values for the same input.
     public static long RoundToLong(double value)
     {
-        return (long)Math.Floor(value + 0.5);
+        if (double.IsNaN(value))
+        {
+            throw new ArgumentException("Cannot round NaN to an integer.", nameof(value));
+        }
+
+        // Adding 0.5 first can turn a value just below a half into a tie, or change a large exact integer.
+        double floor = Math.Floor(value);
+        return ToLong(value - floor >= 0.5 ? floor + 1 : floor);
+    }
+
+    public static long ToLong(double value)
+    {
+        if (double.IsNaN(value))
+        {
+            return 0;
+        }
+
+        if (value >= long.MaxValue)
+        {
+            return long.MaxValue;
+        }
+
+        if (value <= long.MinValue)
+        {
+            return long.MinValue;
+        }
+
+        return (long)value;
     }
 }

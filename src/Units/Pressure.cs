@@ -48,7 +48,7 @@ public readonly record struct Pressure : IComparable<Pressure>
     // A whole number is converted then truncated, while a fractional number is converted then rounded.
     public static Pressure From(long value, PressureUnit unit)
     {
-        return new Pressure((long)PressureUnit.Convert(value, unit, PressureUnit.Pascal));
+        return new Pressure(UnitRounding.ToLong(PressureUnit.Convert(value, unit, PressureUnit.Pascal)));
     }
 
     public static Pressure From(double value, PressureUnit unit)

@@ -40,7 +40,7 @@ public readonly record struct Ratio : IComparable<Ratio>
     // A whole number is converted then truncated, while a fractional number is converted then rounded.
     public static Ratio From(long value, RatioUnit unit)
     {
-        return new Ratio((long)RatioUnit.Convert(value, unit, RatioUnit.Permille));
+        return new Ratio(UnitRounding.ToLong(RatioUnit.Convert(value, unit, RatioUnit.Permille)));
     }
 
     public static Ratio From(double value, RatioUnit unit)

@@ -23,6 +23,7 @@ public sealed class UnitFormattingTests
     [Theory]
     [InlineData(-2.5, -2)]
     [InlineData(2.5, 3)]
+    [InlineData(0.49999999999999994, 0)]
     [InlineData(2147483648.0, int.MaxValue)]
     [InlineData(-2147483649.0, int.MinValue)]
     [InlineData(double.PositiveInfinity, int.MaxValue)]

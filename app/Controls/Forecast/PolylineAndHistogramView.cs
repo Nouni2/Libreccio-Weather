@@ -48,8 +48,8 @@ public sealed class PolylineAndHistogramView : ForecastChartView
 
         int measuredHeight = (int)ActualHeight;
         int marginTop = data.HasTopPolylineLabel ? 24 : 12;
-        const int MarginBottom = 36;
-        double bottom = measuredHeight - MarginBottom;
+        int marginBottom = data.SecondaryHistogram?.Text is not null ? 58 : 36;
+        double bottom = measuredHeight - marginBottom;
         Brush primary = (Brush)FindResource("PrimaryBrush");
         Brush highText = (Brush)FindResource("OnSurfaceBrush");
         Brush lowText = (Brush)FindResource("OnSurfaceVariantBrush");
@@ -58,20 +58,38 @@ public sealed class PolylineAndHistogramView : ForecastChartView
         drawingContext.DrawLine(new Pen(outline, 1),
             new Point(ActualWidth / 2, marginTop), new Point(ActualWidth / 2, bottom));
 
+        if (data.SecondaryHistogram is { Value: { } secondary, Text: not null } gusts
+            && data.Histogram is { } speed && secondary > speed)
+        {
+            int y = TrendCoordinates.ComputeSingleCoordinate(measuredHeight, marginTop, marginBottom,
+                secondary, data.HighestHistogram, data.LowestHistogram);
+            if (y <= bottom)
+            {
+                double halfWidth = PixelTruncatedDimension(4.5f);
+                drawingContext.DrawRoundedRectangle(WithAlpha(new SolidColorBrush(gusts.Color), 76), null,
+                    new Rect(ActualWidth / 2 - halfWidth, y, 2 * halfWidth, bottom - y), halfWidth, halfWidth);
+            }
+        }
+
         if (data.Histogram is { } histogram && data.HistogramText is { } histogramText
             && (histogram != 0f || (data.Highest is null && data.Lowest is null)))
         {
-            int y = TrendCoordinates.ComputeSingleCoordinate(measuredHeight, marginTop, MarginBottom,
+            int y = TrendCoordinates.ComputeSingleCoordinate(measuredHeight, marginTop, marginBottom,
                 histogram, data.HighestHistogram, data.LowestHistogram);
             Brush histogramBrush = data.HistogramColor is { } color ? new SolidColorBrush(color) : primary;
             if (y <= bottom)
             {
                 double halfWidth = PixelTruncatedDimension(4.5f);
-                drawingContext.DrawRoundedRectangle(WithAlpha(histogramBrush, 127), null,
+                drawingContext.DrawRoundedRectangle(WithAlpha(histogramBrush, data.HistogramAlpha), null,
                     new Rect(ActualWidth / 2 - halfWidth, y, 2 * halfWidth, bottom - y), halfWidth, halfWidth);
             }
 
             DrawText(drawingContext, histogramText, 12, data.HistogramUsesTitleColor ? highText : primary, bottom + 18);
+        }
+
+        if (data.SecondaryHistogram is { Text: { Length: > 0 } text } pill)
+        {
+            DrawSecondaryHistogramPill(drawingContext, text, pill.Color, false);
         }
 
         if (data.Highest is not { } highest || data.Lowest is not { } lowest)
@@ -79,9 +97,9 @@ public sealed class PolylineAndHistogramView : ForecastChartView
             return;
         }
 
-        int[] highY = Coordinates(data.HighValues, measuredHeight, marginTop, highest, lowest);
+        int[] highY = Coordinates(data.HighValues, measuredHeight, marginTop, marginBottom, highest, lowest);
         int[] lowY = data.LowValues is { } low
-            ? Coordinates(low, measuredHeight, marginTop, highest, lowest) : new int[3];
+            ? Coordinates(low, measuredHeight, marginTop, marginBottom, highest, lowest) : new int[3];
         if (data.HighText is { } highLabel)
         {
             DrawPolyline(drawingContext, data.HighValues, highY, primary, marginTop, bottom, shadow: true);
@@ -95,10 +113,10 @@ public sealed class PolylineAndHistogramView : ForecastChartView
         }
     }
 
-    private static int[] Coordinates(float?[] values, int height, int marginTop, float highest, float lowest)
+    private static int[] Coordinates(float?[] values, int height, int marginTop, int marginBottom, float highest, float lowest)
     {
         return values.Select(value => value is { } number
-            ? TrendCoordinates.ComputeSingleCoordinate(height, marginTop, 36, number, highest, lowest)
+            ? TrendCoordinates.ComputeSingleCoordinate(height, marginTop, marginBottom, number, highest, lowest)
             : 0).ToArray();
     }
 

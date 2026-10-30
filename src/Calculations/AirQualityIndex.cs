@@ -15,12 +15,13 @@
  */
 
 using LibreccioWeather.Core.Models;
+using LibreccioWeather.Core.Units;
 
 namespace LibreccioWeather.Core.Calculations;
 
 public static class AirQualityIndex
 {
-    private static readonly int[] AqiThresholds = [0, 20, 50, 100, 150, 250];
+    public static IReadOnlyList<int> AqiThresholds { get; } = [0, 20, 50, 100, 150, 250];
 
     public static int? GetIndex(AirQuality airQuality)
     {
@@ -63,6 +64,6 @@ public static class AirQualityIndex
             ? ((double)AqiThresholds[level + 1] - AqiThresholds[level])
                 / ((double)thresholds[level + 1] - thresholds[level]) * (cp - thresholds[level]) + AqiThresholds[level]
             : cp * AqiThresholds[^1] / thresholds[^1];
-        return (int)Math.Clamp(Math.Floor(index + 0.5), int.MinValue, int.MaxValue);
+        return (int)Math.Clamp(UnitRounding.RoundToLong(index), int.MinValue, int.MaxValue);
     }
 }

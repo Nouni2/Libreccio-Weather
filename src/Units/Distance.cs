@@ -44,7 +44,7 @@ public readonly record struct Distance : IComparable<Distance>
     // A whole number is converted then truncated, while a fractional number is converted then rounded.
     public static Distance From(long value, DistanceUnit unit)
     {
-        return new Distance((long)DistanceUnit.Convert(value, unit, DistanceUnit.Meter));
+        return new Distance(UnitRounding.ToLong(DistanceUnit.Convert(value, unit, DistanceUnit.Meter)));
     }
 
     public static Distance From(double value, DistanceUnit unit)

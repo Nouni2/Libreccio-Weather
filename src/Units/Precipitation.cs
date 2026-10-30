@@ -44,7 +44,7 @@ public readonly record struct Precipitation : IComparable<Precipitation>
     // A whole number is converted then truncated, while a fractional number is converted then rounded.
     public static Precipitation From(long value, PrecipitationUnit unit)
     {
-        return new Precipitation((long)PrecipitationUnit.Convert(value, unit, PrecipitationUnit.Micrometer));
+        return new Precipitation(UnitRounding.ToLong(PrecipitationUnit.Convert(value, unit, PrecipitationUnit.Micrometer)));
     }
 
     public static Precipitation From(double value, PrecipitationUnit unit)

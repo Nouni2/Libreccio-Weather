@@ -17,6 +17,9 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:c="clr-namespace:LibreccioWeather.Controls">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="WeatherCardArtwork.xaml" />
+    </ResourceDictionary.MergedDictionaries>
     <CornerRadius x:Key="ButtonCornerRadius">20</CornerRadius>
     <CornerRadius x:Key="ForecastCardCornerRadius">28</CornerRadius>
     <CornerRadius x:Key="SearchCornerRadius">28</CornerRadius>
@@ -41,6 +44,9 @@
     <SolidColorBrush x:Key="OnSecondaryContainerBrush" Color="#E8DEF8" />
     <SolidColorBrush x:Key="TertiaryBrush" Color="#EFB8C8" />
     <SolidColorBrush x:Key="OnTertiaryBrush" Color="#492532" />
+    <SolidColorBrush x:Key="TertiaryContainerBrush" Color="#5A4300" />
+    <SolidColorBrush x:Key="OnTertiaryContainerBrush" Color="#FFDF8E" />
+    <SolidColorBrush x:Key="WidgetBackgroundBrush" Color="#404659" />
     <SolidColorBrush x:Key="ErrorContainerBrush" Color="#8C1D18" />
     <SolidColorBrush x:Key="OnErrorContainerBrush" Color="#F9DEDC" />
     <SolidColorBrush x:Key="InverseSurfaceBrush" Color="#E6E0E9" />

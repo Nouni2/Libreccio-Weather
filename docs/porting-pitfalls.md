@@ -16,7 +16,7 @@ Where Kotlin reads two ways, compiling a small Kotlin test settles it.
 
 | Upstream | Upstream behaviour | .NET difference | Reproduce with |
 |---|---|---|---|
-| `roundToInt()`, `roundToLong()`, Java `Math.round` | Halves round towards positive infinity: 2.5 gives 3, −2.5 gives −2. Kotlin's rounding calls reject `NaN` and saturate out-of-range values. | `Math.Round` rounds halves to even by default; `AwayFromZero` turns −2.5 into −3. An unchecked cast does not guarantee saturation. | For `roundToInt()`, reject `NaN`, use `Math.Floor(value + 0.5)` and clamp before casting, as in `UnitFormatting.RoundToInt` and `AirQualityIndex`. `UnitRounding.RoundToLong` covers the half-rounding rule but still lacks saturation. |
+| `roundToInt()`, `roundToLong()`, Java `Math.round` | Halves round towards positive infinity: 2.5 gives 3, −2.5 gives −2. Kotlin's rounding calls reject `NaN` and saturate out-of-range values. | `Math.Round` rounds halves to even by default; `AwayFromZero` turns −2.5 into −3. An unchecked cast does not guarantee saturation. Even `Floor(value + 0.5)` changes `0.49999999999999994` to 1 and changes the exact integer 4503599627370497. | `UnitRounding.RoundToLong` rejects NaN, compares the fractional part against 0.5 before addition and saturates explicitly. `UnitFormatting.RoundToInt` and `AirQualityIndex` then clamp to the int bounds. `QuantityConversionTests` and the formatting tests pin these differences. |
 | `kotlin.math.round()`, Java `Math.rint` | Halves round to even: 2.5 gives 2, 3.5 gives 4. | None, but the name looks like `roundToInt()` and behaves differently from it. | `Math.Round(value)`. |
 | ICU `NumberFormatter`, `NumberFormat`, `DecimalFormat` | Halves round to even unless a rounding mode is set. | `Math.Round(value, decimals, MidpointRounding.AwayFromZero)` rounds them away from zero. | `Math.Round(value, decimals)`, or the rounding mode the upstream formatter sets. |
 
@@ -53,6 +53,7 @@ Kotlin's `/` and `%` behave like C#'s.
 |---|---|---|---|
 | `Float` values and literals such as `60f` | 32-bit precision. | `double` keeps more digits, so a comparison or a stored value can differ. | `float` wherever the result is compared, stored or displayed at full precision. |
 | `Float.toInt()` | Truncates finite values towards zero, converts `NaN` to zero and saturates infinities and out-of-range values to integer bounds. | An unchecked C# floating-point cast does not guarantee these results. | Explicit `NaN` and bound checks before casting, as in `TrendCoordinates`. Equal plot and reference-line bounds, or a zero paired-histogram maximum, can produce non-finite coordinates. |
+| `Double.toLong()` after converting a whole-number quantity | Truncates towards zero, maps NaN to zero and saturates at the long bounds. Conversion of a large input long to double can itself put the value outside the long range. | An unchecked double-to-long cast does not provide the same contract. | `UnitRounding.ToLong`, used after conversion by the quantity constructors and the Beaufort conversion. |
 | `==` on `Double?` or other values not typed as `Double` | Uses `equals`: `NaN == NaN` is true and `0.0 == -0.0` is false. | `==` on `double?` follows IEEE 754: `NaN == NaN` is false. | `.Equals` where upstream compares nullable or boxed values. |
 
 ## Collections
@@ -78,6 +79,7 @@ Kotlin's `/` and `%` behave like C#'s.
 | Upstream | Upstream behaviour | .NET difference | Reproduce with |
 |---|---|---|---|
 | `Calendar` and `Date` with a location's `TimeZone` | Days, hours and day boundaries fall in the location's time zone. | `DateTime.Now`, `ToLocalTime` and `DateTimeKind.Local` use the computer's time zone. | `TimeZoneInfo.ConvertTime` with the location's IANA time zone. |
+| `Duration.toComponents` | Whole hours truncate towards zero and the remaining minutes and seconds keep the duration's sign. | Flooring `TimeSpan.TotalHours` turns −90 minutes into −2 hours and −30 minutes. | Divide ticks by ticks per hour using integer division, then use the minute and second components, as checked by `DurationFormattingTests`. |
 
 ## Platform
 

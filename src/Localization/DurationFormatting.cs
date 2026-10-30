@@ -23,14 +23,42 @@ namespace LibreccioWeather.Core.Localization;
 /// </summary>
 public static class DurationFormatting
 {
+    public static string FormatHours(
+        TimeSpan duration, UnitWidth valueWidth = UnitWidth.Short, UnitWidth unitWidth = UnitWidth.Short)
+    {
+        int precision = valueWidth switch
+        {
+            UnitWidth.Narrow => 0,
+            UnitWidth.Long => 2,
+            _ => 1,
+        };
+        string width = unitWidth switch
+        {
+            UnitWidth.Long => "unit-width-full-name",
+            UnitWidth.Narrow => "unit-width-narrow",
+            _ => "unit-width-short",
+        };
+        string precisionSkeleton = precision == 0 ? "precision-integer" : "." + new string('#', precision);
+        double hours = precision == 0 ? UnitFormatting.RoundToInt(duration.TotalHours) : duration.TotalHours;
+        if (Icu.SupportsUnitNames
+            && Icu.FormatNumber($"measure-unit/duration-hour {width} {precisionSkeleton}", hours, Strings.Culture)?.Text is { } formatted)
+        {
+            return formatted;
+        }
+
+        string suffix = unitWidth == UnitWidth.Long ? "long" : "short";
+        return string.Format(Strings.Culture, Strings.GetUnit($"duration_hr_nominative_{suffix}"),
+            NumberFormatting.Format(duration.TotalHours, precision, Strings.Culture));
+    }
+
     /// <summary>
     /// A duration as hours, then minutes, then seconds when <paramref name="withSeconds"/> is set, leaving out the parts
-    /// that are zero. A zero duration is written as zero hours.
+    /// that are zero. Without ICU list formatting, the duration uses decimal hours.
     /// </summary>
     public static string FormatTime(TimeSpan duration, UnitWidth unitWidth = UnitWidth.Short, bool withSeconds = false)
     {
         List<(long Value, DurationPart Part)> parts = [];
-        long hours = (long)Math.Floor(duration.TotalHours);
+        long hours = duration.Ticks / TimeSpan.TicksPerHour;
         if (hours != 0)
         {
             parts.Add((hours, DurationPart.Hour));
@@ -56,7 +84,7 @@ public static class DurationFormatting
             return formatted;
         }
 
-        return string.Join(Strings.GetUnit("locale_separator"), parts.Select(part => FormatWithStrings(part.Value, part.Part, unitWidth)));
+        return FormatHours(duration, unitWidth: unitWidth);
     }
 
     private enum DurationPart
@@ -96,19 +124,4 @@ public static class DurationFormatting
         return Icu.FormatUnitList(measures, Strings.Culture);
     }
 
-    // The translated nominative pattern, such as "{0} h", with the value as a whole number.
-    private static string FormatWithStrings(long value, DurationPart part, UnitWidth unitWidth)
-    {
-        string unit = part switch
-        {
-            DurationPart.Hour => "hr",
-            DurationPart.Minute => "min",
-            _ => "sec",
-        };
-        string suffix = unitWidth == UnitWidth.Long ? "long" : "short";
-        return string.Format(
-            Strings.Culture,
-            Strings.GetUnit($"duration_{unit}_nominative_{suffix}"),
-            NumberFormatting.Format(value, 0, Strings.Culture));
-    }
 }

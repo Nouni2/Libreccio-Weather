@@ -61,10 +61,13 @@ public sealed class TrendReferenceLinesView : FrameworkElement
     {
         base.OnRender(drawingContext);
         if (Data is not { } data || data.KeyLines.Count == 0 || ChartTop < 0 || ChartBottom < 0
-            || data.Columns.FirstOrDefault()?.Chart is not { Highest: { } highest, Lowest: { } lowest })
+            || data.Columns.FirstOrDefault()?.Chart is not { } chart)
         {
             return;
         }
+
+        float highest = chart.Highest ?? chart.HighestHistogram;
+        float lowest = chart.Lowest ?? chart.LowestHistogram;
 
         var pen = new Pen((Brush)FindResource("OutlineBrush"), 1)
         {

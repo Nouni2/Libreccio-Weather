@@ -39,7 +39,7 @@ public readonly record struct PollutantConcentration : IComparable<PollutantConc
     public static PollutantConcentration From(long value, PollutantConcentrationUnit unit)
     {
         return new PollutantConcentration(
-            (long)PollutantConcentrationUnit.Convert(value, unit, PollutantConcentrationUnit.MicrogramPerCubicMeter));
+            UnitRounding.ToLong(PollutantConcentrationUnit.Convert(value, unit, PollutantConcentrationUnit.MicrogramPerCubicMeter)));
     }
 
     public static PollutantConcentration From(double value, PollutantConcentrationUnit unit)

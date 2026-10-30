@@ -15,6 +15,7 @@
  */
 
 using CommunityToolkit.Mvvm.ComponentModel;
+using LibreccioWeather.Core.Calculations;
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Locations;
 using LibreccioWeather.Core.Models;
@@ -77,7 +78,8 @@ public sealed partial class ForecastCardViewModel : ObservableObject
     }
 
     public static ForecastCardViewModel? CreateDaily(
-        Core.Models.Weather weather, Location location, TemperatureUnit unit, PrecipitationUnit precipitationUnit, SettingsManager settings,
+        Core.Models.Weather weather, Location location, TemperatureUnit unit, PrecipitationUnit precipitationUnit,
+        SpeedUnit speedUnit, SettingsManager settings,
         string? selectedTab, Action<string?> setSelectedTab)
     {
         List<ForecastTrend> trends = [];
@@ -96,6 +98,25 @@ public sealed partial class ForecastCardViewModel : ObservableObject
                 day.Day?.Temperature?.FeelsLikeTemperature is not null || day.Night?.Temperature?.FeelsLikeTemperature is not null))
             {
                 trends.Add(CreateDailyTemperature(weather, location, unit, true, false));
+            }
+            else if (display == DailyTrendDisplay.UVIndex && weather.DailyForecast.Any(day => day.UV?.Index is not null))
+            {
+                trends.Add(CreateDailyUV(weather, location, settings.IsTrendHorizontalLinesEnabled));
+            }
+            else if (display == DailyTrendDisplay.AirQuality && weather.DailyForecast.Any(day =>
+                day.AirQuality is { } airQuality && AirQualityIndex.GetIndex(airQuality) is not null))
+            {
+                trends.Add(CreateDailyAirQuality(weather, location, settings.IsTrendHorizontalLinesEnabled));
+            }
+            else if (display == DailyTrendDisplay.Wind && weather.DailyForecast.Any(day =>
+                day.Day?.Wind?.Speed is not null || day.Night?.Wind?.Speed is not null))
+            {
+                trends.Add(CreateDailyWind(weather, location, speedUnit));
+            }
+            else if (display == DailyTrendDisplay.Sunshine && weather.DailyForecast.Any(day =>
+                day.SunshineDuration is { } duration && duration.Ticks / TimeSpan.TicksPerMinute > 0))
+            {
+                trends.Add(CreateDailySunshine(weather, location));
             }
         }
 
@@ -141,7 +162,8 @@ public sealed partial class ForecastCardViewModel : ObservableObject
     }
 
     public static ForecastCardViewModel? CreateHourly(
-        Core.Models.Weather weather, Location location, TemperatureUnit unit, PrecipitationUnit precipitationUnit, SettingsManager settings,
+        Core.Models.Weather weather, Location location, TemperatureUnit unit, PrecipitationUnit precipitationUnit,
+        SpeedUnit speedUnit, PressureUnit pressureUnit, DistanceUnit distanceUnit, SettingsManager settings,
         string? selectedTab, Action<string?> setSelectedTab)
     {
         List<ForecastTrend> trends = [];
@@ -164,6 +186,34 @@ public sealed partial class ForecastCardViewModel : ObservableObject
             else if (display == HourlyTrendDisplay.Humidity && weather.NextHourlyForecast.Any(hour => hour.DewPoint is not null))
             {
                 trends.Add(CreateHourlyHumidity(weather, location, unit));
+            }
+            else if (display == HourlyTrendDisplay.UVIndex && weather.NextHourlyForecast.Any(hour => hour.UV?.Index is not null))
+            {
+                trends.Add(CreateHourlyUV(weather, location, settings.IsTrendHorizontalLinesEnabled));
+            }
+            else if (display == HourlyTrendDisplay.Pressure)
+            {
+                if (CreateHourlyPressure(weather, location, pressureUnit, settings.IsTrendHorizontalLinesEnabled) is { } pressure)
+                {
+                    trends.Add(pressure);
+                }
+            }
+            else if (display == HourlyTrendDisplay.CloudCover && weather.NextHourlyForecast.Any(hour => hour.CloudCover is not null))
+            {
+                trends.Add(CreateHourlyCloudCover(weather, location));
+            }
+            else if (display == HourlyTrendDisplay.Visibility && weather.NextHourlyForecast.Any(hour => hour.Visibility is not null))
+            {
+                trends.Add(CreateHourlyVisibility(weather, location, distanceUnit));
+            }
+            else if (display == HourlyTrendDisplay.AirQuality && weather.NextHourlyForecast.Any(hour =>
+                hour.AirQuality is { } airQuality && AirQualityIndex.GetIndex(airQuality) is not null))
+            {
+                trends.Add(CreateHourlyAirQuality(weather, location, settings.IsTrendHorizontalLinesEnabled));
+            }
+            else if (display == HourlyTrendDisplay.Wind && weather.NextHourlyForecast.Any(hour => hour.Wind?.Speed is not null))
+            {
+                trends.Add(CreateHourlyWind(weather, location, speedUnit));
             }
         }
 
@@ -289,17 +339,21 @@ public sealed record ForecastTrend(
 public sealed record TrendKeyLine(float Value, string ContentLeft, string ContentRight, bool AboveLine);
 
 public sealed record ForecastColumn(
-    string Label, string? Date, string? DayIcon, string? NightIcon, string? Description, TrendChartData Chart);
+    string Label, string? Date, string? DayIcon, string? NightIcon, string? Description, TrendChartData Chart,
+    bool ShowDayIcon = true, System.Windows.Media.ImageSource? DayWindIcon = null, System.Windows.Media.ImageSource? NightWindIcon = null);
 
 public sealed record TrendChartData(
     float?[] HighValues, float?[]? LowValues, string? HighText, string? LowText,
     float? Highest, float? Lowest, float? Histogram, string? HistogramText, bool HasTopPolylineLabel,
     float HighestHistogram = 100, float LowestHistogram = 0, Color? HistogramColor = null,
-    bool HistogramUsesTitleColor = false, DoubleHistogramData? DoubleHistogram = null)
+    bool HistogramUsesTitleColor = false, DoubleHistogramData? DoubleHistogram = null,
+    SecondaryHistogramData? SecondaryHistogram = null, byte HistogramAlpha = 127)
 {
     public bool IsDoubleHistogram => DoubleHistogram is not null;
 }
 
 public sealed record DoubleHistogramData(
     float? HighValue, float? LowValue, string? HighText, string? LowText, float Highest,
-    Color HighColor, Color LowColor);
+    Color HighColor, Color LowColor, SecondaryHistogramData? HighSecondary = null, SecondaryHistogramData? LowSecondary = null);
+
+public sealed record SecondaryHistogramData(float? Value, string? Text, Color Color);

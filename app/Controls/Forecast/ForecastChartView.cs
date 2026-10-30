@@ -19,6 +19,8 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using LibreccioWeather.Core.Localization;
 using Brush = System.Windows.Media.Brush;
+using Brushes = System.Windows.Media.Brushes;
+using Color = System.Windows.Media.Color;
 using Colors = System.Windows.Media.Colors;
 
 namespace LibreccioWeather.Controls.Forecast;
@@ -63,6 +65,17 @@ public abstract class ForecastChartView : FrameworkElement
             FontStyles.Normal, FontWeights.Medium, FontStretches.Normal);
         return new FormattedText(text, Strings.Culture, FlowDirection, typeface, size, brush,
             VisualTreeHelper.GetDpi(this).PixelsPerDip);
+    }
+
+    protected void DrawSecondaryHistogramPill(DrawingContext drawingContext, string text, Color color, bool above)
+    {
+        FormattedText formatted = MakeText(text, 10, Brushes.Black);
+        double height = formatted.Height + 6;
+        double width = Math.Max(height, formatted.Width + 12);
+        double top = above ? 2 : ActualHeight - 2 - height;
+        drawingContext.DrawRoundedRectangle(new SolidColorBrush(color), null,
+            new Rect((ActualWidth - width) / 2, top, width, height), height / 2, height / 2);
+        drawingContext.DrawText(formatted, new System.Windows.Point((ActualWidth - formatted.Width) / 2, top + 3));
     }
 
     private sealed class ShadowedLabels : DrawingVisual

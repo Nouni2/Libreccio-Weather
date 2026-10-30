@@ -48,7 +48,7 @@ public readonly record struct Speed : IComparable<Speed>
     // A whole number is converted then truncated, while a fractional number is converted then rounded.
     public static Speed From(long value, SpeedUnit unit)
     {
-        return new Speed((long)SpeedUnit.Convert(value, unit, SpeedUnit.CentimeterPerSecond));
+        return new Speed(UnitRounding.ToLong(SpeedUnit.Convert(value, unit, SpeedUnit.CentimeterPerSecond)));
     }
 
     public static Speed From(double value, SpeedUnit unit)

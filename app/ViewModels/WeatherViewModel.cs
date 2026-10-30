@@ -26,6 +26,7 @@ using LibreccioWeather.Core.Refresh;
 using LibreccioWeather.Core.Settings.Options;
 using LibreccioWeather.Core.Units;
 using LibreccioWeather.ViewModels.Forecast;
+using LibreccioWeather.ViewModels.WeatherCards;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
 
@@ -37,6 +38,9 @@ public sealed partial class WeatherViewModel : ObservableObject
     private readonly MainViewModel _main;
     private readonly TemperatureUnit _temperatureUnit;
     private readonly PrecipitationUnit _precipitationUnit;
+    private readonly PressureUnit _pressureUnit;
+    private readonly DistanceUnit _distanceUnit;
+    private readonly SpeedUnit _speedUnit;
     private Location _location;
 
     [ObservableProperty]
@@ -67,7 +71,7 @@ public sealed partial class WeatherViewModel : ObservableObject
     private Brush _backgroundBrush = Brushes.Transparent;
 
     [ObservableProperty]
-    private IReadOnlyList<ForecastCardViewModel> _forecastCards = [];
+    private IReadOnlyList<object> _cards = [];
 
     public WeatherViewModel(WeatherRefresher refresher, MainViewModel main, Location location)
     {
@@ -75,6 +79,9 @@ public sealed partial class WeatherViewModel : ObservableObject
         _main = main;
         _temperatureUnit = main.Settings.GetTemperatureUnit(main.RegionCode);
         _precipitationUnit = main.Settings.GetPrecipitationUnit(main.RegionCode);
+        _pressureUnit = main.Settings.GetPressureUnit(main.RegionCode);
+        _distanceUnit = main.Settings.GetDistanceUnit(main.RegionCode);
+        _speedUnit = main.Settings.GetSpeedUnit(main.RegionCode);
         _location = location;
         TemperatureUnitText = UnitFormatting.GetNominativeUnit(_temperatureUnit);
         if (location.Weather is { } weather)
@@ -202,12 +209,12 @@ public sealed partial class WeatherViewModel : ObservableObject
         bool daylight = weather.NextHourlyForecast.FirstOrDefault()?.IsDaylight ?? true;
         BackgroundBrush = _main.Settings.MainScreenBackgroundEnabled
             ? WeatherBackground.GetBrush(current?.WeatherCode, daylight) : Brushes.Transparent;
-        List<ForecastCardViewModel> cards = [];
+        List<object> cards = [];
         foreach (CardDisplay card in _main.Settings.CardDisplayList)
         {
             if (card == CardDisplay.DailyForecast && weather.DailyForecast.Count > 0)
             {
-                if (ForecastCardViewModel.CreateDaily(weather, _location, _temperatureUnit, _precipitationUnit, _main.Settings,
+                if (ForecastCardViewModel.CreateDaily(weather, _location, _temperatureUnit, _precipitationUnit, _speedUnit, _main.Settings,
                     _main.SelectedDailyTab, tab => _main.SelectedDailyTab = tab) is { } daily)
                 {
                     cards.Add(daily);
@@ -215,15 +222,20 @@ public sealed partial class WeatherViewModel : ObservableObject
             }
             else if (card == CardDisplay.HourlyForecast && weather.NextHourlyForecast.Count > 0)
             {
-                if (ForecastCardViewModel.CreateHourly(weather, _location, _temperatureUnit, _precipitationUnit, _main.Settings,
+                if (ForecastCardViewModel.CreateHourly(weather, _location, _temperatureUnit, _precipitationUnit,
+                    _speedUnit, _pressureUnit, _distanceUnit, _main.Settings,
                     _main.SelectedHourlyTab, tab => _main.SelectedHourlyTab = tab) is { } hourly)
                 {
                     cards.Add(hourly);
                 }
             }
+            else if (ConditionsCardViewModel.Create(card, weather, _location, _main.Settings, _main.RegionCode) is { } conditions)
+            {
+                cards.Add(conditions);
+            }
         }
 
-        ForecastCards = cards;
+        Cards = cards;
     }
 
     // The next two half days: last night and today before 06:00, today and tonight until 18:00,
