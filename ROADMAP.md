@@ -14,8 +14,12 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Temperature display from the translated unit strings
   - [ ] Display of every other unit
     - [x] Unit names from CLDR through Windows' ICU, or from the translated unit strings without it
+    - [ ] Precipitation values in the selected unit and localized percentages
     - [ ] Values of every other unit with their unit
   - [ ] CLDR unit patterns
+    - [ ] Measured temperature and precipitation values through ICU, preserving translated narrow temperatures
+    - [ ] Locale-aware percentage fallback with half-even rounding and optional decimals
+  - [ ] Aggregate air-quality index and level names from the four contributing pollutants
   - [ ] Duration formatting
     - [x] Hours and minutes, such as "1 hour, 30 minutes", through ICU or the translated strings
     - [ ] Single units with decimals
@@ -83,7 +87,15 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 - [ ] Vertical scrolling of the header and forecast cards
 - [ ] Cards
   - [ ] Daily and hourly temperature plots with weather icons and precipitation probability
-  - [ ] Other daily and hourly chart tabs, normal-temperature reference lines and detail navigation
+  - [ ] Daily and hourly chart tabs
+    - [ ] Temperature and feels-like selection following the saved chart order and available data
+    - [ ] Selected tabs retained across refreshes and location changes
+    - [ ] Daily precipitation with separate day and night bars and hourly precipitation amounts
+    - [ ] Hourly humidity percentages with a dew-point curve
+    - [ ] Air quality, wind, UV and the remaining daily and hourly charts
+  - [ ] Normal-temperature reference lines controlled by the horizontal-lines setting
+  - [ ] Chart label shadows, device-pixel histogram sizing and full forecast accessibility descriptions
+  - [ ] Daily and hourly detail navigation
   - [ ] Precipitation nowcast, air quality, pollen, alerts, wind, humidity, pressure, visibility, UV, sun, moon, clock and footer
 - [ ] Daily and hourly detail screens
 - [ ] Location search (`SearchActivity`)
@@ -108,11 +120,13 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Background updates: refresh interval with the warning before turning it off, battery saver switch and last run
   - [x] Appearance: language, applied at once, and units
   - [x] Units: temperature, precipitation, speed, distance and pressure
+  - [ ] External modules: Notification widget, Persistent, Style, Temperature as status bar icon and Use feels like temperature
   - [ ] Appearance: calendar, dark mode and the rest of the theme section
   - [ ] Main screen, notifications, widgets, location, weather sources and debug settings
   - [ ] About screen
 - [ ] Breezy Weather's colors and light theme, in place of the Material 3 baseline dark colors used now
-- [ ] Single instance, and closing the window to the tray
+- [ ] Single instance
+- [ ] Closing the window to the tray, restoring it and exiting through the tray menu
 - [x] Main window icon of the current season at the location on screen, reversed in the southern hemisphere
 
 ### Experimental desktop interface
@@ -125,7 +139,16 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 ### Mistray
 
 - [ ] Tray icon with the temperature or a condition icon, tooltip and menu
+  - [ ] Condition artwork, with the app icon when weather is unavailable
+  - [ ] Tooltip with the shown location, conditions, temperature and refresh status
+  - [ ] Open, Refresh, Change location, Settings and Exit menu, and double-click restoration
+  - [ ] Temperature drawn into the icon
+  - [ ] Notification widget switch controls tray visibility, with the mobile defaults
+  - [ ] Dismiss action available when Persistent is off, restoring the icon on refresh
 - [ ] Popup in its four styles: compact, multiple locations, daily and hourly
+  - [ ] Single-click popup and close on focus loss, with double-click opening the main window
+  - [ ] Current weather, air-quality or wind caption, and actual or feels-like temperatures
+  - [ ] Three secondary locations, five days or five hours according to the style
 - [ ] Starting with Windows in the tray, and coming back after Explorer restarts
 
 ### Notifications
@@ -142,7 +165,9 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Breezy Weather's number formatting tests
   - [ ] Breezy Weather's tests for card and chart lists and option names
   - [ ] Settings file storage
-  - [ ] Chart coordinate checks for equal minimum and maximum values
+  - [ ] Plot and reference-line coordinate checks for equal minimum and maximum values, and paired histogram coordinates with a zero maximum
+  - [ ] Percent-format checks for .NET rounding, optional decimals and English/French spacing differences
+  - [ ] Integer-rounding saturation and NaN rejection, and air-quality index saturation
 - [ ] Third-party notices for the ported parts that come from other projects
 - [ ] Libreccio Weather's logo
 - [ ] Installer and releases

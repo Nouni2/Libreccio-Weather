@@ -25,6 +25,7 @@ using LibreccioWeather.Core.Refresh;
 using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Sources.OpenMeteo;
 using LibreccioWeather.Icons;
+using LibreccioWeather.Tray;
 using LibreccioWeather.ViewModels;
 
 namespace LibreccioWeather;
@@ -37,6 +38,7 @@ public partial class App : System.Windows.Application
 
     private WeatherUpdateScheduler? _updateScheduler;
     private SeasonalWindowIcon? _windowIcon;
+    private TrayIcon? _trayIcon;
 
     // Startup is an event handler, so it is the one place where async void is the only way to await.
     protected override async void OnStartup(StartupEventArgs e)
@@ -65,6 +67,8 @@ public partial class App : System.Windows.Application
         // The window opens once the first location is known, so it never shows another season's icon first.
         await viewModel.LoadAsync();
         window.Show();
+        ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown;
+        _trayIcon = new TrayIcon(window, viewModel);
 
         // Started after the first screen has loaded, so a due update does not compete with its refresh.
         _updateScheduler = new WeatherUpdateScheduler(updateJob, settings);
@@ -73,9 +77,16 @@ public partial class App : System.Windows.Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _trayIcon?.Dispose();
         _updateScheduler?.Dispose();
         _windowIcon?.Dispose();
         base.OnExit(e);
+    }
+
+    protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
+    {
+        _trayIcon?.PrepareForShutdown();
+        base.OnSessionEnding(e);
     }
 
     private static HttpClient CreateHttpClient()

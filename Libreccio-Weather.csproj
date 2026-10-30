@@ -17,6 +17,7 @@
     <Resource Include="assets\icons\summer.ico" />
     <Resource Include="assets\icons\autumn.ico" />
     <Resource Include="assets\weather\*.png" />
+    <Resource Include="assets\fonts\*.ttf" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="app\**\*.cs" />
@@ -27,6 +28,8 @@
   <ItemGroup>
     <None Include="LICENCE.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <None Include="assets\weather\LICENCE.md" Link="assets\weather\LICENCE.md"
+          CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="assets\fonts\LICENCE.md" Link="assets\fonts\LICENCE.md"
           CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <None Include="docs\third-party-notices.md" Link="docs\third-party-notices.md"
           CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />

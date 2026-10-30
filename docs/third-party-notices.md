@@ -7,3 +7,7 @@ The weather icons in `assets/weather/` are the static artwork distributed by Bre
 These resources are distributed under the GNU Lesser General Public License version 3. The license text is included in [assets/weather/LICENCE.md](../assets/weather/LICENCE.md); the incorporated GNU General Public License version 3 is in [LICENCE.md](../LICENCE.md).
 
 Credits belong to the Breezy Weather and Geometric Weather developers and contributors. The local source files are in `upstream/app/src/main/res/drawable/` and `upstream/ui-weather-view/src/main/res/`. The upstream project is [Breezy Weather](https://github.com/breezy-weather/breezy-weather).
+
+## Temperature-icon font
+
+`assets/fonts/asap_condensed_bold.ttf` is the Asap Condensed Bold font bundled with Breezy Weather for temperature notification icons. Copyright 2018 The Asap Project Authors ([Asap project](https://github.com/Omnibus-Type/Asap)). It is distributed under the SIL Open Font License 1.1, included in [assets/fonts/LICENCE.md](../assets/fonts/LICENCE.md).

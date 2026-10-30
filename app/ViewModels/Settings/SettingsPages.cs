@@ -53,7 +53,12 @@ public static class SettingsPages
             SeparatorPreference.Large,
             NotPorted("settings_notifications", "settings_notifications_summary", "IconNotifications", isFirst: true),
             SeparatorPreference.Small,
-            NotPorted("settings_modules", "settings_modules_summary", "IconWidgets", isLast: true),
+            new ClickablePreference(
+                Strings.Get("settings_modules"),
+                Strings.Get("settings_modules_summary"),
+                () => main.NavigateTo(Modules(main)),
+                "IconWidgets",
+                isLast: true),
             SeparatorPreference.Large,
             NotPorted("settings_location", "settings_location_summary", "IconLocation", isFirst: true),
             SeparatorPreference.Small,
@@ -183,6 +188,58 @@ public static class SettingsPages
                 isLast: true),
         ];
         return new SettingsPageViewModel(Strings.Get("settings_appearance"), items, main.GoBack, () => Appearance(main));
+    }
+
+    public static SettingsPageViewModel Modules(MainViewModel main)
+    {
+        SettingsManager settings = main.Settings;
+        bool enabled = settings.IsWidgetNotificationEnabled;
+        string on = Strings.Get("settings_enabled");
+        string off = Strings.Get("settings_disabled");
+        SwitchPreference persistent = new(
+            Strings.Get("settings_modules_notification_persistent_switch"), on, off,
+            settings.IsWidgetNotificationPersistent, value => settings.IsWidgetNotificationPersistent = value,
+            isEnabled: enabled);
+        ListPreference style = new(
+            main, Strings.Get("settings_modules_notification_style_title"),
+            Strings.GetArray("notification_style_values"), Strings.GetArray("notification_styles"),
+            settings.WidgetNotificationStyle.Id,
+            value => settings.WidgetNotificationStyle = NotificationStyle.GetInstance(value))
+        {
+            IsEnabled = enabled,
+        };
+        SwitchPreference temperatureIcon = new(
+            Strings.Get("settings_modules_notification_temp_icon_switch"), on, off,
+            settings.IsWidgetNotificationTemperatureIconEnabled,
+            value => settings.IsWidgetNotificationTemperatureIconEnabled = value, isEnabled: enabled);
+        SwitchPreference feelsLike = new(
+            Strings.Get("settings_modules_notification_feels_like_switch"), on, off,
+            settings.IsWidgetNotificationUsingFeelsLike,
+            value => settings.IsWidgetNotificationUsingFeelsLike = value, isEnabled: enabled, isLast: true);
+        SwitchPreference notification = new(
+            Strings.Get("settings_modules_notification_widget_title"), on, off,
+            enabled, value =>
+            {
+                settings.IsWidgetNotificationEnabled = value;
+                persistent.IsEnabled = value;
+                style.IsEnabled = value;
+                temperatureIcon.IsEnabled = value;
+                feelsLike.IsEnabled = value;
+            }, isFirst: true);
+        List<object> items =
+        [
+            new SectionHeaderPreference(Strings.Get("settings_modules_section_notification_widget")),
+            notification,
+            SeparatorPreference.Small,
+            persistent,
+            SeparatorPreference.Small,
+            style,
+            SeparatorPreference.Small,
+            temperatureIcon,
+            SeparatorPreference.Small,
+            feelsLike,
+        ];
+        return new SettingsPageViewModel(Strings.Get("settings_modules"), items, main.GoBack, () => Modules(main));
     }
 
     public static SettingsPageViewModel Units(MainViewModel main)

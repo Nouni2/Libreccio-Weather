@@ -28,4 +28,7 @@
     <data name="desktop_move_down" xml:space="preserve"><value>Move down</value></data>
     <data name="desktop_remove" xml:space="preserve"><value>Remove</value></data>
     <data name="desktop_location_actions" xml:space="preserve"><value>Right-click for location actions.</value></data>
+    <data name="tray_change_location" xml:space="preserve"><value>Change location</value></data>
+    <data name="tray_exit" xml:space="preserve"><value>Exit</value></data>
+    <data name="tray_dismiss" xml:space="preserve"><value>Dismiss</value></data>
 </root>

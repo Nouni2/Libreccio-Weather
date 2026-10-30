@@ -1,0 +1,80 @@
+<!--
+  This file is part of Libreccio Weather.
+
+  Libreccio Weather is free software: you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the Free
+  Software Foundation, version 3 of the License.
+
+  Libreccio Weather is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  more details.
+
+  You should have received a copy of the GNU General Public License along
+  with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
+-->
+<Window x:Class="LibreccioWeather.Tray.TrayPopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:l="clr-namespace:LibreccioWeather.Localization"
+        Title="{l:Translate desktop_app_name}" Width="420" SizeToContent="Height"
+        WindowStyle="None" ResizeMode="NoResize" ShowInTaskbar="False" Topmost="True"
+        AllowsTransparency="True" Background="Transparent" ShowActivated="False">
+    <Window.Resources>
+        <DataTemplate x:Key="ForecastItem">
+            <StackPanel Margin="2,8">
+                <TextBlock Margin="4,0" Style="{StaticResource BodyMediumText}" HorizontalAlignment="Center" Text="{Binding Title}" />
+                <Image Margin="4,6" Width="24" Height="24" Source="{Binding IconPath}" AutomationProperties.Name="{Binding Title}" />
+                <TextBlock Style="{StaticResource BodyMediumText}" HorizontalAlignment="Center" Text="{Binding Temperature}" />
+            </StackPanel>
+        </DataTemplate>
+        <DataTemplate x:Key="CityItem">
+            <DockPanel Margin="0,8">
+                <Image DockPanel.Dock="Left" Margin="0,0,16,0" Width="24" Height="24" Source="{Binding IconPath}" AutomationProperties.Name="{Binding Title}" />
+                <TextBlock Style="{StaticResource BodyMediumText}" VerticalAlignment="Center" FontWeight="Bold"
+                           TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Text="{Binding Title}" />
+            </DockPanel>
+        </DataTemplate>
+    </Window.Resources>
+    <Border Background="{StaticResource SurfaceContainerBrush}" BorderBrush="{StaticResource OutlineBrush}"
+            BorderThickness="1" CornerRadius="{DynamicResource ForecastCardCornerRadius}" Padding="16">
+        <StackPanel>
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Style="{StaticResource CompactIconButton}" Click="OnCloseClick"
+                        ToolTip="{l:Translate action_close}" AutomationProperties.Name="{l:Translate action_close}">
+                    <TextBlock Text="&#x00D7;" FontSize="20" />
+                </Button>
+                <TextBlock Style="{StaticResource TitleMediumText}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" Text="{Binding Place}" />
+            </DockPanel>
+            <Grid Margin="0,8,0,8">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto" /><ColumnDefinition Width="*" /></Grid.ColumnDefinitions>
+                <Image Width="48" Height="48" Source="{Binding IconPath}" AutomationProperties.Name="{Binding WeatherText}" />
+                <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Style="{StaticResource TitleLargeText}" FontWeight="Bold" Text="{Binding TemperatureText}" />
+                    <TextBlock Style="{StaticResource BodyMediumText}" Text="{Binding WeatherText}" />
+                    <TextBlock Style="{StaticResource BodyMediumText}" Text="{Binding AuxiliaryText}" />
+                </StackPanel>
+            </Grid>
+            <TextBlock Style="{StaticResource BodySmallText}" Text="{Binding RefreshText}" />
+            <ItemsControl ItemsSource="{Binding Items}">
+                <ItemsControl.Style>
+                    <Style TargetType="ItemsControl">
+                        <Setter Property="ItemTemplate" Value="{StaticResource ForecastItem}" />
+                        <Setter Property="ItemsPanel">
+                            <Setter.Value><ItemsPanelTemplate><UniformGrid Rows="1" Columns="5" /></ItemsPanelTemplate></Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsCities}" Value="True">
+                                <Setter Property="ItemTemplate" Value="{StaticResource CityItem}" />
+                                <Setter Property="ItemsPanel">
+                                    <Setter.Value><ItemsPanelTemplate><StackPanel /></ItemsPanelTemplate></Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ItemsControl.Style>
+            </ItemsControl>
+            <Button HorizontalAlignment="Right" Style="{StaticResource TextButton}" Content="{l:Translate desktop_open}" Click="OnOpenClick" />
+        </StackPanel>
+    </Border>
+</Window>
