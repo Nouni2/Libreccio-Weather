@@ -237,6 +237,6 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] commons-suncalc's moonrise, moonset, phase and altitude references
 - [ ] Third-party notices for the ported parts that come from other projects
 - [ ] Libreccio Weather's logo
-- [ ] Installer and releases
-  - [ ] Compressed Windows x64 single-executable package, including the runtime and native libraries
-  - [ ] Per-user MSI installation, Start menu shortcut, upgrades and uninstall
+- [ ] Releases
+  - [x] Compressed Windows x64 single-executable package, including the runtime and native libraries
+  - [ ] First public alpha release

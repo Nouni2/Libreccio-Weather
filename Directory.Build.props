@@ -6,10 +6,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(MSBuildProjectExtension)' == '.wixproj'">
-    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)build\obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
-    <BaseOutputPath>$(MSBuildThisFileDirectory)build\bin\$(MSBuildProjectName)\</BaseOutputPath>
-  </PropertyGroup>
   <PropertyGroup>
     <!--
       Sends bin, obj and publish output to /build, one subfolder per project, so source folders hold code only.
