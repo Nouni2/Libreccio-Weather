@@ -450,7 +450,17 @@ public sealed partial class MainViewModel : ObservableObject
         WeatherViewModel weather = new(_refresher, this, location);
         CurrentPage = weather;
         ShownLocationChanged?.Invoke(this, location);
-        weather.RefreshCommand.Execute(null);
+        RefreshIfOutdated(weather, location);
+    }
+
+    // A location's weather is refreshed when its screen opens only once it is older than the update interval allows,
+    // or 1.5 hours when background updates are off. Weather that is still valid is shown as it is.
+    private void RefreshIfOutdated(WeatherViewModel weather, Location location)
+    {
+        if (location.Weather?.IsValid(_settings.UpdateInterval.Validity) != true)
+        {
+            weather.RefreshCommand.Execute(null);
+        }
     }
 
     public void ShowSnackbar(string text, string? actionText = null, Action? action = null)
@@ -670,7 +680,10 @@ public sealed partial class MainViewModel : ObservableObject
         }
 
         ShownLocationChanged?.Invoke(this, current);
-        replacement?.RefreshCommand.Execute(null);
+        if (replacement is not null && current is not null)
+        {
+            RefreshIfOutdated(replacement, current);
+        }
     }
 
     private WeatherViewModel? FindMainScreen()

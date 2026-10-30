@@ -111,6 +111,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - A click on the Mistray icon opens the popup at once. With double-click on, the popup opens after 75 ms whatever the delay, and a second click within the delay still opens the main window.
 - The Mistray popup is created once and hidden between clicks instead of being rebuilt as a new window each time.
 - Mistray's menu uses the app's colors and menu style instead of the Windows Forms menu, and the location list's right-click menu uses the same style.
+- Dates, numbers, units and relative times are formatted faster: each ICU formatter is opened once per pattern, language and time zone and reused, instead of being opened and closed for every value. Switching between locations is quicker as a result.
 
 ### Fixed
 
@@ -126,3 +127,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Forecast date labels use a public Core formatting method instead of accessing the internal ICU implementation, resolving the application's inaccessible-type compilation errors.
 - A right-click on the Mistray icon now opens its menu while the main window is open, instead of only once the window was hidden.
 - The search box's hint starts exactly where the caret and the typed text do, at any display scale.
+- Switching to a location refreshes it only when its weather is older than the update interval, or 1.5 hours with background updates off, as Breezy Weather does, instead of on every switch, which rebuilt the screen a second time. Rebuilding the main screen after a unit or language change follows the same rule.

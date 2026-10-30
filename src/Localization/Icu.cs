@@ -58,45 +58,65 @@ internal static class Icu
         "ureldatefmt_open", "ureldatefmt_format", "ureldatefmt_formatNumeric", "ureldatefmt_close",
         "udatpg_open", "udatpg_getBestPattern", "udatpg_close", "udat_open", "udat_format", "udat_close");
 
+    // Opening a formatter loads the language's CLDR data and parses its pattern, which costs far more than formatting
+    // with it, so each formatter is opened once and kept for the life of the process. A screen formats hundreds of
+    // values with a handful of formatters. ICU's date and relative-time formatters are not safe to use from two
+    // threads at once, so every call holds the same lock.
+    private static readonly object Gate = new();
+    private static readonly Dictionary<(string Skeleton, string Locale), IntPtr> NumberFormatters = [];
+    private static readonly Dictionary<string, IntPtr> ListFormatters = [];
+    private static readonly Dictionary<string, IntPtr> RelativeFormatters = [];
+    private static readonly Dictionary<string, IntPtr> PatternGenerators = [];
+    private static readonly Dictionary<(string Skeleton, string Locale), string?> DatePatterns = [];
+    private static readonly Dictionary<(string Pattern, string Locale, string Zone), IntPtr> DateFormatters = [];
+
     /// <summary>
     /// Formats a value with a number skeleton, such as "measure-unit/duration-hour unit-width-full-name".
     /// Returns the whole text and the unit part of it, or null when ICU cannot format it.
     /// </summary>
     public static (string Text, string? Unit)? FormatNumber(string skeleton, double value, CultureInfo culture)
     {
-        int status = 0;
-        IntPtr formatter = unumf_openForSkeletonAndLocale(skeleton, skeleton.Length, LocaleId(culture), ref status);
-        if (Failed(status) || formatter == IntPtr.Zero)
+        lock (Gate)
         {
-            return null;
-        }
-
-        IntPtr result = unumf_openResult(ref status);
-        try
-        {
-            unumf_formatDouble(formatter, value, result, ref status);
-            if (Failed(status))
+            string locale = LocaleId(culture);
+            IntPtr formatter = Cached(NumberFormatters, (skeleton, locale), () =>
+            {
+                int openStatus = 0;
+                IntPtr opened = unumf_openForSkeletonAndLocale(skeleton, skeleton.Length, locale, ref openStatus);
+                return Opened(opened, openStatus, unumf_close);
+            });
+            if (formatter == IntPtr.Zero)
             {
                 return null;
             }
 
-            string? text = ReadString((char[] buffer, ref int error) => unumf_resultToString(result, buffer, buffer.Length, ref error));
-            if (text is null)
+            int status = 0;
+            IntPtr result = unumf_openResult(ref status);
+            try
             {
-                return null;
-            }
+                unumf_formatDouble(formatter, value, result, ref status);
+                if (Failed(status))
+                {
+                    return null;
+                }
 
-            FieldPosition position = new() { Field = MeasureUnitField };
-            int fieldStatus = 0;
-            string? unit = unumf_resultNextFieldPosition(result, ref position, ref fieldStatus) != 0 && !Failed(fieldStatus)
-                ? text[position.BeginIndex..position.EndIndex]
-                : null;
-            return (text, unit);
-        }
-        finally
-        {
-            unumf_closeResult(result);
-            unumf_close(formatter);
+                string? text = ReadString((char[] buffer, ref int error) => unumf_resultToString(result, buffer, buffer.Length, ref error));
+                if (text is null)
+                {
+                    return null;
+                }
+
+                FieldPosition position = new() { Field = MeasureUnitField };
+                int fieldStatus = 0;
+                string? unit = unumf_resultNextFieldPosition(result, ref position, ref fieldStatus) != 0 && !Failed(fieldStatus)
+                    ? text[position.BeginIndex..position.EndIndex]
+                    : null;
+                return (text, unit);
+            }
+            finally
+            {
+                unumf_closeResult(result);
+            }
         }
     }
 
@@ -105,23 +125,24 @@ internal static class Icu
     /// </summary>
     public static string? FormatUnitList(IReadOnlyList<string> items, CultureInfo culture)
     {
-        int status = 0;
-        IntPtr formatter = ulistfmt_openForType(LocaleId(culture), ListTypeUnits, ListWidthWide, ref status);
-        if (Failed(status) || formatter == IntPtr.Zero)
+        lock (Gate)
         {
-            return null;
-        }
+            string locale = LocaleId(culture);
+            IntPtr formatter = Cached(ListFormatters, locale, () =>
+            {
+                int openStatus = 0;
+                IntPtr opened = ulistfmt_openForType(locale, ListTypeUnits, ListWidthWide, ref openStatus);
+                return Opened(opened, openStatus, ulistfmt_close);
+            });
+            if (formatter == IntPtr.Zero)
+            {
+                return null;
+            }
 
-        try
-        {
             string[] strings = [.. items];
             int[] lengths = [.. items.Select(item => item.Length)];
             return ReadString((char[] buffer, ref int error) =>
                 ulistfmt_format(formatter, strings, lengths, strings.Length, buffer, buffer.Length, ref error));
-        }
-        finally
-        {
-            ulistfmt_close(formatter);
         }
     }
 
@@ -132,23 +153,24 @@ internal static class Icu
     /// </summary>
     public static string? FormatRelative(double offset, RelativeUnit unit, bool numeric, CultureInfo culture)
     {
-        int status = 0;
-        IntPtr formatter = ureldatefmt_open(
-            LocaleId(culture), IntPtr.Zero, RelativeStyleShort, CapitalizationForBeginningOfSentence, ref status);
-        if (Failed(status) || formatter == IntPtr.Zero)
+        lock (Gate)
         {
-            return null;
-        }
+            string locale = LocaleId(culture);
+            IntPtr formatter = Cached(RelativeFormatters, locale, () =>
+            {
+                int openStatus = 0;
+                IntPtr opened = ureldatefmt_open(
+                    locale, IntPtr.Zero, RelativeStyleShort, CapitalizationForBeginningOfSentence, ref openStatus);
+                return Opened(opened, openStatus, ureldatefmt_close);
+            });
+            if (formatter == IntPtr.Zero)
+            {
+                return null;
+            }
 
-        try
-        {
             return ReadString((char[] buffer, ref int error) => numeric
                 ? ureldatefmt_formatNumeric(formatter, offset, (int)unit, buffer, buffer.Length, ref error)
                 : ureldatefmt_format(formatter, offset, (int)unit, buffer, buffer.Length, ref error));
-        }
-        finally
-        {
-            ureldatefmt_close(formatter);
         }
     }
 
@@ -157,48 +179,86 @@ internal static class Icu
     /// </summary>
     public static string? FormatDate(DateTimeOffset date, string skeleton, TimeZoneInfo timeZone, CultureInfo culture)
     {
-        string locale = LocaleId(culture);
-        int status = 0;
-        IntPtr generator = udatpg_open(locale, ref status);
-        if (Failed(status) || generator == IntPtr.Zero)
+        lock (Gate)
         {
-            return null;
-        }
+            string locale = LocaleId(culture);
+            if (!DatePatterns.TryGetValue((skeleton, locale), out string? pattern))
+            {
+                pattern = BestPattern(skeleton, locale);
+                DatePatterns[(skeleton, locale)] = pattern;
+            }
 
-        string? pattern;
-        try
-        {
-            pattern = ReadString((char[] buffer, ref int error) =>
-                udatpg_getBestPattern(generator, skeleton, skeleton.Length, buffer, buffer.Length, ref error));
-        }
-        finally
-        {
-            udatpg_close(generator);
-        }
+            if (pattern is not { } bestPattern)
+            {
+                return null;
+            }
 
-        if (pattern is null)
-        {
-            return null;
-        }
+            string zone = TimeZoneInfo.TryConvertWindowsIdToIanaId(timeZone.Id, out string? iana) ? iana : timeZone.Id;
+            IntPtr formatter = Cached(DateFormatters, (bestPattern, locale, zone), () =>
+            {
+                int openStatus = 0;
+                IntPtr opened = udat_open(
+                    DatePatternStyle, DatePatternStyle, locale, zone, zone.Length, bestPattern, bestPattern.Length, ref openStatus);
+                return Opened(opened, openStatus, udat_close);
+            });
+            if (formatter == IntPtr.Zero)
+            {
+                return null;
+            }
 
-        string zone = TimeZoneInfo.TryConvertWindowsIdToIanaId(timeZone.Id, out string? iana) ? iana : timeZone.Id;
-        IntPtr formatter = udat_open(
-            DatePatternStyle, DatePatternStyle, locale, zone, zone.Length, pattern, pattern.Length, ref status);
-        if (Failed(status) || formatter == IntPtr.Zero)
-        {
-            return null;
-        }
-
-        try
-        {
             double milliseconds = date.ToUnixTimeMilliseconds();
             return ReadString((char[] buffer, ref int error) =>
                 udat_format(formatter, milliseconds, buffer, buffer.Length, IntPtr.Zero, ref error));
         }
-        finally
+    }
+
+    // Called with the lock held.
+    private static string? BestPattern(string skeleton, string locale)
+    {
+        IntPtr generator = Cached(PatternGenerators, locale, () =>
         {
-            udat_close(formatter);
+            int openStatus = 0;
+            IntPtr opened = udatpg_open(locale, ref openStatus);
+            return Opened(opened, openStatus, udatpg_close);
+        });
+        return generator == IntPtr.Zero
+            ? null
+            : ReadString((char[] buffer, ref int error) =>
+                udatpg_getBestPattern(generator, skeleton, skeleton.Length, buffer, buffer.Length, ref error));
+    }
+
+    // Called with the lock held. A formatter that failed to open is not kept, so the next call tries again.
+    private static IntPtr Cached<TKey>(Dictionary<TKey, IntPtr> cache, TKey key, Func<IntPtr> open)
+        where TKey : notnull
+    {
+        if (cache.TryGetValue(key, out IntPtr existing))
+        {
+            return existing;
         }
+
+        IntPtr opened = open();
+        if (opened != IntPtr.Zero)
+        {
+            cache[key] = opened;
+        }
+
+        return opened;
+    }
+
+    // ICU can return a handle along with a failure status; that handle is closed and not used.
+    private static IntPtr Opened(IntPtr handle, int status, Action<IntPtr> close)
+    {
+        if (!Failed(status) && handle != IntPtr.Zero)
+        {
+            return handle;
+        }
+
+        if (handle != IntPtr.Zero)
+        {
+            close(handle);
+        }
+
+        return IntPtr.Zero;
     }
 
     private static bool HasExports(params string[] names)
