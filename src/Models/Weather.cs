@@ -123,7 +123,7 @@ public sealed record Weather
     {
         get
         {
-            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset now = _builtAt;
             return DailyForecast.FirstOrDefault(daily => daily.Date > now);
         }
     }

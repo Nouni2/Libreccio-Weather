@@ -20,6 +20,7 @@
     <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
     <data name="desktop_app_name" xml:space="preserve"><value>Libreccio Weather</value></data>
     <data name="app_already_running" xml:space="preserve"><value>Une instance de Libreccio Weather est déjà en cours d’exécution.</value></data>
+    <data name="location_save_failed" xml:space="preserve"><value>Impossible d’enregistrer les lieux.</value></data>
     <data name="desktop_interface_section" xml:space="preserve"><value>Interface</value></data>
     <data name="desktop_interface_title" xml:space="preserve"><value>Interface de bureau</value></data>
     <data name="desktop_interface_on" xml:space="preserve"><value>Angles moins arrondis et navigation à la souris et au clavier.</value></data>

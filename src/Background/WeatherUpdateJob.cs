@@ -54,6 +54,7 @@ public sealed class WeatherUpdateJob
     private readonly WeatherRepository _weather;
     private readonly SettingsManager _settings;
     private readonly SemaphoreSlim _running = new(1, 1);
+    private readonly HashSet<string> _locationsToRetry = new(StringComparer.Ordinal);
 
     public WeatherUpdateJob(
         WeatherRefresher refresher,
@@ -92,8 +93,8 @@ public sealed class WeatherUpdateJob
             try
             {
                 List<Location> locationsToUpdate = await GetLocationsToUpdateAsync(locationFormattedId).ConfigureAwait(false);
-                await UpdateWeatherDataAsync(locationsToUpdate, cancellationToken).ConfigureAwait(false);
-                return WeatherUpdateJobResult.Success;
+                bool retryRequired = await UpdateWeatherDataAsync(locationsToUpdate, cancellationToken).ConfigureAwait(false);
+                return retryRequired ? WeatherUpdateJobResult.Failure : WeatherUpdateJobResult.Success;
             }
             catch (OperationCanceledException)
             {
@@ -127,12 +128,14 @@ public sealed class WeatherUpdateJob
         string today = DateTimeOffset.Now.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
         List<Location> locations = [];
         IReadOnlyList<Location> saved = await _locations.GetXLocationsAsync(count).ConfigureAwait(false);
+        _locationsToRetry.IntersectWith(saved.Select(location => location.FormattedId));
         for (int index = 0; index < saved.Count; index++)
         {
             Location location = await WithWeatherAsync(saved[index]).ConfigureAwait(false);
 
-            // Other locations only need daily information, so they are refreshed once a day.
+            // Secondary locations use daily information, but a failed attempt must not count as their daily refresh.
             if (index == 0
+                || _locationsToRetry.Contains(location.FormattedId)
                 || location.Weather?.Base.RefreshTime is not { } refreshTime
                 || string.CompareOrdinal(WeatherCompletion.IsoDate(refreshTime, location.TimeZone), today) < 0)
             {
@@ -143,9 +146,10 @@ public sealed class WeatherUpdateJob
         return locations;
     }
 
-    private async Task UpdateWeatherDataAsync(List<Location> locationsToUpdate, CancellationToken cancellationToken)
+    private async Task<bool> UpdateWeatherDataAsync(List<Location> locationsToUpdate, CancellationToken cancellationToken)
     {
         List<Location> newUpdates = [];
+        bool retryRequired = false;
         foreach (Location location in locationsToUpdate)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -157,11 +161,30 @@ public sealed class WeatherUpdateJob
                 {
                     WeatherResult result = await _refresher.GetWeatherAsync(location, cancellationToken: cancellationToken)
                         .ConfigureAwait(false);
+                    // Configuration errors need a settings change; retry errors that another request can resolve.
+                    bool locationRetryRequired = result.Errors.Any(error => error.Error is
+                        RefreshErrorType.NetworkUnavailable or RefreshErrorType.ServerTimeout
+                        or RefreshErrorType.ApiLimitReached or RefreshErrorType.ServerUnavailable
+                        or RefreshErrorType.ParsingError or RefreshErrorType.InvalidIncompleteData
+                        or RefreshErrorType.OutdatedServerData or RefreshErrorType.IncompatibleForecastTimes
+                        or RefreshErrorType.DataRefreshFailed);
+                    retryRequired |= locationRetryRequired;
+                    if (locationRetryRequired)
+                    {
+                        // A failed feature may still advance the refresh timestamp used to skip secondary cities.
+                        _locationsToRetry.Add(location.FormattedId);
+                    }
+                    else
+                    {
+                        _locationsToRetry.Remove(location.FormattedId);
+                    }
+
                     newUpdates.Add(location with { Weather = result.Weather });
                 }
                 catch (Exception exception) when (exception is not OperationCanceledException)
                 {
-                    // A failed location does not stop the others.
+                    _locationsToRetry.Add(location.FormattedId);
+                    retryRequired = true;
                 }
             }
         }
@@ -170,6 +193,8 @@ public sealed class WeatherUpdateJob
         {
             LocationUpdated?.Invoke(this, location);
         }
+
+        return retryRequired;
     }
 
     private async Task<Location> WithWeatherAsync(Location location)

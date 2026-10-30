@@ -246,6 +246,14 @@ public sealed class LocationRepository
             using SqliteTransaction transaction = connection.BeginTransaction();
             if (oldFormattedId is not null && oldFormattedId != location.FormattedId)
             {
+                // Parent and child identifiers must change before foreign keys are checked at commit.
+                using (SqliteCommand defer = connection.CreateCommand())
+                {
+                    defer.Transaction = transaction;
+                    defer.CommandText = "PRAGMA defer_foreign_keys = ON;";
+                    await defer.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
+
                 using SqliteCommand rename = connection.CreateCommand();
                 rename.Transaction = transaction;
                 rename.CommandText = """
@@ -255,7 +263,20 @@ public sealed class LocationRepository
                     """;
                 rename.Parameters.AddWithValue("$newFormattedId", location.FormattedId);
                 rename.Parameters.AddWithValue("$oldFormattedId", oldFormattedId);
-                await rename.ExecuteNonQueryAsync().ConfigureAwait(false);
+                if (await rename.ExecuteNonQueryAsync().ConfigureAwait(false) == 0)
+                {
+                    return false;
+                }
+
+                foreach (string table in new[] { "location_parameters", "weathers", "dailys", "hourlys", "minutelys", "alerts", "normals" })
+                {
+                    using SqliteCommand child = connection.CreateCommand();
+                    child.Transaction = transaction;
+                    child.CommandText = $"UPDATE {table} SET location_formatted_id = $newId WHERE location_formatted_id = $oldId;";
+                    child.Parameters.AddWithValue("$newId", location.FormattedId);
+                    child.Parameters.AddWithValue("$oldId", oldFormattedId);
+                    await child.ExecuteNonQueryAsync().ConfigureAwait(false);
+                }
             }
 
             using (SqliteCommand update = connection.CreateCommand())
@@ -292,7 +313,6 @@ public sealed class LocationRepository
         await command.ExecuteNonQueryAsync().ConfigureAwait(false);
     }
 
-    // Parameters whose name is not a source id of the new set are deleted, then the new set is written over the rest.
     private static async Task ReplaceParametersAsync(
         SqliteConnection connection,
         SqliteTransaction transaction,
@@ -302,8 +322,7 @@ public sealed class LocationRepository
         using (SqliteCommand delete = connection.CreateCommand())
         {
             delete.Transaction = transaction;
-            delete.CommandText = "DELETE FROM location_parameters WHERE location_formatted_id = $locationFormattedId "
-                + $"AND parameter NOT IN ({InList(delete, "$name", parameters.Keys)});";
+            delete.CommandText = "DELETE FROM location_parameters WHERE location_formatted_id = $locationFormattedId;";
             delete.Parameters.AddWithValue("$locationFormattedId", locationFormattedId);
             await delete.ExecuteNonQueryAsync().ConfigureAwait(false);
         }

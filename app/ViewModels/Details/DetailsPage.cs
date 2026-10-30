@@ -47,7 +47,7 @@ internal sealed class DetailsContext
         SetPollutant = setPollutant;
         HourlyList = GetHourlyList(location, weather, daily);
         CurrentUpdateTime = weather.Base.CurrentUpdateTime ?? weather.Base.ForecastUpdateTime ?? weather.Base.RefreshTime;
-        Current = IsToday(location, daily) && CurrentUpdateTime > daily.Date ? weather.Current : null;
+        Current = weather.Today?.Date == daily.Date && CurrentUpdateTime > daily.Date ? weather.Current : null;
         DayStart = DetailsChartAxes.GetHourOfDay(daily.Date, location.TimeZone, 0);
         DayEnd = DetailsChartAxes.GetHourOfDay(daily.Date, location.TimeZone, 0, dayOffset: 1);
     }
@@ -121,13 +121,6 @@ internal sealed class DetailsContext
         }
 
         return -1;
-    }
-
-    private static bool IsToday(Location location, Daily daily)
-    {
-        DateTime current = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, location.TimeZone).DateTime;
-        DateTime thisDay = TimeZoneInfo.ConvertTime(daily.Date, location.TimeZone).DateTime;
-        return current.Year == thisDay.Year && current.DayOfYear == thisDay.DayOfYear;
     }
 }
 

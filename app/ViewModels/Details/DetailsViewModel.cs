@@ -31,9 +31,9 @@ namespace LibreccioWeather.ViewModels.Details;
 public sealed partial class DetailsViewModel : ObservableObject
 {
     private readonly MainViewModel _main;
-    private readonly Location _location;
-    private readonly Weather _weather;
-    private readonly bool _isBuilt;
+    private Location _location;
+    private Weather _weather;
+    private bool _isBuilt;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(Title), nameof(MenuIconKey))]
@@ -65,23 +65,16 @@ public sealed partial class DetailsViewModel : ObservableObject
             ? _weather.TodayIndex ?? 0
             : index;
 
-        int? todayIndex = _weather.TodayIndex;
-        Days = [.. _weather.DailyForecast.Select((daily, position) => CreateDayTab(daily, position, todayIndex))];
-        Screens = [.. DetailScreen.ToDetailScreenList(location).Select(item =>
-            new DetailsMenuItem(item, GetIconKey(item), new RelayCommand(() =>
-            {
-                SelectedScreen = item;
-                IsMenuOpen = false;
-            })))];
+        BuildNavigation();
         _isBuilt = true;
         BuildContent();
     }
 
     public string Title => SelectedScreen.Name;
 
-    public IReadOnlyList<DetailsDayTab> Days { get; }
+    public IReadOnlyList<DetailsDayTab> Days { get; private set; } = [];
 
-    public IReadOnlyList<DetailsMenuItem> Screens { get; }
+    public IReadOnlyList<DetailsMenuItem> Screens { get; private set; } = [];
 
     public string MenuIconKey => IsMenuOpen ? "IconClose" : GetIconKey(SelectedScreen);
 
@@ -95,6 +88,46 @@ public sealed partial class DetailsViewModel : ObservableObject
     public DetailsViewModel Rebuild()
     {
         return new DetailsViewModel(_main, _location, SelectedDayIndex, SelectedScreen) { SelectedPollutant = SelectedPollutant };
+    }
+
+    internal void UpdateLocation(Location location)
+    {
+        if (location.FormattedId != _location.FormattedId || ReferenceEquals(location, _location))
+        {
+            return;
+        }
+
+        DateTimeOffset? selectedDate = SelectedDayIndex >= 0 && SelectedDayIndex < _weather.DailyForecast.Count
+            ? _weather.DailyForecast[SelectedDayIndex].Date : null;
+        _isBuilt = false;
+        _location = location;
+        _weather = location.Weather ?? new Weather();
+        BuildNavigation();
+        OnPropertyChanged(nameof(Location));
+        OnPropertyChanged(nameof(Days));
+        OnPropertyChanged(nameof(Screens));
+
+        int index = _weather.DailyForecast.ToList().FindIndex(daily => daily.Date == selectedDate);
+        SelectedDayIndex = index >= 0 ? index : _weather.TodayIndex ?? 0;
+        if (SelectedScreen != DetailScreen.FeelsLike && !Screens.Any(item => item.Screen == SelectedScreen))
+        {
+            SelectedScreen = Screens.FirstOrDefault()?.Screen ?? DetailScreen.Conditions;
+        }
+
+        _isBuilt = true;
+        BuildContent();
+    }
+
+    private void BuildNavigation()
+    {
+        int? todayIndex = _weather.TodayIndex;
+        Days = [.. _weather.DailyForecast.Select((daily, position) => CreateDayTab(daily, position, todayIndex))];
+        Screens = [.. DetailScreen.ToDetailScreenList(_location).Select(item =>
+            new DetailsMenuItem(item, GetIconKey(item), new RelayCommand(() =>
+            {
+                SelectedScreen = item;
+                IsMenuOpen = false;
+            })))];
     }
 
     partial void OnSelectedScreenChanged(DetailScreen value) => BuildContent();

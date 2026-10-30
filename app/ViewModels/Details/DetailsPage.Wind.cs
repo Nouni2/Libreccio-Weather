@@ -75,7 +75,7 @@ internal static partial class DetailsPage
                 daily.Night?.Wind is { } night ? WindItem(NighttimeLabelWithInfo(), night, unit) : null);
         }
 
-        return WindItem(new DetailsLabel(FormatHour(context, defaultValue?.Time) ?? ""), null, unit);
+        return WindItem(new DetailsLabel(FormatHour(context, defaultValue?.Time) ?? ""), defaultValue?.Wind, unit);
     }
 
     private static DetailsHeaderItem WindItem(DetailsLabel label, Wind? wind, SpeedUnit unit)

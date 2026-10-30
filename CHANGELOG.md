@@ -111,6 +111,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
   - Sun and moon: sunrise, sunset, day length, dawn, dusk, moonrise and moonset when they are known, and an explanation of these times.
 - The detail charts show a day from midnight to midnight in the location's time zone, with hours at 06:00, 12:00 and 18:00, values on the end side, and labels or icons above for as many hours as fit. Pressing or dragging on a chart shows the value of the nearest hour at the top of its section, with a guideline. A chart is replaced by a message when the day has fewer than two hours of data. Charts take a quarter of the window height, and at least 100 pixels.
 - Tests of the detail chart's top labels when none fits, and of an hour skipped by a daylight saving change.
+- Six database regression cases covering location identifier changes after coordinate or source changes, rollback after a conflicting identifier or a failed dependent update, and source parameter replacement through both save paths.
 - This changelog.
 
 ### Changed
@@ -133,6 +134,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Fixed
 
+- Scheduled weather updates report individual refresh exceptions and transient source errors as failures, allowing the scheduler's retry backoff to run even when some locations return usable weather. Failed secondary cities remain eligible for retry even when their refresh timestamp advances, instead of being skipped until the next day.
+- Tomorrow and current-day detail values use the weather snapshot's reference day, keeping them consistent with today and the upcoming hours when the app stays open across midnight.
+- The wind detail header displays the available current wind when daily wind summaries are missing, alongside the current reading's timestamp.
+- Replacing a location's source parameters removes obsolete sources and parameter names, including names that match a retained source identifier.
+- Changing a location's identifier preserves its source parameters and every cached weather table. The identifier and its dependent references change in one transaction, with the entire rename rolled back if an identifier conflicts or a dependent update fails.
+- Adding, restoring and reordering locations update the in-memory list only after saving succeeds. A failed save keeps the previous list and selection, shows an English or French failure message and does not report that a location was added. Weather received during a pending save is retained.
+- Weather refreshes update matching detail screens, including screens retained in back and forward navigation. They keep the selected date and page when available and retain the selected pollutant; a missing date falls back to today and a missing page to conditions.
 - Weather database test compilation errors caused by unit type qualifiers resolving to the test namespace instead of the engine's units.
 - Weather database test build errors from xUnit's cancellation analyzer by passing the current test's cancellation token to asynchronous calls that accept one.
 - Temperatures are formatted like Breezy Weather: whole numbers round halves upwards, so −2.5 °C shows as "−2" and no longer as "−3", decimals round halves to even without trailing zeros, so 4.0 °C shows as "4", and thousands are grouped. The feels-like, day and night temperatures no longer use a different rounding from the main temperature.

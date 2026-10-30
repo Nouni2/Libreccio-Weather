@@ -577,9 +577,10 @@ public sealed partial class MainViewModel : ObservableObject
         Location moved = locations[from];
         locations.RemoveAt(from);
         locations.Insert(to, moved);
-        _locations = locations;
-        await _locationRepository.AddAllAsync(_locations);
-        NotifyLocationsChanged();
+        if (await TrySaveLocationsAsync(locations))
+        {
+            NotifyLocationsChanged();
+        }
     }
 
     /// <summary>
@@ -600,24 +601,44 @@ public sealed partial class MainViewModel : ObservableObject
         return location;
     }
 
-    public async Task AddLocationAsync(Location location, int? index = null)
+    public async Task<bool> AddLocationAsync(Location location, int? index = null)
     {
         if (_locations.Any(item => item.FormattedId == location.FormattedId))
         {
-            return;
+            return false;
         }
 
         List<Location> locations = [.. _locations];
         locations.Insert(index ?? locations.Count, location);
-        _locations = locations;
+        if (!await TrySaveLocationsAsync(locations))
+        {
+            return false;
+        }
+
         if (_currentFormattedId is null)
         {
             _currentFormattedId = location.FormattedId;
             ReplaceMainScreen();
         }
 
-        await _locationRepository.AddAllAsync(_locations);
         NotifyLocationsChanged();
+        return true;
+    }
+
+    private async Task<bool> TrySaveLocationsAsync(List<Location> locations)
+    {
+        IReadOnlyList<Location> saved = await _locationRepository.AddAllAsync(locations);
+        if (saved.Count != locations.Count)
+        {
+            ShowSnackbar(Strings.Get("location_save_failed"));
+            return false;
+        }
+
+        // A background refresh may have replaced weather while the new order was being saved.
+        _locations = [.. saved.Select(location =>
+            _locations.FirstOrDefault(current => current.FormattedId == location.FormattedId) ?? location)];
+        OnPropertyChanged(nameof(Locations));
+        return true;
     }
 
     /// <summary>
@@ -680,7 +701,11 @@ public sealed partial class MainViewModel : ObservableObject
         }
         else
         {
-            await AddLocationAsync(location);
+            if (!await AddLocationAsync(location))
+            {
+                return;
+            }
+
             if (CurrentPage is ManagementViewModel management)
             {
                 management.Refresh();
@@ -707,6 +732,12 @@ public sealed partial class MainViewModel : ObservableObject
         if (CurrentPage is ManagementViewModel management)
         {
             management.Refresh();
+        }
+
+        foreach (DetailsViewModel details in _backStack.Concat(_forwardStack).Append(CurrentPage)
+            .OfType<DetailsViewModel>().Distinct())
+        {
+            details.UpdateLocation(location);
         }
 
         NotifyLocationsChanged();

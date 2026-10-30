@@ -70,7 +70,9 @@ The Breezy Weather files each C# file ports. Paths on the right are relative to 
 | `app/Background/BatterySaver.cs` | No file. It reads whether Windows' Battery saver is on. |
 | `src/Refresh/NetworkStatus.cs` | `isOnline` in `app/src/main/kotlin/org/breezyweather/common/extensions/NetworkExtensions.kt` |
 
-The job timestamp records the start of an attempt, as upstream does. Deliberate difference: the Windows scheduler retries `Failure` as well as `Retry` and `AlreadyRunning`, rather than waiting for the next normal interval after a failed job. Retries use linear delays of 10, 20, 30 minutes and so on, capped at five hours. The pending retry deadline survives network and power events and is unaffected by unrelated settings changes. Turning background updates off cancels pending retries; disposal prevents a completing job from arming the timer again. Per-location source errors retain upstream's job-success behavior.
+The job timestamp records the start of an attempt, as upstream does. Deliberate difference: the Windows scheduler retries `Failure` as well as `Retry` and `AlreadyRunning`, rather than waiting for the next normal interval after a failed job. Retries use linear delays of 10, 20, 30 minutes and so on, capped at five hours. The pending retry deadline survives network and power events and is unaffected by unrelated settings changes. Turning background updates off cancels pending retries; disposal prevents a completing job from arming the timer again. The job reports failure after a per-location exception or a network, timeout, rate-limit, server-unavailable, parsing, incomplete-data, outdated-data or generic refresh error, even when other locations succeed. Available weather is still published for each returned result. Failed secondary locations remain eligible on the next attempt even when completion advanced their refresh timestamp; a successful retry clears this exception to the once-daily rule. Only locations in the automatic selection retain pending retries. Configuration errors retain upstream's job-success behavior, and cancellation still counts as success. Upstream records per-location failures without failing the job.
+
+Incompatible forecast and air-quality hours also request a retry.
 
 ## Process lifetime
 
@@ -98,6 +100,8 @@ Windows can deny foreground activation, and the named pipe rejects a different e
 | `AirQuality.cs`, `Alert.cs`, `Astro.cs`, `Base.cs`, `Current.cs`, `Daily.cs`, `DailyAvgMinMax.cs`, `DegreeDay.cs`, `HalfDay.cs`, `Hourly.cs`, `Minutely.cs`, `MoonPhase.cs`, `Normals.cs`, `Pollen.cs`, `Precipitation.cs`, `PrecipitationDuration.cs`, `PrecipitationProbability.cs`, `Temperature.cs`, `UV.cs`, `Weather.cs`, `Wind.cs` | The file of the same name in `model/` |
 | `AlertSeverity.cs`, `Month.cs`, `WeatherCode.cs` | The file of the same name in `reference/` |
 | `Wrappers/*.cs` | The file of the same name in `wrappers/` |
+
+Deliberate difference in `Weather.cs`: `Tomorrow` uses the weather object's construction time, like `TodayIndex` and the upcoming hours. Upstream's `tomorrow` getter reads the clock on every access. The port keeps the day selection consistent within a weather snapshot across midnight.
 
 ## Locations
 
@@ -139,6 +143,8 @@ Windows can deny foreground activation, and the named pipe rejects a different e
 | `WeatherReader.cs` | `kotlin/breezyweather/data/weather/WeatherMapper.kt` |
 | `WeatherSchema.cs`, `WeatherDatabase.cs` | `sqldelight/breezyweather/data/weathers.sq`, `dailys.sq`, `hourlys.sq`, `minutelys.sq`, `alerts.sq`, `normals.sq` |
 
+Deliberate differences in `LocationRepository.cs`: source parameters are replaced as a complete set in the surrounding transaction, removing obsolete names even when they equal a retained source identifier. Upstream compares parameter names with source identifiers. A formatted-ID rename defers foreign-key checks until commit and updates the seven dependent tables before committing; a collision or a failed dependent update rolls back the transaction. Upstream updates only the parent identifier. The schema remains unchanged, so the same transaction handles existing databases.
+
 ## Application
 
 `app/` ports `app/src/main/kotlin/org/breezyweather/ui/`.
@@ -163,6 +169,10 @@ Windows can deny foreground activation, and the named pipe rejects a different e
 | `Localization/SystemStrings.cs` | No file. It takes the Cancel text from Windows, as Breezy Weather takes it from Android. |
 | `App.xaml.cs`, `Localization/TranslateExtension.cs` | No file. |
 | `Icons/SeasonalWindowIcon.cs` | No file. It gives the main window Libreccio Weather's icon for the current season, which Breezy Weather does not have. |
+
+Deliberate difference in `MainViewModel.cs`: adding, restoring and reordering locations publish the new in-memory list only after `LocationRepository.AddAllAsync` succeeds. A failed save keeps the existing list and selection, reports the failure and does not show the location-added message. Weather received while the save was pending is retained. Upstream updates memory before the write and ignores the repository's failure result. The save-failure snackbar has no matching upstream string; its English and French text is in `resources/InterfaceStrings.resx` and `InterfaceStrings.fr.resx`.
+
+`SearchViewModel.SearchAsync` uses the generated asynchronous relay command with its default concurrent-execution setting. `SearchView.xaml` binds Enter to that command, so the normal WPF interaction cannot start an overlapping search. No request-version tracking is added.
 
 ## Main-screen scrolling and forecasts
 
@@ -222,11 +232,11 @@ The static background gradients are included; the animated weather implementors 
 | `src/Localization/DateFormatting.cs` | Adds `getFormattedDayOfTheMonth`, the `MMM` best pattern of the day tabs, and `Daily.getFullLabel` in `domain/weather/model/Daily.kt`. Without ICU the .NET patterns `dd`, `MMM` and `dddd d MMMM` are used. |
 | `src/Localization/UnitFormatting.cs` | Adds signed temperatures through ICU's `sign-always`, plain percent and temperature values, precipitation values given as numbers, pollutant concentrations and pollen per cubic meter from the translated unit strings, as upstream formats units without a measure unit. |
 | `src/Localization/WindFormatting.cs` | Adds `Speed.getBeaufortScaleStrength` in `common/extensions/UnitExtensions.kt`. |
-| `app/ViewModels/Details/DetailsViewModel.cs` | `ui/details/DetailsActivity.kt`, `DetailsViewModel.kt`, `DetailsUiState.kt` and the screen state of `DetailsScreen.kt`. The location comes from the main window's in-memory list instead of being read again from the database. |
-| `app/ViewModels/Details/DetailsPage.cs` | `DailyPagerContent` in `ui/details/DetailsScreen.kt`, `ui/details/components/DetailsCommon.kt`, `UnitUtils.formatUnitsDifferentFontSize` and `formatPollutantName`, and the chart parameters of `ui/common/charts/compose/BreezyLineChart.kt` and `BreezyBarChart.kt`. An unset chart minimum is the lower of zero and the lowest value, Vico's default. |
+| `app/ViewModels/Details/DetailsViewModel.cs` | `ui/details/DetailsActivity.kt`, `DetailsViewModel.kt`, `DetailsUiState.kt` and the screen state of `DetailsScreen.kt`. The location comes from the main window's in-memory list instead of being read again from the database. Deliberate difference: updates from `MainViewModel.UpdateLocation` refresh matching detail screens, including those retained in back and forward history. The selected date and page are retained when available, and the selected pollutant is kept. A missing date falls back to today, and a missing page to conditions. Upstream loads its detail snapshot once. |
+| `app/ViewModels/Details/DetailsPage.cs` | `DailyPagerContent` in `ui/details/DetailsScreen.kt`, `ui/details/components/DetailsCommon.kt`, `UnitUtils.formatUnitsDifferentFontSize` and `formatPollutantName`, and the chart parameters of `ui/common/charts/compose/BreezyLineChart.kt` and `BreezyBarChart.kt`. An unset chart minimum is the lower of zero and the lowest value, Vico's default. Deliberate difference: current conditions belong to the snapshot's `Today`, rather than checking the clock again while rebuilding a page. |
 | `app/ViewModels/Details/DetailsPage.Conditions.cs` | `ui/details/components/DetailsConditions.kt` and the precipitation probability parts of `DetailsPrecipitation.kt`. The month in the normals explanation uses .NET's genitive month names, the form of Java's `DateFormatSymbols.getMonths`. The cooling degree day reads the heating degree day aloud, as upstream does, and has no spoken text when the heating degree day is missing, where upstream would fail. |
 | `app/ViewModels/Details/DetailsPage.Precipitation.cs` | `ui/details/components/DetailsPrecipitation.kt`. `formatTime` with its default smallest unit gives decimal hours (`FormatHours`), and with minutes the hours and minutes (`FormatTime`). |
-| `app/ViewModels/Details/DetailsPage.Wind.cs` | `ui/details/components/DetailsWind.kt`, including the header that keeps the current wind after a press ends. The scale uses the region's default speed unit when Beaufort is selected. |
+| `app/ViewModels/Details/DetailsPage.Wind.cs` | `ui/details/components/DetailsWind.kt`, including the header that keeps the current wind after a press ends. The scale uses the region's default speed unit when Beaufort is selected. Deliberate difference: when daily summaries are missing, the initial header displays `defaultValue.Wind` alongside its timestamp. Upstream passes the null active item and omits the valid current wind. |
 | `app/ViewModels/Details/DetailsPage.AirQuality.cs` | `ui/details/components/DetailsAirQuality.kt`. The pollutant selector wraps in narrow windows instead of using Android's connected buttons with an overflow menu. |
 | `app/ViewModels/Details/DetailsPage.Pollen.cs` | `ui/details/components/DetailsPollen.kt`, `PollenGrid` in `ui/common/composables/AllergenComposables.kt` and `domain/weather/model/Pollen.kt`. Open-Meteo is not a pollen index source, so every pollen uses the standard thresholds. Names are sorted with the culture's string comparer in place of `Collator`. |
 | `app/ViewModels/Details/DetailsPage.UV.cs`, `DetailsPage.Humidity.cs`, `DetailsPage.Pressure.cs`, `DetailsPage.CloudCover.cs`, `DetailsPage.Visibility.cs` | `ui/details/components/DetailsUV.kt`, `DetailsHumidity.kt`, `DetailsPressure.kt`, `DetailsCloudCover.kt` and `DetailsVisibility.kt`. The cloud cover scale's "%" header is upstream's literal. |
@@ -295,7 +305,7 @@ Short paths are relative to `weather-unit/src/test/kotlin/org/breezyweather/unit
 | `Settings/OptionNamesTests.cs` | `app/src/test/kotlin/org/breezyweather/option/utils/UtilsTest.kt` |
 | `Settings/ConfigStoreTests.cs` | No file. |
 | `Units/SpeedTests.cs` | No file. |
-| `Database/WeatherRepositoryTests.cs` | No file. |
+| `Database/WeatherRepositoryTests.cs` | No upstream test. Covers weather storage and migration, plus formatted-ID changes with foreign keys enabled across all seven dependent tables, rollback after a name collision or failed child update, and full parameter replacement through both save paths. |
 | `Calculations/AirQualityIndexTests.cs` | No upstream test. Checks integer saturation of the AQI result with a concentration that remains representable by the quantity constructor. |
 | `Units/QuantityConversionTests.cs` | No upstream test. Checks C# floating-point conversion differences across the eight quantities: saturation, NaN rejection, exact large integers, half boundaries and overflow of converted long inputs. |
 | `Localization/DurationFormattingTests.cs` | No upstream test. Checks truncation of negative TimeSpan hour components against Kotlin's duration components. |

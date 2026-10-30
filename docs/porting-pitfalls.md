@@ -94,6 +94,10 @@ Android manages application process and activity lifetime. A WPF executable star
 
 Windows named pipes need `PipeOptions.Asynchronous` for cancellation of a pending `WaitForConnectionAsync`. `CurrentUserOnly` checks both the account and elevation level on Windows. Foreground focus is also restricted: the newly launched process grants permission with `AllowSetForegroundWindow` before sending the activation request. The listener posts to the UI dispatcher without waiting for it, so cancellation and disposal cannot deadlock with the UI thread.
 
+## SQLite transactions
+
+With foreign keys enabled, renaming a parent identifier does not rename the dependent rows. Updating the parent alone fails when its children still reference the old identifier. `LocationRepository.UpdateAsync` enables SQLite's transaction-scoped `defer_foreign_keys`, renames the parent and all dependent location identifiers, then commits with the constraints still enforced. A collision or failed child update rolls back the whole rename. Deferred checks automatically reset after commit or rollback, as described in [SQLite's pragma documentation](https://www.sqlite.org/pragma.html#pragma_defer_foreign_keys). The database regression cases cover renames and rollback with foreign keys enabled.
+
 ## Views
 
 | Upstream | Upstream behaviour | WPF difference | Reproduce with |

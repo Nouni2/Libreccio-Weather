@@ -210,6 +210,134 @@ public sealed class WeatherRepositoryTests : IDisposable
         Assert.NotNull(await _weather.GetWeatherByLocationIdAsync(saved.FormattedId, cancellationToken));
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task UpdateAsync_RenamedLocation_PreservesParametersAndEveryForecastTable(bool changeSource)
+    {
+        CancellationToken cancellationToken = TestContext.Current.CancellationToken;
+        Assert.Single(await _locations.AddAllAsync([TestLocation]));
+        DateTimeOffset date = DateTimeOffset.FromUnixTimeMilliseconds(1800000000123);
+        Weather initial = new()
+        {
+            Base = new Base { RefreshTime = date },
+            Current = new Current { Wind = new Wind { Speed = Speed.FromMetersPerSecond(5.0) } },
+            DailyForecast = [new Daily { Date = date }],
+            HourlyForecast = [new Hourly { Date = date }],
+            MinutelyForecast = [new Minutely { Date = date, MinuteInterval = 15 }],
+            AlertList = [new Alert { AlertId = "wind", Color = 0 }],
+            Normals = new Dictionary<Month, Normals> { [Month.October] = new Normals() },
+        };
+        await _weather.InsertAsync(TestLocation, initial, cancellationToken);
+        Location renamed = changeSource
+            ? TestLocation with { ForecastSource = "other-source" }
+            : TestLocation with { Latitude = 49.0 };
+
+        Assert.True(await _locations.UpdateAsync(renamed, TestLocation.FormattedId));
+        Assert.Null(await _locations.GetLocationAsync(TestLocation.FormattedId));
+        Location saved = Assert.IsType<Location>(await _locations.GetLocationAsync(renamed.FormattedId));
+        Assert.Equal("best_match", saved.Parameters["openmeteo"]["weatherModels"]);
+        Weather stored = Assert.IsType<Weather>(
+            await _weather.GetWeatherByLocationIdAsync(renamed.FormattedId, cancellationToken));
+        Assert.Equal(initial.Base, stored.Base);
+        Assert.Equal(initial.Current?.Wind, stored.Current?.Wind);
+        Assert.Single(stored.DailyForecast);
+        Assert.Single(stored.HourlyForecast);
+        Assert.Single(stored.MinutelyForecast);
+        Assert.Single(stored.AlertList);
+        Assert.Single(stored.Normals);
+        using SqliteConnection connection = new(new SqliteConnectionStringBuilder { DataSource = _path, ForeignKeys = true }.ToString());
+        await connection.OpenAsync(cancellationToken);
+        using SqliteCommand check = connection.CreateCommand();
+        check.CommandText = "PRAGMA foreign_key_check;";
+        using SqliteDataReader reader = await check.ExecuteReaderAsync(cancellationToken);
+        Assert.False(await reader.ReadAsync(cancellationToken));
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task UpdateAsync_FailedRename_RollsBackParentAndChildren(bool conflictingLocation)
+    {
+        CancellationToken cancellationToken = TestContext.Current.CancellationToken;
+        Location renamed = TestLocation with { Latitude = 49.0 };
+        IReadOnlyList<Location> locations = conflictingLocation ? [TestLocation, renamed] : [TestLocation];
+        Assert.Equal(locations.Count, (await _locations.AddAllAsync(locations)).Count);
+        DateTimeOffset date = DateTimeOffset.FromUnixTimeMilliseconds(1800000000123);
+        Weather initial = new()
+        {
+            Base = new Base { RefreshTime = date },
+            HourlyForecast = [new Hourly { Date = date }],
+        };
+        await _weather.InsertAsync(TestLocation, initial, cancellationToken);
+        if (!conflictingLocation)
+        {
+            using SqliteConnection connection = new(new SqliteConnectionStringBuilder { DataSource = _path }.ToString());
+            await connection.OpenAsync(cancellationToken);
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = """
+                CREATE TRIGGER reject_hourly_rename BEFORE UPDATE OF location_formatted_id ON hourlys
+                BEGIN
+                    SELECT RAISE(ABORT, 'Cannot rename hourly forecast.');
+                END;
+                """;
+            await command.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        Assert.False(await _locations.UpdateAsync(renamed, TestLocation.FormattedId));
+        Location saved = Assert.IsType<Location>(await _locations.GetLocationAsync(TestLocation.FormattedId));
+        Assert.Equal("best_match", saved.Parameters["openmeteo"]["weatherModels"]);
+        Weather stored = Assert.IsType<Weather>(
+            await _weather.GetWeatherByLocationIdAsync(TestLocation.FormattedId, cancellationToken));
+        Assert.Equal(initial.Base, stored.Base);
+        Assert.Equal(date, Assert.Single(stored.HourlyForecast).Date);
+        Assert.Null(await _weather.GetWeatherByLocationIdAsync(renamed.FormattedId, cancellationToken));
+        Assert.Equal(conflictingLocation, await _locations.GetLocationAsync(renamed.FormattedId) is not null);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task InsertParametersAsync_ReplacedParameters_RemovesObsoleteSourcesAndNames(bool saveFullList)
+    {
+        Location initial = TestLocation with
+        {
+            Parameters = new Dictionary<string, IReadOnlyDictionary<string, string>>
+            {
+                ["old-source"] = new Dictionary<string, string> { ["new-source"] = "obsolete" },
+                ["new-source"] = new Dictionary<string, string> { ["new-source"] = "obsolete", ["keep"] = "old" },
+            },
+        };
+        Location other = TestLocation with { Latitude = 49.0 };
+        Assert.Equal(2, (await _locations.AddAllAsync([initial, other])).Count);
+        Location replacement = initial with
+        {
+            Parameters = new Dictionary<string, IReadOnlyDictionary<string, string>>
+            {
+                ["new-source"] = new Dictionary<string, string> { ["keep"] = "new" },
+            },
+        };
+
+        if (saveFullList)
+        {
+            Assert.Equal(2, (await _locations.AddAllAsync([replacement, other])).Count);
+        }
+        else
+        {
+            await _locations.InsertParametersAsync(replacement.FormattedId, replacement.Parameters);
+        }
+
+        Location saved = Assert.IsType<Location>(await _locations.GetLocationAsync(initial.FormattedId));
+        Assert.Equal("new-source", Assert.Single(saved.Parameters).Key);
+        KeyValuePair<string, string> parameter = Assert.Single(saved.Parameters["new-source"]);
+        Assert.Equal("keep", parameter.Key);
+        Assert.Equal("new", parameter.Value);
+        await _locations.InsertParametersAsync(initial.FormattedId, new Dictionary<string, IReadOnlyDictionary<string, string>>());
+        Assert.Empty(Assert.IsType<Location>(await _locations.GetLocationAsync(initial.FormattedId)).Parameters);
+        Location unchanged = Assert.IsType<Location>(await _locations.GetLocationAsync(other.FormattedId));
+        Assert.Equal("best_match", unchanged.Parameters["openmeteo"]["weatherModels"]);
+    }
+
     public void Dispose()
     {
         // Pooled SQLite handles would otherwise keep the temporary database file open on Windows.

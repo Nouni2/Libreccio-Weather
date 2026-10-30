@@ -48,7 +48,13 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] The first location, plus the next three once a day when Mistray shows several locations
   - [x] The main screen shows weather refreshed in the background
   - [x] Failed background jobs retried with linear backoff, with pending retries retained across network and power events
+  - [x] Per-location exceptions and transient source errors reported as failed jobs, keeping failed secondary cities eligible for retry
   - [ ] Current position, error notifications, alerts and precipitation notifications after an update
+- [x] Forecast and location consistency
+  - [x] Tomorrow and current-day detail values use the weather snapshot's reference day
+  - [x] Source parameter replacement removes obsolete sources and parameter names
+  - [x] Location identifier changes preserve source parameters and every cached forecast table
+  - [x] Adding, restoring and reordering locations publish changes only after a successful save
 
 ### Sources
 
@@ -116,6 +122,8 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
     - [ ] Card enter animations and detail actions
     - [ ] Precipitation nowcast, alerts, sun, moon, clock and footer
 - [ ] Daily and hourly detail screens (`DetailsActivity`)
+  - [x] Updated weather reaches open detail screens and screens kept in navigation history, preserving the selected date and page
+  - [x] Current wind appears when daily wind summaries are missing
   - [ ] A tab for each day and a page menu of the available kinds of data
   - [ ] Conditions with real and feels-like temperatures, normals, daily summary, degree days and precipitation probability
   - [ ] Precipitation amounts, types, probability and duration
@@ -204,6 +212,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Breezy Weather's tests for temperature conversions, humidex and total precipitation
   - [x] Checks on rounding and the Beaufort scale
   - [x] Weather database migrations, quantity storage and transaction rollback
+  - [x] Location identifier changes, rename rollback and full source parameter replacement
   - [x] Breezy Weather's number formatting tests
   - [x] Breezy Weather's tests for card and chart lists and option names
   - [x] Settings file storage
