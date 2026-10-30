@@ -1,0 +1,54 @@
+<!--
+  This file is part of Libreccio Weather.
+
+  Libreccio Weather is free software: you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the Free
+  Software Foundation, version 3 of the License.
+
+  Libreccio Weather is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  more details.
+
+  You should have received a copy of the GNU General Public License along
+  with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Id="Nouni2.LibreccioWeather" Name="!(loc.ProductName) $(ReleaseVersion)"
+           Manufacturer="Nouni2" Version="$(InstallerProductVersion)" Language="1033"
+           Scope="perUser" Compressed="yes">
+    <!-- MSI compares only the numeric version, so prereleases of the same version replace each other. -->
+    <MajorUpgrade AllowSameVersionUpgrades="yes" Schedule="afterInstallInitialize"
+                  DowngradeErrorMessage="!(loc.NewerVersionInstalled)" />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+    <Icon Id="AppIcon" SourceFile="!(bindpath.AppIcons)\icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="AppIcon" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/Nouni2/Libreccio-Weather" />
+    <Property Id="ARPNOMODIFY" Value="1" />
+
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="UserProgramsFolder" Name="Programs">
+        <Directory Id="INSTALLFOLDER" Name="Libreccio Weather" />
+      </Directory>
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationMenuFolder" Name="!(loc.ProductName)" />
+    </StandardDirectory>
+
+    <Component Id="Application" Directory="INSTALLFOLDER"
+               Guid="a206c867-4015-433c-bc9b-31e1780c5a7b">
+      <File Id="ApplicationExecutable" Source="!(bindpath.PublishedApp)\Libreccio-Weather.exe" />
+      <Shortcut Id="StartMenuShortcut" Directory="ApplicationMenuFolder" Name="!(loc.ProductName)"
+                Target="[#ApplicationExecutable]" WorkingDirectory="INSTALLFOLDER"
+                Icon="AppIcon" />
+      <RegistryValue Root="HKCU" Key="Software\Nouni2\LibreccioWeather"
+                     Name="Installed" Type="integer" Value="1" KeyPath="yes" />
+      <RemoveFolder Id="RemoveApplicationFolder" Directory="INSTALLFOLDER" On="uninstall" />
+      <RemoveFolder Id="RemoveProgramsFolder" Directory="UserProgramsFolder" On="uninstall" />
+      <RemoveFolder Id="RemoveApplicationMenuFolder" Directory="ApplicationMenuFolder" On="uninstall" />
+    </Component>
+    <Feature Id="ApplicationFeature" Title="!(loc.ProductName)" Level="1">
+      <ComponentRef Id="Application" />
+    </Feature>
+  </Package>
+</Wix>

@@ -29,6 +29,12 @@ public sealed record TrayPopupContent(
     string Place, string? WeatherText, string? TemperatureText, string? IconPath, string? AuxiliaryText, string? RefreshText,
     bool IsCities, IReadOnlyList<TrayPopupItem> Items)
 {
+    public string WindowTitle { get; } = Strings.Get("desktop_app_name");
+
+    public string OpenText { get; } = Strings.Get("desktop_open");
+
+    public string CloseText { get; } = Strings.Get("action_close");
+
     public static TrayPopupContent Create(Location? location, IReadOnlyList<Location> locations, SettingsManager settings, TemperatureUnit unit)
     {
         Core.Models.Weather? weather = location?.Weather;

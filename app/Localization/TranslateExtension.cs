@@ -21,7 +21,7 @@ namespace LibreccioWeather.Localization;
 
 /// <summary>
 /// Shows translated text in XAML, such as Text="{l:Translate current_weather}".
-/// The text is read once when the XAML loads, so a language change applies after a restart.
+/// Text is read once when XAML loads; retained views must refresh their labels when the selected language changes.
 /// </summary>
 [MarkupExtensionReturnType(typeof(string))]
 public sealed class TranslateExtension : MarkupExtension

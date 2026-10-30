@@ -15,7 +15,7 @@
   with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
 -->
 <assembly manifestVersion="1.0" xmlns="urn:schemas-microsoft-com:asm.v1">
-  <assemblyIdentity version="1.0.0.0" name="Libreccio-Weather" />
+  <assemblyIdentity version="0.1.0.0" name="Libreccio-Weather" />
   <application xmlns="urn:schemas-microsoft-com:asm.v3">
     <windowsSettings>
       <!-- Each window is drawn at the scale of the monitor it is on and redrawn when that scale changes, instead of

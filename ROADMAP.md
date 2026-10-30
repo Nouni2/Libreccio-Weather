@@ -79,6 +79,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] CLDR plural rules for English and French
   - [x] Language taken from Windows
   - [x] Language setting
+  - [ ] Mistray popup title, button and accessibility labels follow language changes without restarting
   - [x] String arrays in the importer
   - [x] Libreccio Weather's own English and French interface text in resource files
 
@@ -237,3 +238,5 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 - [ ] Third-party notices for the ported parts that come from other projects
 - [ ] Libreccio Weather's logo
 - [ ] Installer and releases
+  - [ ] Compressed Windows x64 single-executable package, including the runtime and native libraries
+  - [ ] Per-user MSI installation, Start menu shortcut, upgrades and uninstall
