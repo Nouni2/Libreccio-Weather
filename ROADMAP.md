@@ -114,7 +114,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] "Last updated" on cards whose weather is outdated
   - [ ] Sliding a card towards the start to choose its weather sources
   - [ ] Current location
-  - [ ] The list as a pane beside the main screen in wide windows, folded and unfolded by the list button
+  - [x] The list as a pane beside the main screen in wide windows, folded and unfolded by the list button
 - [ ] Loading saved weather before refreshing on startup
 - [ ] Settings screens
   - [x] Settings home, with every category
@@ -132,6 +132,8 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 - [ ] Middle-button autoscroll
 - [ ] Thin scrollbars in both interface modes
 - [ ] Sharp rendering at each monitor's display scale, including when it changes or the window moves between monitors
+- [x] Animations at the refresh rate of the monitor the window is on
+- [ ] Setting to keep animations at 60 frames per second on slower computers
 - [x] Main window icon of the current season at the location on screen, reversed in the southern hemisphere
 
 ### Experimental desktop interface

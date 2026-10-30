@@ -134,7 +134,8 @@ public sealed partial class MainViewModel : ObservableObject
                         or nameof(SettingsManager.IsWidgetNotificationUsingFeelsLike)
                         or nameof(SettingsManager.IsTrayWeatherIconEnabled)
                         or nameof(SettingsManager.IsTrayDoubleClickEnabled)
-                        or nameof(SettingsManager.TrayDoubleClickDelay),
+                        or nameof(SettingsManager.TrayDoubleClickDelay)
+                        or nameof(SettingsManager.IsScreenRefreshRateEnabled),
                 })
             {
                 return;

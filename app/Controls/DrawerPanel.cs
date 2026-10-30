@@ -17,6 +17,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Animation;
+using LibreccioWeather.Display;
 using Size = System.Windows.Size;
 
 namespace LibreccioWeather.Controls;
@@ -126,6 +127,7 @@ public sealed class DrawerPanel : Panel
             // Slows down towards the end, as 1 − (1 − t)⁴.
             EasingFunction = new PowerEase { Power = 4, EasingMode = EasingMode.EaseOut },
         };
+        RefreshRate.Apply(slide, panel);
         panel.BeginAnimation(ProgressProperty, slide);
     }
 }

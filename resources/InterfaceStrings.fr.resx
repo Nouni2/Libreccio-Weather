@@ -28,6 +28,7 @@
     <data name="desktop_move_down" xml:space="preserve"><value>Descendre</value></data>
     <data name="desktop_remove" xml:space="preserve"><value>Supprimer</value></data>
     <data name="desktop_location_actions" xml:space="preserve"><value>Clic droit pour les actions du lieu.</value></data>
+    <data name="display_refresh_rate" xml:space="preserve"><value>Animations à la fréquence d'actualisation de l'écran</value></data>
     <data name="tray_change_location" xml:space="preserve"><value>Changer de lieu</value></data>
     <data name="tray_exit" xml:space="preserve"><value>Quitter</value></data>
     <data name="tray_dismiss" xml:space="preserve"><value>Masquer</value></data>

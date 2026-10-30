@@ -28,6 +28,7 @@
     <data name="desktop_move_down" xml:space="preserve"><value>Move down</value><comment>Location list right-click menu: moves the location one place down.</comment></data>
     <data name="desktop_remove" xml:space="preserve"><value>Remove</value><comment>Location list right-click menu: deletes the location.</comment></data>
     <data name="desktop_location_actions" xml:space="preserve"><value>Right-click for location actions.</value><comment>Location list: hint that a right-click shows the location's actions.</comment></data>
+    <data name="display_refresh_rate" xml:space="preserve"><value>Animations at the screen's refresh rate</value><comment>Settings > Appearance > Interface: switch running animations at the refresh rate of the monitor, such as 144 or 165 Hz. Turned off, they run at 60 frames per second, which asks less of slower computers.</comment></data>
     <data name="tray_change_location" xml:space="preserve"><value>Change location</value><comment>Tray icon menu: submenu listing the saved locations to show.</comment></data>
     <data name="tray_exit" xml:space="preserve"><value>Exit</value><comment>Tray icon menu: quits the application.</comment></data>
     <data name="tray_dismiss" xml:space="preserve"><value>Dismiss</value><comment>Tray icon menu: hides the tray icon until the next refresh. Offered only when the tray icon is not persistent.</comment></data>

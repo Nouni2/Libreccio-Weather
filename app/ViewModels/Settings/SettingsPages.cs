@@ -184,7 +184,14 @@ public static class SettingsPages
                 Strings.Get("desktop_interface_off"),
                 main.Settings.DesktopInterfaceEnabled,
                 value => main.Settings.DesktopInterfaceEnabled = value,
-                isFirst: true,
+                isFirst: true),
+            SeparatorPreference.Small,
+            new SwitchPreference(
+                Strings.Get("display_refresh_rate"),
+                Strings.Get("settings_enabled"),
+                Strings.Get("settings_disabled"),
+                main.Settings.IsScreenRefreshRateEnabled,
+                value => main.Settings.IsScreenRefreshRateEnabled = value,
                 isLast: true),
         ];
         return new SettingsPageViewModel(Strings.Get("settings_appearance"), items, main.GoBack, () => Appearance(main));

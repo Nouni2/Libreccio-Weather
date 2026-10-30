@@ -24,6 +24,7 @@ using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Refresh;
 using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Sources.OpenMeteo;
+using LibreccioWeather.Display;
 using LibreccioWeather.Icons;
 using LibreccioWeather.Tray;
 using LibreccioWeather.ViewModels;
@@ -46,6 +47,8 @@ public partial class App : System.Windows.Application
         base.OnStartup(e);
 
         SettingsManager settings = new(new ConfigStore(SettingsManager.DefaultPath));
+        RefreshRate.MatchesMonitor = settings.IsScreenRefreshRateEnabled;
+        settings.SettingsChanged += (_, _) => RefreshRate.MatchesMonitor = settings.IsScreenRefreshRateEnabled;
 
         // The language is set before the first window opens, because translated text is read when XAML loads.
         Strings.Culture = AppLanguages.Resolve(settings.Language, CultureInfo.CurrentUICulture);

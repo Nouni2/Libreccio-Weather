@@ -282,6 +282,16 @@ public sealed class SettingsManager
         }
     }
 
+    /// <summary>
+    /// Runs animations at the refresh rate of the monitor the window is on, rather than 60 frames per second, which
+    /// asks less of slower computers.
+    /// </summary>
+    public bool IsScreenRefreshRateEnabled
+    {
+        get => _config.GetBoolean("screen_refresh_rate", true);
+        set => SetAndNotify(() => _config.PutBoolean("screen_refresh_rate", value));
+    }
+
     // Changing the cards does not raise SettingsChanged; the main screen reads them again when it is shown.
     public List<CardDisplay> CardDisplayList
     {

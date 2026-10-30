@@ -20,7 +20,9 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shapes;
+using LibreccioWeather.Display;
 using Application = System.Windows.Application;
 using Brush = System.Windows.Media.Brush;
 using Path = System.Windows.Shapes.Path;
@@ -168,8 +170,15 @@ public sealed class AutoScroll
         _anchor.PlacementTarget = Root;
         _anchor.HorizontalOffset = origin.X - AnchorSize / 2;
         _anchor.VerticalOffset = origin.Y - AnchorSize / 2;
-        _anchor.Child = CreateAnchor(_horizontal is not null, _vertical is not null);
+        Grid anchor = CreateAnchor(_horizontal is not null, _vertical is not null);
+        _anchor.Child = anchor;
         _anchor.IsOpen = true;
+
+        // WPF draws frames, and so raises Rendering, only as often as a running animation asks for, 60 times a second by
+        // default. This animation changes nothing visible; it only asks for the monitor's own rate while the content scrolls.
+        var pace = new DoubleAnimation(1, 1, TimeSpan.FromSeconds(1)) { RepeatBehavior = RepeatBehavior.Forever };
+        RefreshRate.Apply(pace, _window);
+        anchor.BeginAnimation(UIElement.OpacityProperty, pace);
         _window.CaptureMouse();
         Mouse.OverrideCursor = CursorFor(default);
         _clock.Restart();
@@ -186,6 +195,7 @@ public sealed class AutoScroll
 
         _active = false;
         CompositionTarget.Rendering -= OnRendering;
+        _anchor.Child?.BeginAnimation(UIElement.OpacityProperty, null);
         _clock.Stop();
         _anchor.IsOpen = false;
         Mouse.OverrideCursor = null;

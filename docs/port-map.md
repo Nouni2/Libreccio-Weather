@@ -199,6 +199,8 @@ The deliberate differences are smaller corner radii and button padding; compact 
 
 The app is per-monitor DPI aware (`PerMonitorV2`, with `PerMonitor` as fallback) through `packaging/Libreccio-Weather.manifest`, so each window is drawn at the scale of its monitor and redrawn when that scale changes. The main window and the tray popup round layout to whole device pixels (`UseLayoutRounding`), which Android does by drawing in physical pixels.
 
+Animations run at the refresh rate of the monitor the window is on, read from Windows when each animation starts (`app/Display/RefreshRate.cs`), instead of WPF's default of 60 frames per second. Android animates at the display's rate. A window moved to another monitor uses that monitor's rate from its next animation. While autoscrolling, an animation that changes nothing visible keeps WPF drawing at that rate. The Windows-only setting `screen_refresh_rate` in Appearance, on by default, can turn this off for slower computers, which keeps WPF's 60 frames per second.
+
 ## Mistray
 
 Mistray is Windows shell integration replacing the ongoing Android notification. Its visibility follows the notification enable switch, off by default. It follows the location on the main weather screen, including while another page is open; `WidgetNotificationIMP` uses the first saved location instead. The selected-location behavior is a Windows integration difference. The existing refresh command and location/settings navigation are reused.
