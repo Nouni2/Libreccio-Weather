@@ -89,6 +89,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - A thin, rounded scrollbar with small arrows, used everywhere in the app.
 - A context menu style shared by every menu, with check marks, submenus and separators, and check and arrow icons.
 - A translator note on each of the app's own strings in `resources/InterfaceStrings.resx`, saying where it appears and which names stay untranslated.
+- Per-monitor DPI awareness, declared in `packaging/Libreccio-Weather.manifest`: each window is drawn at the scale of the monitor it is on, such as 125% or 175%, and redrawn when that scale changes or the window moves to another monitor, instead of Windows stretching an image made at the sign-in scale. The main window and the Mistray popup also place their content on whole screen pixels.
+- A `packaging/` folder for files built into or around the executable that are not code, listed in the layout of `AGENTS.md`.
 - This changelog.
 
 ### Changed
@@ -107,6 +109,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - A click on the Mistray icon opens the popup at once. With double-click on, the popup opens after 75 ms whatever the delay, and a second click within the delay still opens the main window.
 - The Mistray popup is created once and hidden between clicks instead of being rebuilt as a new window each time.
 - Mistray's menu uses the app's colors and menu style instead of the Windows Forms menu, and the location list's right-click menu uses the same style.
+- The location dropdown's menu follows Breezy Weather's Material 3 menu: as wide as the bar and aligned with it, in the surface container color with 4-pixel corners and a shadow, with 48-pixel items and a check before the chosen location instead of a purple background.
 
 ### Fixed
 

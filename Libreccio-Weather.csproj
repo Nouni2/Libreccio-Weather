@@ -8,6 +8,10 @@
     <!-- The project file sits at the root, so the default globs would pick up every folder. -->
     <EnableDefaultItems>false</EnableDefaultItems>
     <ApplicationIcon>assets\icons\icon.ico</ApplicationIcon>
+    <ApplicationManifest>packaging\Libreccio-Weather.manifest</ApplicationManifest>
+    <!-- WPF takes its per-monitor DPI awareness from the manifest. The Windows Forms analyzer asks for ApplicationHighDpiMode
+         instead, which only Windows Forms' own startup applies, so it would leave the WPF process unaware. -->
+    <NoWarn>$(NoWarn);WFO0003</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Resource Include="assets\icons\icon.ico" />

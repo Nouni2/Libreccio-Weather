@@ -130,6 +130,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 - [ ] Mouse back and forward buttons moving through the screens
 - [ ] Middle-button autoscroll
 - [ ] Thin scrollbars in both interface modes
+- [ ] Sharp rendering at each monitor's display scale, including when it changes or the window moves between monitors
 - [x] Main window icon of the current season at the location on screen, reversed in the southern hemisphere
 
 ### Experimental desktop interface

@@ -182,7 +182,7 @@ The deliberate differences are smaller corner radii and button padding; a saved-
 
 | File | Desktop adjustments |
 |---|---|
-| `app/Theme/Theme.xaml`, `DesktopTheme.xaml` | Theme resources parameterize corners and padding. Desktop overrides contain no palette or typography changes. The location dropdown uses the existing colors. `AppContextMenu` is the one style for context menus, used by the location actions and Mistray's menu, with check marks, submenus and separators. |
+| `app/Theme/Theme.xaml`, `DesktopTheme.xaml` | Theme resources parameterize corners and padding. Desktop overrides contain no palette or typography changes. The location dropdown uses the existing colors. `AppContextMenu` is the one style for context menus, used by the location actions and Mistray's menu, with check marks, submenus and separators. The location dropdown's open menu follows Breezy Weather's `DropdownMenu` in `ui/details/components/DetailsAirQuality.kt`, Material 3's baseline menu: opening under the bar and exactly as wide as it, as Compose's exposed dropdown menu is, surface container, 4-pixel corners, elevation level 2, 48-pixel items with label-large text, and a check icon before the chosen location instead of a filled background. |
 | `app/MainWindow.xaml`, `MainWindow.xaml.cs` | The same page template in both modes; application resources switch the shape overrides. Desktop dialogs keep keyboard focus until closed. |
 | `app/Views/WeatherView.xaml` | The existing top bar offers a location dropdown and compact actions in desktop mode. The weather content is unchanged. |
 | `app/Views/ManagementView.xaml`, `ManagementView.xaml.cs` | The existing cards gain desktop context menus and keyboard focus. Enter opens, Delete removes, and Ctrl+Up or Ctrl+Down reorders. |
@@ -193,6 +193,10 @@ The deliberate differences are smaller corner radii and button padding; a saved-
 | `resources/InterfaceStrings.resx`, `InterfaceStrings.fr.resx` | Application-specific English and French labels, loaded through `Strings` separately from generated translations. |
 
 `SettingsPages.Appearance` adds the switch, saved by `SettingsManager`. The active page is recreated when the option or language changes.
+
+## Display scaling
+
+The app is per-monitor DPI aware (`PerMonitorV2`, with `PerMonitor` as fallback) through `packaging/Libreccio-Weather.manifest`, so each window is drawn at the scale of its monitor and redrawn when that scale changes. The main window and the tray popup round layout to whole device pixels (`UseLayoutRounding`), which Android does by drawing in physical pixels.
 
 ## Mistray
 
