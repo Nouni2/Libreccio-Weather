@@ -46,7 +46,7 @@ Libreccio Weather is developed and tested on Windows 11. Solar calculations requ
 
 ## Origin
 
-I wanted a good weather app on Windows. I tried plenty of them, and none were good enough for my liking. Breezy Weather was one I really liked on Android, so I decided to make my to port it.
+I wanted a good weather app on Windows. I tried plenty of them, and none were good enough for my liking. Breezy Weather was one I really liked on Android, so so I decided to port it.
 
 ## App icons
 
