@@ -287,7 +287,8 @@ internal sealed class WeatherReader
         DateTimeOffset? rise = Date(prefix + "rise_date");
         DateTimeOffset? set = Date(prefix + "set_date");
 
-        // An empty sun object would replace the source's daylight flag with polar night during completion.
+        // Neither time is stored for a polar night, which therefore reads back as a day without times, as a day whose
+        // calculation failed does.
         return rise is null && set is null ? null : new Astro { RiseDate = rise, SetDate = set };
     }
 

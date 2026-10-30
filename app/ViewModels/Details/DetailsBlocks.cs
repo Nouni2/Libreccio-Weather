@@ -138,6 +138,9 @@ public sealed record DetailsPollenItem(string Title, string Subtitle, Color Colo
 
 public sealed record DetailsPollenGrid(IReadOnlyList<DetailsPollenItem> Items);
 
-public sealed record DetailsAstroItem(string IconKey, string Text, string AutomationName);
+/// <summary>
+/// A row of sun or moon times with its icon, or the Moon's phase drawn from its angle.
+/// </summary>
+public sealed record DetailsAstroItem(string? IconKey, string Text, string AutomationName, int? MoonPhaseAngle = null);
 
 public sealed record DetailsAstroList(IReadOnlyList<DetailsAstroItem> Items);

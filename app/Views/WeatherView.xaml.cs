@@ -17,7 +17,9 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
+using LibreccioWeather.Controls.WeatherCards;
 using LibreccioWeather.ViewModels;
 using LibreccioWeather.ViewModels.WeatherCards;
 
@@ -36,8 +38,35 @@ public partial class WeatherView : UserControl
         {
             (DataContext as WeatherViewModel)?.UpdateRefreshTime();
             _clock.Start();
+            FindCardsPanel(WeatherScroll)?.AttachHeader(WeatherHeader);
         };
         Unloaded += (_, _) => _clock.Stop();
+    }
+
+    private static WeatherCardsPanel? FindCardsPanel(DependencyObject parent)
+    {
+        if (parent is WeatherCardsPanel panel)
+        {
+            return panel;
+        }
+
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+        {
+            if (FindCardsPanel(VisualTreeHelper.GetChild(parent, i)) is { } child)
+            {
+                return child;
+            }
+        }
+
+        return null;
+    }
+
+    private void OnAstroCardClick(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: AstroCardViewModel } && DataContext is WeatherViewModel weather)
+        {
+            weather.OpenAstroDetailsCommand.Execute(null);
+        }
     }
 
     private void OnConditionsCardClick(object sender, MouseButtonEventArgs e)

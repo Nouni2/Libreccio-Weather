@@ -491,7 +491,29 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Margin="16,8" Orientation="Horizontal" AutomationProperties.Name="{Binding AutomationName}">
-                                <c:DetailsIcon Key="{Binding IconKey}" Margin="0,0,16,0" VerticalAlignment="Center" Foreground="{StaticResource OnSurfaceBrush}" />
+                                <!-- Icons take the content text color of the dark theme. -->
+                                <c:DetailsIcon Key="{Binding IconKey}" Margin="0,0,16,0" VerticalAlignment="Center" Foreground="#999999">
+                                    <c:DetailsIcon.Style>
+                                        <Style TargetType="c:DetailsIcon">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IconKey}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </c:DetailsIcon.Style>
+                                </c:DetailsIcon>
+                                <c:MoonPhaseView Margin="0,0,16,0" VerticalAlignment="Center" SurfaceAngle="{Binding MoonPhaseAngle, FallbackValue=0, TargetNullValue=0}">
+                                    <c:MoonPhaseView.Style>
+                                        <Style TargetType="c:MoonPhaseView">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding MoonPhaseAngle}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </c:MoonPhaseView.Style>
+                                </c:MoonPhaseView>
                                 <TextBlock VerticalAlignment="Center" Style="{StaticResource BodyLarge}" Text="{Binding Text}" />
                             </StackPanel>
                         </DataTemplate>

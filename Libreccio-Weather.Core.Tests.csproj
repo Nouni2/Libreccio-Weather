@@ -14,6 +14,10 @@
     <ProjectReference Include="Libreccio-Weather.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <!-- The sun times tests call the library itself. -->
+    <None Include="native\spp.dll" Link="spp.dll" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
   <ItemGroup>

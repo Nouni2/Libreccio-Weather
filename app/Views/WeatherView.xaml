@@ -25,6 +25,9 @@
         <DataTemplate DataType="{x:Type forecast:ForecastCardViewModel}">
             <weather:ForecastCardView />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type conditions:AstroCardViewModel}">
+            <cards:AstroCardView Data="{Binding}" Margin="8" Cursor="Hand" MouseLeftButtonUp="OnAstroCardClick" />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type conditions:ConditionsCardViewModel}">
             <cards:ConditionsCardView Data="{Binding}" Margin="8" Cursor="Hand" MouseLeftButtonUp="OnConditionsCardClick" />
         </DataTemplate>
@@ -86,7 +89,7 @@
         <ScrollViewer x:Name="WeatherScroll" Grid.Row="2" VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
             <StackPanel>
-                <StackPanel Margin="8,0,8,16">
+                <StackPanel x:Name="WeatherHeader" Margin="8,0,8,16">
                     <!-- The time since the last refresh, with a clock icon, at the start of the header. -->
                     <StackPanel Margin="8,0,8,8" HorizontalAlignment="Left" Orientation="Horizontal"
                                 AutomationProperties.Name="{Binding RefreshTimeDescription}">
@@ -141,7 +144,7 @@
                 </StackPanel>
                 <ItemsControl ItemsSource="{Binding Cards}" Margin="0,0,0,16">
                     <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate><cards:WeatherCardsPanel /></ItemsPanelTemplate>
+                        <ItemsPanelTemplate><cards:WeatherCardsPanel AnimateCards="{Binding IsCardsFadeInEnabled}" /></ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                 </ItemsControl>
             </StackPanel>

@@ -33,7 +33,8 @@ namespace LibreccioWeather.Controls.Details;
 
 /// <summary>
 /// A chart of one day with the hours along the bottom and values on the end side. Each hour takes an equal segment of
-/// the width, with the point at its center. Pressing on the chart shows a guideline at the nearest hour.
+/// the width, with the point at its center. Lines are straight unless the chart sets a curvature. Pressing on the
+/// chart shows a guideline at the nearest hour.
 /// </summary>
 public sealed class DetailsChartView : FrameworkElement
 {
@@ -44,7 +45,7 @@ public sealed class DetailsChartView : FrameworkElement
     private const double MinChartHeight = 100;
     private const double LabelSize = 12;
     private const double LabelHorizontalPadding = 4;
-    private const double LabelVerticalPadding = 2;
+    private const double LabelVerticalPadding = 4;
     private const double TickLength = 4;
     private const double LineThickness = 5;
     private const double IconSize = 18;
@@ -52,8 +53,8 @@ public sealed class DetailsChartView : FrameworkElement
     private const double DashLength = 4;
     private const double DashGap = 2;
 
-    // A column is 500 units thick with 32 units between columns, scaled to fit its hour.
-    private const double BarFill = 500.0 / 532.0;
+    // A column is 500 units thick with 16 units between columns, scaled to fit its hour.
+    private const double BarFill = 500.0 / 516.0;
     private const double BarCornerFraction = 0.15;
 
     // Text labels are grey on the dark theme, and lines take the outline color.
@@ -144,9 +145,9 @@ public sealed class DetailsChartView : FrameworkElement
         }
         else
         {
-            for (int index = 0; index < data.Series.Count; index++)
+            foreach (DetailsChartSeries series in data.Series)
             {
-                DrawLine(drawingContext, data, layer, data.Series[index], index == 0);
+                DrawLine(drawingContext, data, layer, series);
             }
         }
 
@@ -228,7 +229,7 @@ public sealed class DetailsChartView : FrameworkElement
         }
     }
 
-    private void DrawLine(DrawingContext drawingContext, DetailsChartData data, Rect layer, DetailsChartSeries series, bool withArea)
+    private void DrawLine(DrawingContext drawingContext, DetailsChartData data, Rect layer, DetailsChartSeries series)
     {
         if (series.X.Count == 0)
         {
@@ -241,41 +242,50 @@ public sealed class DetailsChartView : FrameworkElement
             points[i] = new Point(ToX(data, layer, series.X[i]), ToY(data, layer, series.Y[i]));
         }
 
-        Brush stroke = MakeColorScale(data, layer, series.Colors, 255);
+        Brush stroke = MakeColorScale(data, layer, series.Colors);
         var line = new StreamGeometry();
         using (StreamGeometryContext context = line.Open())
         {
             context.BeginFigure(points[0], false, false);
-            AddCubicSegments(context, points);
+            AddSegments(context, points, data.Curvature, layer);
         }
 
-        if (withArea)
+        if (series.AreaColors is { } areaColors)
         {
+            // The area lies between the line and zero.
             double baseline = ToY(data, layer, Math.Clamp(0, data.MinY, data.MaxY));
             var area = new StreamGeometry();
             using (StreamGeometryContext context = area.Open())
             {
                 context.BeginFigure(new Point(points[0].X, baseline), true, true);
                 context.LineTo(points[0], false, false);
-                AddCubicSegments(context, points);
+                AddSegments(context, points, data.Curvature, layer);
                 context.LineTo(new Point(points[^1].X, baseline), false, false);
             }
 
-            drawingContext.DrawGeometry(MakeColorScale(data, layer, series.Colors, 128), null, area);
+            drawingContext.DrawGeometry(MakeColorScale(data, layer, areaColors), null, area);
         }
 
         drawingContext.DrawGeometry(null, new Pen(stroke, LineThickness) { LineJoin = PenLineJoin.Round }, line);
     }
 
-    // Each point joins the next with a curve that leaves and arrives horizontally.
-    private static void AddCubicSegments(StreamGeometryContext context, Point[] points)
+    // Without curvature the points are joined by straight lines. With it, each curve leaves and arrives horizontally,
+    // more strongly where the line rises or falls more: four times the height change over the chart height, at most
+    // 1, times the curvature, of the horizontal distance.
+    private static void AddSegments(StreamGeometryContext context, Point[] points, double curvature, Rect layer)
     {
         for (int i = 1; i < points.Length; i++)
         {
             Point previous = points[i - 1];
             Point current = points[i];
-            double half = (current.X - previous.X) / 2;
-            context.BezierTo(new Point(previous.X + half, previous.Y), new Point(current.X - half, current.Y), current, true, true);
+            if (curvature <= 0)
+            {
+                context.LineTo(current, true, true);
+                continue;
+            }
+
+            double xDelta = Math.Min(4 * Math.Abs(current.Y - previous.Y) / layer.Height, 1.0) * curvature * (current.X - previous.X);
+            context.BezierTo(new Point(previous.X + xDelta, previous.Y), new Point(current.X - xDelta, current.Y), current, true, true);
         }
     }
 
@@ -301,8 +311,10 @@ public sealed class DetailsChartView : FrameworkElement
         }
     }
 
-    // Colors are placed at the vertical position of their value, so the line changes color as it rises and falls.
-    private static Brush MakeColorScale(DetailsChartData data, Rect layer, IReadOnlyList<ChartColorStop> colors, byte alpha)
+    // A gradient from the top of the chart to its bottom, with each color at the height of its value. Stops above or
+    // below the chart are pinned to its edge, each at least at the position of the one before, as Skia draws
+    // gradients, so a color beyond the range takes over the edge instead of being blended there.
+    private static Brush MakeColorScale(DetailsChartData data, Rect layer, IReadOnlyList<ChartColorStop> colors)
     {
         List<ChartColorStop> stops = [.. colors.OrderByDescending(stop => stop.Value)];
         if (stops.Count == 0)
@@ -310,31 +322,28 @@ public sealed class DetailsChartView : FrameworkElement
             return Brushes.Transparent;
         }
 
-        if (stops.Count == 1 || stops[0].Value == stops[^1].Value)
+        if (stops.Count == 1)
         {
-            return Freeze(new SolidColorBrush(WithAlpha(stops[0].Color, alpha)));
+            return Freeze(new SolidColorBrush(stops[0].Color));
         }
 
-        double top = ToY(data, layer, stops[0].Value);
-        double bottom = ToY(data, layer, stops[^1].Value);
-        double range = stops[0].Value - stops[^1].Value;
+        double range = data.MaxY - data.MinY;
         var brush = new LinearGradientBrush
         {
             MappingMode = BrushMappingMode.Absolute,
-            StartPoint = new Point(0, top),
-            EndPoint = new Point(0, bottom),
+            StartPoint = new Point(0, layer.Top),
+            EndPoint = new Point(0, layer.Bottom),
         };
-        foreach (ChartColorStop stop in stops)
+        double previous = 0;
+        for (int i = 0; i < stops.Count; i++)
         {
-            brush.GradientStops.Add(new GradientStop(WithAlpha(stop.Color, alpha), (stops[0].Value - stop.Value) / range));
+            double position = range == 0 ? (double)i / (stops.Count - 1) : 1 - (stops[i].Value - data.MinY) / range;
+            position = Math.Clamp(position, previous, 1);
+            brush.GradientStops.Add(new GradientStop(stops[i].Color, position));
+            previous = position;
         }
 
         return Freeze(brush);
-    }
-
-    private static Color WithAlpha(Color color, byte alpha)
-    {
-        return alpha == 255 ? color : Color.FromArgb((byte)(color.A * alpha / 255), color.R, color.G, color.B);
     }
 
     private Rect GetLayerBounds(DetailsChartData data)

@@ -43,6 +43,8 @@ public sealed partial class WeatherViewModel : ObservableObject
     private readonly SpeedUnit _speedUnit;
     private Location _location;
 
+    public bool IsCardsFadeInEnabled => _main.Settings.IsCardsFadeInEnabled;
+
     [ObservableProperty]
     private bool _isLoading;
 
@@ -141,6 +143,12 @@ public sealed partial class WeatherViewModel : ObservableObject
         _main.OpenDetails(_location, _location.Weather?.TodayIndex, screen);
     }
 
+    [RelayCommand]
+    private void OpenAstroDetails()
+    {
+        _main.OpenDetails(_location, _location.Weather?.TodayIndex, DetailScreen.SunMoon);
+    }
+
     /// <summary>
     /// Shows the result of a refresh that the screen this one replaces is still running, so the location is not
     /// requested a second time.
@@ -225,7 +233,7 @@ public sealed partial class WeatherViewModel : ObservableObject
             : null;
 
         TemperatureRangeText = GetTemperatureRangeSummary(weather);
-        // Hourly flags supply daylight while solar events are unavailable.
+        // Hourly flags include the solar altitude when available and retain the source's flag otherwise.
         bool daylight = weather.NextHourlyForecast.FirstOrDefault()?.IsDaylight ?? true;
         BackgroundBrush = _main.Settings.MainScreenBackgroundEnabled
             ? WeatherBackground.GetBrush(current?.WeatherCode, daylight) : Brushes.Transparent;
@@ -250,6 +258,10 @@ public sealed partial class WeatherViewModel : ObservableObject
                     hourly.DetailsRequested += (_, request) => _main.OpenDetails(_location, request.DailyIndex, request.Screen);
                     cards.Add(hourly);
                 }
+            }
+            else if (AstroCardViewModel.Create(card, weather, _location, _main.Settings.IsElementsAnimationEnabled) is { } astro)
+            {
+                cards.Add(astro);
             }
             else if (ConditionsCardViewModel.Create(card, weather, _location, _main.Settings, _main.RegionCode) is { } conditions)
             {
