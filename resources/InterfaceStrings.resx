@@ -21,7 +21,7 @@
     <data name="desktop_app_name" xml:space="preserve"><value>Libreccio Weather</value><comment>The application's name, shown in the window title and the tray. A name: keep it as it is in every language.</comment></data>
     <data name="desktop_interface_section" xml:space="preserve"><value>Interface</value><comment>Settings > Appearance: title of the section holding the desktop interface switch.</comment></data>
     <data name="desktop_interface_title" xml:space="preserve"><value>Desktop interface</value><comment>Settings > Appearance: switch that adapts the interface for mouse and keyboard.</comment></data>
-    <data name="desktop_interface_on" xml:space="preserve"><value>Smaller corners, location dropdown and mouse and keyboard navigation.</value><comment>Settings > Appearance: summary under the desktop interface switch while it is on.</comment></data>
+    <data name="desktop_interface_on" xml:space="preserve"><value>Smaller corners and mouse and keyboard navigation.</value><comment>Settings > Appearance: summary under the desktop interface switch while it is on.</comment></data>
     <data name="desktop_interface_off" xml:space="preserve"><value>Adapt the existing interface for desktop use. Changes apply immediately.</value><comment>Settings > Appearance: summary under the desktop interface switch while it is off.</comment></data>
     <data name="desktop_open" xml:space="preserve"><value>Open</value><comment>Verb. Opens a location from its right-click menu in the location list, opens the main window from the tray menu and the tray popup.</comment></data>
     <data name="desktop_move_up" xml:space="preserve"><value>Move up</value><comment>Location list right-click menu: moves the location one place up.</comment></data>

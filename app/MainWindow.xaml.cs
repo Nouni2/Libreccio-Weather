@@ -35,6 +35,15 @@ public partial class MainWindow : Window
         _ = new AutoScroll(this);
         DataContextChanged += OnViewModelChanged;
         DialogHost.IsVisibleChanged += OnDialogVisibilityChanged;
+        InterfaceHost.SizeChanged += (_, _) => UpdateWindowShape();
+    }
+
+    private void UpdateWindowShape()
+    {
+        if (DataContext is MainViewModel main && InterfaceHost.ActualWidth > 0)
+        {
+            main.UpdateWindowShape(InterfaceHost.ActualWidth, InterfaceHost.ActualHeight);
+        }
     }
 
     // The side buttons of a mouse move through the screens like a browser's back and forward buttons.
@@ -95,6 +104,7 @@ public partial class MainWindow : Window
         {
             current.PropertyChanged += OnViewModelPropertyChanged;
             ApplyInterface(current);
+            UpdateWindowShape();
         }
     }
 

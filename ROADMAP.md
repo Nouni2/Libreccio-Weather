@@ -114,6 +114,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] "Last updated" on cards whose weather is outdated
   - [ ] Sliding a card towards the start to choose its weather sources
   - [ ] Current location
+  - [ ] The list as a pane beside the main screen in wide windows, folded and unfolded by the list button
 - [ ] Loading saved weather before refreshing on startup
 - [ ] Settings screens
   - [x] Settings home, with every category
@@ -137,7 +138,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 
 - [ ] Appearance option applying desktop adjustments to the existing views
 - [ ] Smaller corner radii and compact controls using the existing palette, typography and layouts
-- [ ] Location dropdown and compact actions in the existing weather top bar
+- [ ] Compact actions in the existing weather top bar
 - [ ] Context menus and keyboard controls for locations, settings and navigation
 
 ### Mistray

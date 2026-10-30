@@ -37,6 +37,9 @@ public sealed partial class MainViewModel : ObservableObject
     // Breezy Weather shows each message for three seconds.
     private static readonly TimeSpan SnackbarDuration = TimeSpan.FromSeconds(3);
 
+    // Windows at least this wide show the location list as a pane beside the main screen.
+    private const double LocationPaneMinWindowWidth = 640;
+
     private readonly OpenMeteoService _openMeteo;
     private readonly WeatherRefresher _refresher;
     private readonly LocationRepository _locationRepository;
@@ -51,6 +54,15 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly DispatcherTimer _snackbarTimer;
     private List<Location> _locations = [];
     private string? _currentFormattedId;
+    private ManagementViewModel? _locationPane;
+    private bool _isLandscape;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsLocationPaneAvailable))]
+    private bool _isWideLayout;
+
+    [ObservableProperty]
+    private bool _isLocationPaneOpen;
 
     [ObservableProperty]
     private ObservableObject? _currentPage;
@@ -137,7 +149,7 @@ public sealed partial class MainViewModel : ObservableObject
                 RebuildMainScreen();
             }
 
-            NotifyDesktopLocationsChanged();
+            NotifyLocationsChanged();
         };
     }
 
@@ -162,39 +174,64 @@ public sealed partial class MainViewModel : ObservableObject
 
     internal string? SelectedHourlyTab { get; set; }
 
-    public IReadOnlyList<LocationItemViewModel> DesktopLocations => _locations
-        .Select(location => new LocationItemViewModel(location, location.FormattedId == _currentFormattedId, _settings))
-        .ToList();
-
-    public string? SelectedDesktopLocationId
-    {
-        get => _currentFormattedId;
-        set
-        {
-            if (CanUseDesktopNavigation && value is not null && value != _currentFormattedId
-                && _locations.FirstOrDefault(item => item.FormattedId == value) is { } location)
-            {
-                ShowLocation(location);
-            }
-        }
-    }
-
     private bool CanUseDesktopNavigation => IsDesktopInterfaceEnabled && Dialog is null;
 
-    private void NotifyDesktopLocationsChanged()
+    // The pane's cards show each location's weather and which one is on screen.
+    private void NotifyLocationsChanged()
     {
-        OnPropertyChanged(nameof(DesktopLocations));
-        OnPropertyChanged(nameof(SelectedDesktopLocationId));
+        _locationPane?.Refresh();
+    }
+
+    /// <summary>
+    /// The location list shown in the pane beside the main screen in wide windows.
+    /// </summary>
+    public ManagementViewModel LocationPane => _locationPane ??= new ManagementViewModel(this, isPane: true);
+
+    /// <summary>
+    /// The pane only sits beside the main screen; other screens, such as settings or the search, take the whole window.
+    /// </summary>
+    public bool IsLocationPaneAvailable => IsWideLayout && CurrentPage is WeatherViewModel;
+
+    /// <summary>
+    /// Follows the size of the window. Crossing into or out of a wide or landscape window lays the screen out again as
+    /// if it had just opened: the pane opens in landscape, or when no location is saved, and stays folded when only one
+    /// location is saved.
+    /// </summary>
+    public void UpdateWindowShape(double width, double height)
+    {
+        bool wide = width >= LocationPaneMinWindowWidth;
+        bool landscape = width > height;
+        if (wide == IsWideLayout && landscape == _isLandscape)
+        {
+            return;
+        }
+
+        _isLandscape = landscape;
+        IsLocationPaneOpen = wide && (_locations.Count == 0 || (landscape && _locations.Count != 1));
+        IsWideLayout = wide;
+    }
+
+    // The list button folds and unfolds the pane where there is one, instead of opening the list as a screen.
+    private bool ToggleLocationPane()
+    {
+        if (!IsLocationPaneAvailable)
+        {
+            return false;
+        }
+
+        IsLocationPaneOpen = !IsLocationPaneOpen;
+        return true;
     }
 
     partial void OnCurrentPageChanged(ObservableObject? value)
     {
+        OnPropertyChanged(nameof(IsLocationPaneAvailable));
         if (!_movingThroughHistory)
         {
             _forwardStack.Clear();
         }
 
-        NotifyDesktopLocationsChanged();
+        NotifyLocationsChanged();
     }
 
     [RelayCommand(CanExecute = nameof(CanUseDesktopNavigation))]
@@ -218,7 +255,7 @@ public sealed partial class MainViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanUseDesktopNavigation))]
     private async Task DesktopLocationsAsync()
     {
-        if (CurrentPage is ManagementViewModel)
+        if (ToggleLocationPane() || CurrentPage is ManagementViewModel)
         {
             return;
         }
@@ -377,6 +414,11 @@ public sealed partial class MainViewModel : ObservableObject
 
     public void OpenLocationList()
     {
+        if (ToggleLocationPane())
+        {
+            return;
+        }
+
         _ = OpenLocationListAsync();
     }
 
@@ -460,7 +502,7 @@ public sealed partial class MainViewModel : ObservableObject
         locations.Insert(to, moved);
         _locations = locations;
         await _locationRepository.AddAllAsync(_locations);
-        NotifyDesktopLocationsChanged();
+        NotifyLocationsChanged();
     }
 
     /// <summary>
@@ -477,7 +519,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
 
         await _locationRepository.DeleteAsync(location.FormattedId);
-        NotifyDesktopLocationsChanged();
+        NotifyLocationsChanged();
         return location;
     }
 
@@ -498,7 +540,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
 
         await _locationRepository.AddAllAsync(_locations);
-        NotifyDesktopLocationsChanged();
+        NotifyLocationsChanged();
     }
 
     /// <summary>
@@ -507,7 +549,7 @@ public sealed partial class MainViewModel : ObservableObject
     public async Task ReloadLocationsAsync()
     {
         _locations = await LoadLocationsWithWeatherAsync();
-        NotifyDesktopLocationsChanged();
+        NotifyLocationsChanged();
     }
 
     /// <summary>
@@ -587,7 +629,7 @@ public sealed partial class MainViewModel : ObservableObject
             management.Refresh();
         }
 
-        NotifyDesktopLocationsChanged();
+        NotifyLocationsChanged();
     }
 
     private void RebuildMainScreen()

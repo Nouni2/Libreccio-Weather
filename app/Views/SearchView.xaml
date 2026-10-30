@@ -38,7 +38,8 @@
                         <KeyBinding Key="Enter" Command="{Binding SearchCommand}" />
                     </TextBox.InputBindings>
                 </TextBox>
-                <TextBlock Margin="18,0" VerticalAlignment="Center" IsHitTestVisible="False" FontSize="16"
+                <!-- Placed by code where the box puts its first character, so the hint and the caret line up. -->
+                <TextBlock x:Name="Placeholder" HorizontalAlignment="Left" VerticalAlignment="Center" IsHitTestVisible="False" FontSize="16"
                            Foreground="{StaticResource OnSurfaceVariantBrush}"
                            Text="{l:Translate location_search_placeholder}">
                     <TextBlock.Style>

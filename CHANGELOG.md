@@ -63,7 +63,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Unit names, durations such as "1 hour, 30 minutes" and relative times such as "5 min. ago" in Unicode CLDR's words, through the ICU library that Windows 10 version 1903 and later include as `icu.dll`. The app checks for each function it needs. Without them, unit names and durations come from Breezy Weather's translated strings, such as "km/h" and "1 h, 30 min", and relative times are not shown.
 - A "CLDR text" section in `docs/porting-pitfalls.md`, and the settings, background, seasons and new screen files in `docs/port-map.md`.
 - An experimental "Desktop interface" switch in Settings, Appearance, saved between launches and off by default. It applies smaller corner radii and tighter button spacing to the existing screens while keeping their colors, typography, icons and layout.
-- Desktop navigation through a location dropdown and compact location-list, refresh and settings buttons in the main screen's top bar. Location cards also offer a right-click menu for opening, reordering and deleting, using the existing deletion guards and Undo.
+- Desktop navigation through compact location-list, refresh and settings buttons in the main screen's top bar. Location cards also offer a right-click menu for opening, reordering and deleting, using the existing deletion guards and Undo.
 - Keyboard navigation in the desktop interface: screen shortcuts, Enter to open a selected search result or location, Delete and Ctrl+Up/Down on location cards, keyboard activation of settings, and focus handling for dialogs.
 - English and French resources for Windows-specific interface text, maintained separately from the generated Breezy Weather translations.
 - Static weather backgrounds using Breezy Weather's gradients for the current conditions, including clear daytime and nighttime backgrounds, controlled by the main-screen background setting.
@@ -91,6 +91,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - A translator note on each of the app's own strings in `resources/InterfaceStrings.resx`, saying where it appears and which names stay untranslated.
 - Per-monitor DPI awareness, declared in `packaging/Libreccio-Weather.manifest`: each window is drawn at the scale of the monitor it is on, such as 125% or 175%, and redrawn when that scale changes or the window moves to another monitor, instead of Windows stretching an image made at the sign-in scale. The main window and the Mistray popup also place their content on whole screen pixels.
 - A `packaging/` folder for files built into or around the executable that are not code, listed in the layout of `AGENTS.md`.
+- The location list as a pane beside the main screen in windows at least 640 pixels wide, as in Breezy Weather's layout for wide screens. The pane is the window width minus 600 pixels, between 280 and 320 pixels, and the main screen takes the rest. The list button folds and unfolds it with a 450 ms slide. It opens when the window is wider than tall or no location is saved, stays folded when exactly one location is saved, and is laid out again that way when the window crosses 640 pixels or changes proportion. Settings and the search still take the whole window. In narrower windows the list stays a screen of its own.
 - This changelog.
 
 ### Changed
@@ -109,7 +110,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - A click on the Mistray icon opens the popup at once. With double-click on, the popup opens after 75 ms whatever the delay, and a second click within the delay still opens the main window.
 - The Mistray popup is created once and hidden between clicks instead of being rebuilt as a new window each time.
 - Mistray's menu uses the app's colors and menu style instead of the Windows Forms menu, and the location list's right-click menu uses the same style.
-- The location dropdown's menu follows Breezy Weather's Material 3 menu: as wide as the bar and aligned with it, in the surface container color with 4-pixel corners and a shadow, with 48-pixel items and a check before the chosen location instead of a purple background.
 
 ### Fixed
 
@@ -124,3 +124,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The main weather header takes the height of its content instead of being pushed to the bottom of the viewport, removing the large blank area above the current conditions.
 - Forecast date labels use a public Core formatting method instead of accessing the internal ICU implementation, resolving the application's inaccessible-type compilation errors.
 - A right-click on the Mistray icon now opens its menu while the main window is open, instead of only once the window was hidden.
+- The search box's hint starts exactly where the caret and the typed text do, at any display scale.

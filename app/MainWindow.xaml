@@ -20,6 +20,7 @@
         xmlns:s="clr-namespace:LibreccioWeather.ViewModels.Settings"
         xmlns:views="clr-namespace:LibreccioWeather.Views"
         xmlns:l="clr-namespace:LibreccioWeather.Localization"
+        xmlns:c="clr-namespace:LibreccioWeather.Controls"
         Title="{l:Translate desktop_app_name}"
         Width="960"
         Height="720"
@@ -28,8 +29,12 @@
         UseLayoutRounding="True"
         Background="{DynamicResource SurfaceBrush}">
     <Window.Resources>
+        <!-- In wide windows, the location list sits in a pane beside the main screen, which the list button folds. -->
         <DataTemplate x:Key="InterfacePages">
-            <ContentControl Content="{Binding CurrentPage}" Focusable="False" />
+            <c:DrawerPanel IsAvailable="{Binding IsLocationPaneAvailable}" IsUnfold="{Binding IsLocationPaneOpen}" ClipToBounds="True">
+                <ContentControl Content="{Binding LocationPane}" Focusable="False" />
+                <ContentControl Content="{Binding CurrentPage}" Focusable="False" />
+            </c:DrawerPanel>
         </DataTemplate>
         <!-- Each page view model is shown with its view. -->
         <DataTemplate DataType="{x:Type vm:SearchViewModel}">

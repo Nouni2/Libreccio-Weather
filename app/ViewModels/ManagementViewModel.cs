@@ -29,11 +29,14 @@ namespace LibreccioWeather.ViewModels;
 public sealed partial class ManagementViewModel : ObservableObject
 {
     private readonly MainViewModel _main;
+    private readonly bool _isPane;
     private bool _desktopEditInProgress;
 
-    public ManagementViewModel(MainViewModel main)
+    /// <param name="isPane">True for the list shown beside the main screen, which has nothing to go back to.</param>
+    public ManagementViewModel(MainViewModel main, bool isPane = false)
     {
         _main = main;
+        _isPane = isPane;
         Refresh();
     }
 
@@ -57,7 +60,7 @@ public sealed partial class ManagementViewModel : ObservableObject
         }
 
         HasLocations = Items.Count > 0;
-        CanGoBack = _main.CanGoBack;
+        CanGoBack = !_isPane && _main.CanGoBack;
     }
 
     [RelayCommand]

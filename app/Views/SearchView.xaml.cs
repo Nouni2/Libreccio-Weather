@@ -14,7 +14,9 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 
 namespace LibreccioWeather.Views;
 
@@ -24,5 +26,18 @@ public partial class SearchView : UserControl
     {
         InitializeComponent();
         Loaded += (_, _) => SearchInput.Focus();
+        SearchInput.SizeChanged += (_, _) => AlignPlaceholder();
+
+        // The box lays out its text after it is loaded, so its first character's position is read once that is done.
+        SearchInput.Loaded += (_, _) => Dispatcher.InvokeAsync(AlignPlaceholder, DispatcherPriority.Loaded);
+    }
+
+    private void AlignPlaceholder()
+    {
+        Rect first = SearchInput.GetRectFromCharacterIndex(0);
+        if (!first.IsEmpty)
+        {
+            Placeholder.Margin = new Thickness(first.Left, 0, 0, 0);
+        }
     }
 }
