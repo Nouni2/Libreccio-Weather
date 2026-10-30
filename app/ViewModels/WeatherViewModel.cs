@@ -35,6 +35,7 @@ public sealed partial class WeatherViewModel : ObservableObject
     private readonly WeatherRefresher _refresher;
     private readonly MainViewModel _main;
     private readonly TemperatureUnit _temperatureUnit;
+    private readonly PrecipitationUnit _precipitationUnit;
     private Location _location;
 
     [ObservableProperty]
@@ -72,6 +73,7 @@ public sealed partial class WeatherViewModel : ObservableObject
         _refresher = refresher;
         _main = main;
         _temperatureUnit = main.Settings.GetTemperatureUnit(main.RegionCode);
+        _precipitationUnit = main.Settings.GetPrecipitationUnit(main.RegionCode);
         _location = location;
         TemperatureUnitText = UnitFormatting.GetNominativeUnit(_temperatureUnit);
         if (location.Weather is { } weather)
@@ -83,6 +85,8 @@ public sealed partial class WeatherViewModel : ObservableObject
     public string Place => _location.GetPlace();
 
     public string LocationFormattedId => _location.FormattedId;
+
+    public Location ShownLocation => _location;
 
     /// <summary>
     /// Shows weather that a background update brought for this location.
@@ -165,15 +169,21 @@ public sealed partial class WeatherViewModel : ObservableObject
         List<ForecastCardViewModel> cards = [];
         foreach (CardDisplay card in _main.Settings.CardDisplayList)
         {
-            if (card == CardDisplay.DailyForecast && weather.DailyForecast.Count > 0
-                && _main.Settings.DailyTrendDisplayList.Contains(DailyTrendDisplay.Temperature))
+            if (card == CardDisplay.DailyForecast && weather.DailyForecast.Count > 0)
             {
-                cards.Add(ForecastCardViewModel.CreateDaily(weather, _location, _temperatureUnit));
+                if (ForecastCardViewModel.CreateDaily(weather, _location, _temperatureUnit, _precipitationUnit, _main.Settings,
+                    _main.SelectedDailyTab, tab => _main.SelectedDailyTab = tab) is { } daily)
+                {
+                    cards.Add(daily);
+                }
             }
-            else if (card == CardDisplay.HourlyForecast && weather.NextHourlyForecast.Count > 0
-                && _main.Settings.HourlyTrendDisplayList.Contains(HourlyTrendDisplay.Temperature))
+            else if (card == CardDisplay.HourlyForecast && weather.NextHourlyForecast.Count > 0)
             {
-                cards.Add(ForecastCardViewModel.CreateHourly(weather, _location, _temperatureUnit));
+                if (ForecastCardViewModel.CreateHourly(weather, _location, _temperatureUnit, _precipitationUnit, _main.Settings,
+                    _main.SelectedHourlyTab, tab => _main.SelectedHourlyTab = tab) is { } hourly)
+                {
+                    cards.Add(hourly);
+                }
             }
         }
 

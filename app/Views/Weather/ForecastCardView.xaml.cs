@@ -17,7 +17,9 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using LibreccioWeather.Controls.Forecast;
 using LibreccioWeather.ViewModels.Forecast;
+using Point = System.Windows.Point;
 
 namespace LibreccioWeather.Views.Weather;
 
@@ -33,6 +35,30 @@ public partial class ForecastCardView : UserControl
                 ForecastScroller.ScrollToHorizontalOffset(card.InitialIndex * 67);
             }
         };
+    }
+
+    private void OnChartLoaded(object sender, RoutedEventArgs e)
+    {
+        UpdateChartBounds((PolylineAndHistogramView)sender);
+    }
+
+    private void OnChartSizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        UpdateChartBounds((PolylineAndHistogramView)sender);
+    }
+
+    private void UpdateChartBounds(PolylineAndHistogramView chart)
+    {
+        if (!chart.IsLoaded || DataContext is not ForecastCardViewModel card
+            || !ReferenceEquals(chart.Data, card.Columns.FirstOrDefault()?.Chart))
+        {
+            return;
+        }
+
+        // Reference lines stay fixed to the viewport while the forecast columns scroll beneath them.
+        Point origin = chart.TranslatePoint(new Point(0, 0), ForecastViewport);
+        ReferenceLines.ChartTop = (int)(origin.Y + (card.IsDaily ? 24 : 12));
+        ReferenceLines.ChartBottom = (int)(origin.Y + (int)chart.ActualHeight - 36);
     }
 
     private void OnForecastMouseWheel(object sender, MouseWheelEventArgs e)

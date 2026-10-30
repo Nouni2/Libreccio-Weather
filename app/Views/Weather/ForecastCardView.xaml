@@ -37,55 +37,129 @@
                 </StackPanel>
                 <TextBlock Margin="0,2,0,0" Style="{StaticResource BodyMediumText}" Text="{Binding Subtitle}" />
             </StackPanel>
-            <ScrollViewer x:Name="ForecastScroller" Margin="0,8,0,0" VerticalScrollBarVisibility="Disabled"
-                          PanningMode="HorizontalOnly" PreviewMouseWheel="OnForecastMouseWheel">
-                <ScrollViewer.Style>
-                    <Style TargetType="ScrollViewer">
-                        <Setter Property="HorizontalScrollBarVisibility" Value="Hidden" />
+            <ListBox ItemsSource="{Binding Trends}" SelectedItem="{Binding SelectedTrend, Mode=TwoWay}"
+                     Margin="20,8,20,0" Background="Transparent" BorderThickness="0" Padding="0"
+                     IsSynchronizedWithCurrentItem="False" KeyboardNavigation.TabNavigation="Once"
+                     Visibility="{Binding HasMultipleTrends, Converter={StaticResource BooleanToVisibility}}"
+                     AutomationProperties.Name="{Binding Title}">
+                <ListBox.Template>
+                    <ControlTemplate TargetType="ListBox"><ItemsPresenter /></ControlTemplate>
+                </ListBox.Template>
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Background" Value="{StaticResource SurfaceContainerHighBrush}" />
+                        <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+                        <Setter Property="BorderBrush" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="1" />
+                        <Setter Property="Padding" Value="14,8" />
+                        <Setter Property="Margin" Value="0,0,4,4" />
+                        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                        <Setter Property="AutomationProperties.Name" Value="{Binding Name}" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                            BorderThickness="{TemplateBinding BorderThickness}" Padding="{TemplateBinding Padding}"
+                                            CornerRadius="{DynamicResource ButtonCornerRadius}">
+                                        <ContentPresenter />
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                                <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
-                            </DataTrigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                <Setter Property="Foreground" Value="{StaticResource OnPrimaryBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                <Setter Property="BorderBrush" Value="{StaticResource OnSurfaceBrush}" />
+                            </Trigger>
                         </Style.Triggers>
                     </Style>
-                </ScrollViewer.Style>
-                <ItemsControl ItemsSource="{Binding Columns}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Width="67" Height="{Binding DataContext.ColumnHeight, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
-                                  ToolTip="{Binding Description}">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="48" />
-                                    <RowDefinition Height="*" />
-                                    <RowDefinition Height="Auto" />
-                                    <RowDefinition Height="16" />
-                                </Grid.RowDefinitions>
-                                <TextBlock Margin="0,2" HorizontalAlignment="Center" Style="{StaticResource TitleMediumText}" Text="{Binding Label}" />
-                                <TextBlock Grid.Row="1" Margin="0,2" HorizontalAlignment="Center" Style="{StaticResource BodyMediumText}" Text="{Binding Date}" />
-                                <Image Grid.Row="2" Width="32" Height="32" Source="{Binding DayIcon}" AutomationProperties.Name="{Binding Description}" />
-                                <c:PolylineAndHistogramView Grid.Row="3" Data="{Binding Chart}" ClipToBounds="True" />
-                                <Border Grid.Row="4" Height="48">
-                                    <Border.Style>
-                                        <Style TargetType="Border">
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding Chart.HasTopPolylineLabel}" Value="False">
-                                                    <Setter Property="Visibility" Value="Collapsed" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Border.Style>
-                                    <Image Width="32" Height="32" Source="{Binding NightIcon}" AutomationProperties.Name="{Binding Description}" />
-                                </Border>
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate><TextBlock FontSize="14" Text="{Binding Name}" /></DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <Grid x:Name="ForecastViewport" Margin="0,8,0,0">
+                <ScrollViewer x:Name="ForecastScroller" VerticalScrollBarVisibility="Disabled"
+                              PanningMode="HorizontalOnly" PreviewMouseWheel="OnForecastMouseWheel">
+                    <ScrollViewer.Style>
+                        <Style TargetType="ScrollViewer">
+                            <Setter Property="HorizontalScrollBarVisibility" Value="Hidden" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                    <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ScrollViewer.Style>
+                    <ItemsControl ItemsSource="{Binding Columns}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Width="67" Height="{Binding DataContext.ColumnHeight, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                      ToolTip="{Binding Description}" AutomationProperties.Name="{Binding Description}">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="48" />
+                                        <RowDefinition Height="*" />
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="16" />
+                                    </Grid.RowDefinitions>
+                                    <TextBlock Margin="0,2" HorizontalAlignment="Center" Style="{StaticResource TitleMediumText}" Text="{Binding Label}" />
+                                    <TextBlock Grid.Row="1" Margin="0,2" HorizontalAlignment="Center" Style="{StaticResource BodyMediumText}" Text="{Binding Date}" />
+                                    <Image Grid.Row="2" Width="32" Height="32" Source="{Binding DayIcon}" AutomationProperties.Name="{Binding Description}" />
+                                    <c:PolylineAndHistogramView Grid.Row="3" Data="{Binding Chart}" ClipToBounds="True"
+                                                                Loaded="OnChartLoaded" SizeChanged="OnChartSizeChanged">
+                                        <c:PolylineAndHistogramView.Style>
+                                            <Style TargetType="c:PolylineAndHistogramView">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Chart.IsDoubleHistogram}" Value="True">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </c:PolylineAndHistogramView.Style>
+                                    </c:PolylineAndHistogramView>
+                                    <c:DoubleHistogramView Grid.Row="3" Data="{Binding Chart.DoubleHistogram}" ClipToBounds="True">
+                                        <c:DoubleHistogramView.Style>
+                                            <Style TargetType="c:DoubleHistogramView">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Chart.IsDoubleHistogram}" Value="True">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </c:DoubleHistogramView.Style>
+                                    </c:DoubleHistogramView>
+                                    <Border Grid.Row="4" Height="48">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Chart.HasTopPolylineLabel}" Value="False">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Image Width="32" Height="32" Source="{Binding NightIcon}" AutomationProperties.Name="{Binding Description}" />
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+                <c:TrendReferenceLinesView x:Name="ReferenceLines" Data="{Binding SelectedTrend}"
+                                           IsHitTestVisible="False" Focusable="False" ClipToBounds="True" />
+            </Grid>
         </StackPanel>
     </Border>
 </UserControl>

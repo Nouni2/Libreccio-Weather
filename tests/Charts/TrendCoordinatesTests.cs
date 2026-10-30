@@ -28,4 +28,25 @@ public sealed class TrendCoordinatesTests
     {
         Assert.Equal(expected, TrendCoordinates.ComputeSingleCoordinate(100, 24, 36, value, 5f, 5f));
     }
+
+    [Theory]
+    [InlineData(5f, 0)]
+    [InlineData(6f, int.MinValue)]
+    [InlineData(4f, int.MaxValue)]
+    public void ComputeKeyLineCoordinate_EqualBounds_UsesSaturatingFloatConversion(float value, int expected)
+    {
+        Assert.Equal(expected, TrendCoordinates.ComputeKeyLineCoordinate(24, 64, value, 5f, 5f));
+    }
+
+    [Theory]
+    [InlineData(0f, false, 0)]
+    [InlineData(1f, false, int.MinValue)]
+    [InlineData(-1f, false, int.MaxValue)]
+    [InlineData(0f, true, 0)]
+    [InlineData(1f, true, int.MaxValue)]
+    [InlineData(-1f, true, int.MinValue)]
+    public void ComputeDoubleHistogramCoordinate_ZeroMaximum_UsesSaturatingFloatConversion(float value, bool low, int expected)
+    {
+        Assert.Equal(expected, TrendCoordinates.ComputeDoubleHistogramCoordinate(100, 24, 24, 4, value, 0, low));
+    }
 }

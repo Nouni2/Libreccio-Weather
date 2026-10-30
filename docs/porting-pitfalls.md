@@ -16,7 +16,7 @@ Where Kotlin reads two ways, compiling a small Kotlin test settles it.
 
 | Upstream | Upstream behaviour | .NET difference | Reproduce with |
 |---|---|---|---|
-| `roundToInt()`, `roundToLong()`, Java `Math.round` | Halves round towards positive infinity: 2.5 gives 3, −2.5 gives −2. | `Math.Round` rounds halves to even by default, and `MidpointRounding.AwayFromZero` turns −2.5 into −3. | `Math.Floor(value + 0.5)`, as in `UnitRounding.RoundToLong`. |
+| `roundToInt()`, `roundToLong()`, Java `Math.round` | Halves round towards positive infinity: 2.5 gives 3, −2.5 gives −2. Kotlin's rounding calls reject `NaN` and saturate out-of-range values. | `Math.Round` rounds halves to even by default; `AwayFromZero` turns −2.5 into −3. An unchecked cast does not guarantee saturation. | For `roundToInt()`, reject `NaN`, use `Math.Floor(value + 0.5)` and clamp before casting, as in `UnitFormatting.RoundToInt` and `AirQualityIndex`. `UnitRounding.RoundToLong` covers the half-rounding rule but still lacks saturation. |
 | `kotlin.math.round()`, Java `Math.rint` | Halves round to even: 2.5 gives 2, 3.5 gives 4. | None, but the name looks like `roundToInt()` and behaves differently from it. | `Math.Round(value)`. |
 | ICU `NumberFormatter`, `NumberFormat`, `DecimalFormat` | Halves round to even unless a rounding mode is set. | `Math.Round(value, decimals, MidpointRounding.AwayFromZero)` rounds them away from zero. | `Math.Round(value, decimals)`, or the rounding mode the upstream formatter sets. |
 
@@ -30,6 +30,7 @@ Upstream formats numbers with `Number.format` in `weather-unit/.../formatting/Nu
 | `Precision.integer()` after `roundToInt()` | A whole number rounded half towards positive infinity. | See Rounding. | Round with `Math.Floor(value + 0.5)` first, then format. |
 | ICU grouping | Thousands are grouped following the locale's minimum grouping digits: "1,013" in English. | `"F"` and `"0.#"` never group, and `"N"` always groups. | A format with a group separator, such as `"#,##0.#"`, checked against the locale's minimum grouping digits. |
 | `SignDisplay.ALWAYS` | A plus sign before positive values. | Standard formats show no plus sign. | A section format such as `"+0;-0;0"`. |
+| `NumberFormat.getPercentInstance` with `maximumFractionDigits` | Formats a fraction with half-even rounding, optional decimals and locale percent spacing, including a non-breaking space in French. | .NET's standard `P` format pads all requested decimals, and `PercentPositivePattern` describes placement without retaining the original spacing character. | `PercentFormatting`: round the percent value to even, use optional fraction digits, and retain French CLDR's non-breaking space. |
 
 ## CLDR text
 
@@ -51,7 +52,7 @@ Kotlin's `/` and `%` behave like C#'s.
 | Upstream | Upstream behaviour | .NET difference | Reproduce with |
 |---|---|---|---|
 | `Float` values and literals such as `60f` | 32-bit precision. | `double` keeps more digits, so a comparison or a stored value can differ. | `float` wherever the result is compared, stored or displayed at full precision. |
-| `Float.toInt()` | Truncates finite values towards zero, converts `NaN` to zero and saturates infinities and out-of-range values to integer bounds. | An unchecked C# floating-point cast does not guarantee these results. | Explicit `NaN` and bound checks before casting, as in `TrendCoordinates.ComputeSingleCoordinate`. An equal chart minimum and maximum can produce `NaN`. |
+| `Float.toInt()` | Truncates finite values towards zero, converts `NaN` to zero and saturates infinities and out-of-range values to integer bounds. | An unchecked C# floating-point cast does not guarantee these results. | Explicit `NaN` and bound checks before casting, as in `TrendCoordinates`. Equal plot and reference-line bounds, or a zero paired-histogram maximum, can produce non-finite coordinates. |
 | `==` on `Double?` or other values not typed as `Double` | Uses `equals`: `NaN == NaN` is true and `0.0 == -0.0` is false. | `==` on `double?` follows IEEE 754: `NaN == NaN` is false. | `.Equals` where upstream compares nullable or boxed values. |
 
 ## Collections
@@ -91,6 +92,7 @@ Kotlin's `/` and `%` behave like C#'s.
 | A view's translation, such as `translationX` while a card slides | Each view has its own position that code can change. | A transform declared in a `DataTemplate` is frozen and shared, so changing it throws `InvalidOperationException`. | A new transform created in code for the element that moves. |
 | Theme resources while constructing a view | Android's themed context supplies the resources during inflation. | A WPF user control loads its XAML in its constructor, before it is attached to its parent. Static resource references cannot depend on that parent's resource dictionary at this point. | Install the active theme in application resources before constructing the views, or provide the required resources locally. |
 | A vertical layout with `wrap_content` height | Its height is the content's height. | A WPF child in a star-sized grid row can occupy the entire remaining window. Bottom alignment then leaves an empty area above the content. | A stack panel measured by a scroll viewer, without a viewport-sized minimum height. |
+| `dpToPx(4.5f).toInt()` for a histogram half-width | Truncates after conversion to physical pixels. | A fixed 4.5-DIP WPF half-width keeps a fractional pixel instead. | Multiply by the display scale using float arithmetic, truncate, then divide by that scale before drawing in WPF. |
 
 ## Android resources
 

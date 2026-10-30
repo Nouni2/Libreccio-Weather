@@ -14,6 +14,7 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Runtime.CompilerServices;
 using LibreccioWeather.Core.Settings.Options;
 using LibreccioWeather.Core.Units;
 
@@ -400,9 +401,9 @@ public sealed class SettingsManager
         set => SetAndNotify(() => _config.PutBoolean("notification_widget_feelslike", value));
     }
 
-    private void SetAndNotify(Action write)
+    private void SetAndNotify(Action write, [CallerMemberName] string propertyName = "")
     {
         write();
-        SettingsChanged?.Invoke(this, EventArgs.Empty);
+        SettingsChanged?.Invoke(this, new SettingsChangedEventArgs(propertyName));
     }
 }

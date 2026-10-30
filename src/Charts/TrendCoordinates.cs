@@ -23,6 +23,32 @@ public static class TrendCoordinates
     {
         float canvasHeight = measuredHeight - marginTop - marginBottom;
         float coordinate = measuredHeight - marginBottom - canvasHeight * (value - min) / (max - min);
+        return ToInt(coordinate);
+    }
+
+    public static int ComputeKeyLineCoordinate(int boundaryTop, int boundaryBottom, float value, float max, float min)
+    {
+        float dataRange = max - min;
+        float boundaryRange = boundaryBottom - boundaryTop;
+        return ToInt(boundaryBottom - (value - min) / dataRange * boundaryRange);
+    }
+
+    public static int ComputeDoubleHistogramCoordinate(
+        int measuredHeight, int marginTop, int marginBottom, int marginCenter, float value, float max, bool low)
+    {
+        float cy = measuredHeight / 2f;
+        if (low)
+        {
+            float bottomCanvasHeight = measuredHeight - marginBottom - (cy + marginCenter / 2f);
+            return ToInt(cy + marginCenter / 2f + bottomCanvasHeight * value / max);
+        }
+
+        float topCanvasHeight = cy - marginCenter / 2f - marginTop;
+        return ToInt(cy - marginCenter / 2f - topCanvasHeight * value / max);
+    }
+
+    private static int ToInt(float coordinate)
+    {
         if (float.IsNaN(coordinate))
         {
             return 0;

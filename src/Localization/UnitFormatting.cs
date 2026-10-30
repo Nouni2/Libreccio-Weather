@@ -19,16 +19,72 @@ using LibreccioWeather.Core.Units;
 namespace LibreccioWeather.Core.Localization;
 
 /// <summary>
-/// Values with their unit, formatted from the translated unit patterns in UnitStrings, such as "{0} °C".
+/// Unit precision and unit-name width are independent, so a short value can use a full unit name.
 /// </summary>
 public static class UnitFormatting
 {
+    public static string FormatValue(Precipitation precipitation, PrecipitationUnit unit, UnitWidth width = UnitWidth.Short)
+    {
+        return NumberFormatting.Format(precipitation.ToDouble(unit), unit.GetPrecision(width), Strings.Culture);
+    }
+
+    public static string Format(
+        Precipitation precipitation, PrecipitationUnit unit,
+        UnitWidth valueWidth = UnitWidth.Short, UnitWidth unitWidth = UnitWidth.Short)
+    {
+        UnitNames names = GetUnitNames(unit);
+        if (names.IcuUnit is { } icuUnit && FormatIcuMeasure(precipitation.ToDouble(unit), unit.GetPrecision(valueWidth),
+            $"measure-unit/{icuUnit}" + (unit == PrecipitationUnit.LiterPerSquareMeter ? " per-measure-unit/area-square-meter" : ""),
+            unitWidth) is { } formatted)
+        {
+            return formatted;
+        }
+
+        string suffix = unitWidth == UnitWidth.Long ? "long" : "short";
+        string text = string.Format(Strings.Culture, Strings.GetUnit($"{names.Name}_nominative_{suffix}"),
+            FormatValue(precipitation, unit, valueWidth));
+        return names.Per is null ? text : string.Format(Strings.Culture, Strings.GetUnit($"{names.Per}_per_{suffix}"), text);
+    }
+
+    public static string FormatPercent(Ratio ratio, UnitWidth valueWidth = UnitWidth.Short)
+    {
+        return FormatIcuMeasure(ratio.InPercent, RatioUnit.Percent.GetPrecision(valueWidth), "percent", UnitWidth.Short)
+            ?? PercentFormatting.Format(ratio.InPercent, RatioUnit.Percent.GetPrecision(valueWidth), Strings.Culture);
+    }
+
+    private static string? FormatIcuMeasure(double value, int precision, string measure, UnitWidth width)
+    {
+        if (!Icu.SupportsUnitNames)
+        {
+            return null;
+        }
+
+        string precisionSkeleton = precision == 0 ? "precision-integer" : "." + new string('#', precision);
+        string unitWidth = width switch
+        {
+            UnitWidth.Long => "unit-width-full-name",
+            UnitWidth.Narrow => "unit-width-narrow",
+            _ => "unit-width-short",
+        };
+        double number = precision == 0 ? RoundToInt(value) : value;
+        return Icu.FormatNumber($"{measure} {unitWidth} {precisionSkeleton}", number, Strings.Culture)?.Text;
+    }
+
     public static string Format(
         Temperature temperature,
         TemperatureUnit unit,
         UnitWidth valueWidth = UnitWidth.Short,
         UnitWidth unitWidth = UnitWidth.Short)
     {
+        string language = Strings.Culture.TwoLetterISOLanguageName;
+        UnitNames names = GetUnitNames(unit);
+        if (unitWidth != UnitWidth.Narrow && language != "eo" && !(language == "pl" && unitWidth == UnitWidth.Short)
+            && names.IcuUnit is { } icuUnit
+            && FormatIcuMeasure(temperature.ToDouble(unit), unit.GetPrecision(valueWidth), $"measure-unit/{icuUnit}", unitWidth) is { } formatted)
+        {
+            return formatted;
+        }
+
         string value = NumberFormatting.Format(temperature.ToDouble(unit), unit.GetPrecision(valueWidth), Strings.Culture);
         return string.Format(Strings.Culture, Nominative("temperature", unit, unitWidth), value);
     }
@@ -128,7 +184,12 @@ public static class UnitFormatting
 
     public static int RoundToInt(double value)
     {
-        return (int)Math.Floor(value + 0.5);
+        if (double.IsNaN(value))
+        {
+            throw new ArgumentException("Cannot round NaN to an integer.", nameof(value));
+        }
+
+        return (int)Math.Clamp(Math.Floor(value + 0.5), int.MinValue, int.MaxValue);
     }
 
     // Keys follow the upstream names, such as temperature_c_nominative_short.

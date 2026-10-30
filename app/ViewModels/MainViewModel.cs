@@ -107,8 +107,20 @@ public sealed partial class MainViewModel : ObservableObject
         };
 
         // Units and other settings change what the main screen shows, so it is built again with them.
-        settings.SettingsChanged += (_, _) =>
+        settings.SettingsChanged += (_, args) =>
         {
+            if (args is SettingsChangedEventArgs
+                {
+                    PropertyName: nameof(SettingsManager.IsWidgetNotificationEnabled)
+                        or nameof(SettingsManager.IsWidgetNotificationPersistent)
+                        or nameof(SettingsManager.WidgetNotificationStyle)
+                        or nameof(SettingsManager.IsWidgetNotificationTemperatureIconEnabled)
+                        or nameof(SettingsManager.IsWidgetNotificationUsingFeelsLike),
+                })
+            {
+                return;
+            }
+
             if (IsDesktopInterfaceEnabled != settings.DesktopInterfaceEnabled)
             {
                 IsDesktopInterfaceEnabled = settings.DesktopInterfaceEnabled;
@@ -136,6 +148,12 @@ public sealed partial class MainViewModel : ObservableObject
     public string RegionCode => _regionCode;
 
     public string InterfaceCulture => Strings.Culture.Name;
+
+    public WeatherViewModel? WeatherPage => FindMainScreen();
+
+    internal string? SelectedDailyTab { get; set; }
+
+    internal string? SelectedHourlyTab { get; set; }
 
     public IReadOnlyList<LocationItemViewModel> DesktopLocations => _locations
         .Select(location => new LocationItemViewModel(location, location.FormattedId == _currentFormattedId, _settings))

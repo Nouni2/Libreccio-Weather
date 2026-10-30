@@ -17,7 +17,6 @@
 using System.Windows;
 using System.Windows.Media;
 using LibreccioWeather.Core.Charts;
-using LibreccioWeather.Core.Localization;
 using LibreccioWeather.ViewModels.Forecast;
 using Brush = System.Windows.Media.Brush;
 using Color = System.Windows.Media.Color;
@@ -26,7 +25,7 @@ using Point = System.Windows.Point;
 
 namespace LibreccioWeather.Controls.Forecast;
 
-public sealed class PolylineAndHistogramView : FrameworkElement
+public sealed class PolylineAndHistogramView : ForecastChartView
 {
     public static readonly DependencyProperty DataProperty = DependencyProperty.Register(
         nameof(Data), typeof(TrendChartData), typeof(PolylineAndHistogramView),
@@ -41,6 +40,7 @@ public sealed class PolylineAndHistogramView : FrameworkElement
     protected override void OnRender(DrawingContext drawingContext)
     {
         base.OnRender(drawingContext);
+        using DrawingContext labels = OpenShadowedLabels();
         if (Data is not { } data || ActualWidth <= 0 || ActualHeight <= 0)
         {
             return;
@@ -58,13 +58,20 @@ public sealed class PolylineAndHistogramView : FrameworkElement
         drawingContext.DrawLine(new Pen(outline, 1),
             new Point(ActualWidth / 2, marginTop), new Point(ActualWidth / 2, bottom));
 
-        if (data.Histogram is { } histogram && data.HistogramText is { } histogramText)
+        if (data.Histogram is { } histogram && data.HistogramText is { } histogramText
+            && (histogram != 0f || (data.Highest is null && data.Lowest is null)))
         {
-            int y = TrendCoordinates.ComputeSingleCoordinate(measuredHeight, marginTop, MarginBottom, histogram, 100, 0);
-            Brush bar = WithAlpha(primary, 127);
-            drawingContext.DrawRoundedRectangle(bar, null,
-                new Rect(ActualWidth / 2 - 4.5, y, 9, Math.Max(0, bottom - y)), 4.5, 4.5);
-            DrawText(drawingContext, histogramText, 12, primary, bottom + 16);
+            int y = TrendCoordinates.ComputeSingleCoordinate(measuredHeight, marginTop, MarginBottom,
+                histogram, data.HighestHistogram, data.LowestHistogram);
+            Brush histogramBrush = data.HistogramColor is { } color ? new SolidColorBrush(color) : primary;
+            if (y <= bottom)
+            {
+                double halfWidth = PixelTruncatedDimension(4.5f);
+                drawingContext.DrawRoundedRectangle(WithAlpha(histogramBrush, 127), null,
+                    new Rect(ActualWidth / 2 - halfWidth, y, 2 * halfWidth, bottom - y), halfWidth, halfWidth);
+            }
+
+            DrawText(drawingContext, histogramText, 12, data.HistogramUsesTitleColor ? highText : primary, bottom + 18);
         }
 
         if (data.Highest is not { } highest || data.Lowest is not { } lowest)
@@ -78,13 +85,13 @@ public sealed class PolylineAndHistogramView : FrameworkElement
         if (data.HighText is { } highLabel)
         {
             DrawPolyline(drawingContext, data.HighValues, highY, primary, marginTop, bottom, shadow: true);
-            DrawLabel(drawingContext, highLabel, highText, highY[1], highY[1] > lowY[1]);
+            DrawLabel(labels, highLabel, highText, highY[1], highY[1] > lowY[1]);
         }
 
         if (data.LowValues is { } lowValues && data.LowText is { } lowLabel)
         {
             DrawPolyline(drawingContext, lowValues, lowY, WithAlpha(primary, 127), marginTop, bottom, shadow: false);
-            DrawLabel(drawingContext, lowLabel, lowText, lowY[1], lowY[1] >= highY[1]);
+            DrawLabel(labels, lowLabel, lowText, lowY[1], lowY[1] >= highY[1]);
         }
     }
 
@@ -158,14 +165,6 @@ public sealed class PolylineAndHistogramView : FrameworkElement
     {
         FormattedText formatted = MakeText(text, size, brush);
         drawingContext.DrawText(formatted, new Point((ActualWidth - formatted.Width) / 2, y));
-    }
-
-    private FormattedText MakeText(string text, double size, Brush brush)
-    {
-        var typeface = new Typeface(System.Windows.SystemFonts.MessageFontFamily,
-            FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
-        return new FormattedText(text, Strings.Culture, FlowDirection, typeface, size, brush,
-            VisualTreeHelper.GetDpi(this).PixelsPerDip);
     }
 
     private double GetRTLCompactX(double x)
