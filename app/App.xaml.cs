@@ -14,6 +14,7 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http;
 using System.Windows;
@@ -21,6 +22,7 @@ using LibreccioWeather.Background;
 using LibreccioWeather.Core.Background;
 using LibreccioWeather.Core.Database;
 using LibreccioWeather.Core.Localization;
+using LibreccioWeather.Core.Processes;
 using LibreccioWeather.Core.Refresh;
 using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Sources.OpenMeteo;
@@ -40,11 +42,29 @@ public partial class App : System.Windows.Application
     private WeatherUpdateScheduler? _updateScheduler;
     private SeasonalWindowIcon? _windowIcon;
     private TrayIcon? _trayIcon;
+    private SingleInstance? _instance;
+    private bool _windowReady;
+    private bool _activationPending;
 
     // Startup is an event handler, so it is the one place where async void is the only way to await.
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown;
+        _instance = new SingleInstance("Libreccio-Weather");
+        if (!_instance.IsFirstInstance)
+        {
+            if (!await _instance.ActivateExistingAsync())
+            {
+                Trace.TraceWarning("The running instance did not acknowledge activation.");
+            }
+
+            Shutdown();
+            return;
+        }
+
+        _instance.StartListening(() => _ = Dispatcher.InvokeAsync(ActivateMainWindow));
 
         SettingsManager settings = new(new ConfigStore(SettingsManager.DefaultPath));
         RefreshRate.MatchesMonitor = settings.IsScreenRefreshRateEnabled;
@@ -70,8 +90,12 @@ public partial class App : System.Windows.Application
         // The window opens once the first location is known, so it never shows another season's icon first.
         await viewModel.LoadAsync();
         window.Show();
-        ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown;
         _trayIcon = new TrayIcon(window, viewModel);
+        _windowReady = true;
+        if (_activationPending)
+        {
+            ActivateMainWindow();
+        }
 
         // Started after the first screen has loaded, so a due update does not compete with its refresh.
         _updateScheduler = new WeatherUpdateScheduler(updateJob, settings);
@@ -80,10 +104,28 @@ public partial class App : System.Windows.Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        _windowReady = false;
         _trayIcon?.Dispose();
         _updateScheduler?.Dispose();
         _windowIcon?.Dispose();
+        _instance?.Dispose();
         base.OnExit(e);
+    }
+
+    private void ActivateMainWindow()
+    {
+        if (!_windowReady)
+        {
+            _activationPending = true;
+            return;
+        }
+
+        _activationPending = false;
+        _trayIcon?.ShowWindow();
+        if (MainWindow?.DataContext is MainViewModel main)
+        {
+            main.ShowAlreadyRunningDialog();
+        }
     }
 
     protected override void OnSessionEnding(SessionEndingCancelEventArgs e)

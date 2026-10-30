@@ -85,6 +85,10 @@ Kotlin's `/` and `%` behave like C#'s.
 |---|---|---|---|
 | Android's network check before a refresh | Without a connection, the refresh stops with a network error and the saved weather is left untouched. | `NetworkInterface.GetIsNetworkAvailable()` is true whenever any adapter is up, including VPN and Hyper-V virtual adapters, so most offline cases pass. | Windows' connectivity level for the internet connection profile. |
 
+Android manages application process and activity lifetime. A WPF executable starts a separate process on each launch, so `SingleInstance` gates startup before persistence is initialized and forwards activation through a named pipe. A named mutex acquired by a thread must be released by that same thread; an asynchronous continuation need not resume there. The instance gate therefore retains an unowned mutex handle and uses the constructor's `createdNew` result. `SingleInstanceTests` checks exclusion, handle cleanup and repeated activation after asynchronous calls.
+
+Windows named pipes need `PipeOptions.Asynchronous` for cancellation of a pending `WaitForConnectionAsync`. `CurrentUserOnly` checks both the account and elevation level on Windows. Foreground focus is also restricted: the newly launched process grants permission with `AllowSetForegroundWindow` before sending the activation request. The listener posts to the UI dispatcher without waiting for it, so cancellation and disposal cannot deadlock with the UI thread.
+
 ## Views
 
 | Upstream | Upstream behaviour | WPF difference | Reproduce with |

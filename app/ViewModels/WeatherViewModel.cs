@@ -90,10 +90,15 @@ public sealed partial class WeatherViewModel : ObservableObject
     public Location ShownLocation => _location;
 
     /// <summary>
-    /// Shows weather that a background update brought for this location.
+    /// Shows refreshed weather for this location.
     /// </summary>
-    public void UpdateFromBackground(Location location)
+    public void UpdateLocation(Location location)
     {
+        if (ReferenceEquals(_location, location))
+        {
+            return;
+        }
+
         _location = location;
         if (location.Weather is { } weather)
         {
@@ -126,7 +131,7 @@ public sealed partial class WeatherViewModel : ObservableObject
             }
 
             previous.PropertyChanged -= OnPreviousChanged;
-            UpdateFromBackground(previous.ShownLocation);
+            UpdateLocation(previous.ShownLocation);
             IsLoading = false;
         }
     }
@@ -152,6 +157,8 @@ public sealed partial class WeatherViewModel : ObservableObject
             {
                 Show(weather);
             }
+
+            _main.UpdateLocation(_location);
         }
         finally
         {

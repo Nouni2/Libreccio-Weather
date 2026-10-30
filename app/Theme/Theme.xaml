@@ -60,6 +60,15 @@
     <BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
     <CornerRadius x:Key="DialogCornerRadius">28</CornerRadius>
 
+    <Style x:Key="DialogSurface" TargetType="Border">
+        <Setter Property="MaxWidth" Value="560" />
+        <Setter Property="MinWidth" Value="280" />
+        <Setter Property="Margin" Value="48" />
+        <Setter Property="Padding" Value="24,24,16,8" />
+        <Setter Property="CornerRadius" Value="{DynamicResource DialogCornerRadius}" />
+        <Setter Property="Background" Value="{DynamicResource SurfaceContainerHighBrush}" />
+    </Style>
+
     <!-- Text that takes no space while it has nothing to show. -->
     <Style x:Key="OptionalText" TargetType="TextBlock">
         <Style.Triggers>

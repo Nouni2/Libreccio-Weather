@@ -19,6 +19,7 @@
     <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
     <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
     <data name="desktop_app_name" xml:space="preserve"><value>Libreccio Weather</value><comment>The application's name, shown in the window title and the tray. A name: keep it as it is in every language.</comment></data>
+    <data name="app_already_running" xml:space="preserve"><value>An instance of Libreccio Weather is already running.</value><comment>Dialog shown in the running application when another launch is attempted. Libreccio Weather is the application name and stays untranslated.</comment></data>
     <data name="desktop_interface_section" xml:space="preserve"><value>Interface</value><comment>Settings > Appearance: title of the section holding the desktop interface switch.</comment></data>
     <data name="desktop_interface_title" xml:space="preserve"><value>Desktop interface</value><comment>Settings > Appearance: switch that adapts the interface for mouse and keyboard.</comment></data>
     <data name="desktop_interface_on" xml:space="preserve"><value>Smaller corners and mouse and keyboard navigation.</value><comment>Settings > Appearance: summary under the desktop interface switch while it is on.</comment></data>

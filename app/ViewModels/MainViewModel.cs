@@ -114,11 +114,11 @@ public sealed partial class MainViewModel : ObservableObject
         {
             if (uiContext is null)
             {
-                UpdateFromBackground(location);
+                UpdateLocation(location);
             }
             else
             {
-                uiContext.Post(state => UpdateFromBackground(location), null);
+                uiContext.Post(state => UpdateLocation(location), null);
             }
         };
 
@@ -227,6 +227,11 @@ public sealed partial class MainViewModel : ObservableObject
     partial void OnCurrentPageChanged(ObservableObject? value)
     {
         OnPropertyChanged(nameof(IsLocationPaneAvailable));
+        if (value is ManagementViewModel management)
+        {
+            management.Refresh();
+        }
+
         if (!_movingThroughHistory)
         {
             _forwardStack.Clear();
@@ -445,6 +450,8 @@ public sealed partial class MainViewModel : ObservableObject
     /// </summary>
     public void ShowLocation(Location location)
     {
+        location = _locations.FirstOrDefault(item => item.FormattedId == location.FormattedId) ?? location;
+
         // The location already on the main screen keeps its screen, and any refresh running on it.
         if (location.FormattedId == _currentFormattedId
             && FindMainScreen() is { } shown && shown.LocationFormattedId == location.FormattedId)
@@ -495,7 +502,25 @@ public sealed partial class MainViewModel : ObservableObject
 
     public void CloseDialog()
     {
-        Dialog = null;
+        if (Dialog is AlreadyRunningDialogViewModel alreadyRunning)
+        {
+            alreadyRunning.CancelCommand.Execute(null);
+        }
+        else
+        {
+            Dialog = null;
+        }
+    }
+
+    public void ShowAlreadyRunningDialog()
+    {
+        if (Dialog is AlreadyRunningDialogViewModel)
+        {
+            return;
+        }
+
+        ObservableObject? previousDialog = Dialog;
+        ShowDialog(new AlreadyRunningDialogViewModel(() => Dialog = previousDialog));
     }
 
     /// <summary>
@@ -635,7 +660,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
     }
 
-    private void UpdateFromBackground(Location location)
+    internal void UpdateLocation(Location location)
     {
         int index = _locations.FindIndex(item => item.FormattedId == location.FormattedId);
         if (index >= 0)
@@ -643,9 +668,10 @@ public sealed partial class MainViewModel : ObservableObject
             _locations[index] = location;
         }
 
-        if (FindMainScreen() is { } shown && shown.LocationFormattedId == location.FormattedId)
+        if (FindMainScreen() is { } shown && shown.LocationFormattedId == location.FormattedId
+            && !ReferenceEquals(shown.ShownLocation, location))
         {
-            shown.UpdateFromBackground(location);
+            shown.UpdateLocation(location);
         }
 
         if (CurrentPage is ManagementViewModel management)
@@ -654,6 +680,7 @@ public sealed partial class MainViewModel : ObservableObject
         }
 
         NotifyLocationsChanged();
+        OnPropertyChanged(nameof(Locations));
     }
 
     private void RebuildMainScreen()

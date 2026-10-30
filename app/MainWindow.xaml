@@ -52,8 +52,7 @@
 
         <!-- A list preference's choices. -->
         <DataTemplate DataType="{x:Type s:ListDialogViewModel}">
-            <Border MaxWidth="560" MinWidth="280" Margin="48" Padding="0,24,0,8" CornerRadius="{DynamicResource DialogCornerRadius}"
-                    Background="{DynamicResource SurfaceContainerHighBrush}">
+            <Border Style="{StaticResource DialogSurface}" Padding="0,24,0,8">
                 <DockPanel>
                     <TextBlock DockPanel.Dock="Top" Margin="24,0,24,16" Style="{StaticResource HeadlineSmallText}" Text="{Binding Title}" />
                     <Button DockPanel.Dock="Bottom" Margin="0,8,16,0" HorizontalAlignment="Right" Style="{StaticResource TextButton}"
@@ -74,8 +73,7 @@
 
         <!-- The warning before turning background updates off. -->
         <DataTemplate DataType="{x:Type s:NeverRefreshDialogViewModel}">
-            <Border MaxWidth="560" MinWidth="280" Margin="48" Padding="24,24,16,8" CornerRadius="{DynamicResource DialogCornerRadius}"
-                    Background="{DynamicResource SurfaceContainerHighBrush}">
+            <Border Style="{StaticResource DialogSurface}">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Bottom" Margin="0,16,0,0" HorizontalAlignment="Right" Orientation="Horizontal">
                         <Button Style="{StaticResource TextButton}" Command="{Binding CancelCommand}" Content="{Binding CancelText}" />
@@ -88,6 +86,19 @@
                             <TextBlock Margin="0,16,0,0" Style="{StaticResource BodyMediumText}" Text="{Binding Warning2}" />
                             <TextBlock Margin="0,16,0,0" Style="{StaticResource BodyMediumText}" Text="{Binding Warning3}" />
                         </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:AlreadyRunningDialogViewModel}">
+            <Border Style="{StaticResource DialogSurface}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Margin="0,0,8,16" Style="{StaticResource HeadlineSmallText}"
+                               Text="{Binding Title}" />
+                    <Button DockPanel.Dock="Bottom" Margin="0,16,0,0" HorizontalAlignment="Right" IsDefault="True"
+                            Style="{StaticResource TextButton}" Command="{Binding CancelCommand}" Content="{Binding CloseText}" />
+                    <ScrollViewer Margin="0,0,8,0" VerticalScrollBarVisibility="Auto">
+                        <TextBlock Style="{StaticResource BodyMediumText}" Text="{Binding Message}" />
                     </ScrollViewer>
                 </DockPanel>
             </Border>

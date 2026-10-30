@@ -29,6 +29,8 @@ namespace LibreccioWeather.Background;
 /// </summary>
 public sealed class WeatherUpdateScheduler : IDisposable
 {
+    private const int MaximumRetryCount = 30;
+
     // Shorter intervals turn background updates off.
     private static readonly TimeSpan MinimumInterval = TimeSpan.FromMinutes(15);
 
@@ -40,6 +42,8 @@ public sealed class WeatherUpdateScheduler : IDisposable
     private readonly Timer _timer;
     private readonly Lock _lock = new();
     private int _retryCount;
+    private DateTimeOffset? _retryAt;
+    private bool _disposed;
 
     public WeatherUpdateScheduler(WeatherUpdateJob job, SettingsManager settings)
     {
@@ -61,21 +65,38 @@ public sealed class WeatherUpdateScheduler : IDisposable
         _settings.SettingsChanged -= OnSettingsChanged;
         NetworkChange.NetworkAvailabilityChanged -= OnNetworkAvailabilityChanged;
         SystemEvents.PowerModeChanged -= OnPowerModeChanged;
-        _timer.Dispose();
+        lock (_lock)
+        {
+            _disposed = true;
+            _timer.Dispose();
+        }
     }
 
-    private void Reschedule()
+    private void Reschedule(bool resetRetry = false)
     {
         lock (_lock)
         {
-            _retryCount = 0;
+            if (_disposed)
+            {
+                return;
+            }
+
             if (_settings.UpdateInterval.Interval is not { } interval || interval <= MinimumInterval)
             {
+                _retryCount = 0;
+                _retryAt = null;
                 _timer.Change(Timeout.Infinite, Timeout.Infinite);
                 return;
             }
 
-            DateTimeOffset due = DateTimeOffset.FromUnixTimeMilliseconds(_settings.WeatherUpdateLastTimestamp) + interval;
+            if (resetRetry)
+            {
+                _retryCount = 0;
+                _retryAt = null;
+            }
+
+            DateTimeOffset due = _retryAt
+                ?? DateTimeOffset.FromUnixTimeMilliseconds(_settings.WeatherUpdateLastTimestamp) + interval;
             TimeSpan delay = due - DateTimeOffset.UtcNow;
             _timer.Change(delay > TimeSpan.Zero ? delay : TimeSpan.Zero, Timeout.InfiniteTimeSpan);
         }
@@ -83,6 +104,24 @@ public sealed class WeatherUpdateScheduler : IDisposable
 
     private async Task RunAsync()
     {
+        lock (_lock)
+        {
+            if (_disposed || _settings.UpdateInterval.Interval is not { } interval || interval <= MinimumInterval)
+            {
+                return;
+            }
+
+            if (_retryAt is { } retryAt)
+            {
+                TimeSpan remaining = retryAt - DateTimeOffset.UtcNow;
+                if (remaining > TimeSpan.Zero)
+                {
+                    _timer.Change(remaining, Timeout.InfiniteTimeSpan);
+                    return;
+                }
+            }
+        }
+
         // Battery saver stands for Android's low battery state: Windows or the user decides when it applies.
         // Without the conditions the job waits. A change of network or power state schedules it again, and it is also
         // checked again after the retry delay, in case Windows reports no change when Battery saver turns off.
@@ -90,7 +129,10 @@ public sealed class WeatherUpdateScheduler : IDisposable
         {
             lock (_lock)
             {
-                _timer.Change(BackoffDelay, Timeout.InfiniteTimeSpan);
+                if (!_disposed && _settings.UpdateInterval.Interval is { } interval && interval > MinimumInterval)
+                {
+                    _timer.Change(BackoffDelay, Timeout.InfiniteTimeSpan);
+                }
             }
 
             return;
@@ -106,22 +148,35 @@ public sealed class WeatherUpdateScheduler : IDisposable
             result = WeatherUpdateJobResult.Failure;
         }
 
-        if (result is WeatherUpdateJobResult.Retry or WeatherUpdateJobResult.AlreadyRunning)
+        if (result is WeatherUpdateJobResult.Retry or WeatherUpdateJobResult.AlreadyRunning or WeatherUpdateJobResult.Failure)
         {
             lock (_lock)
             {
-                _retryCount++;
-                _timer.Change(BackoffDelay * _retryCount, Timeout.InfiniteTimeSpan);
+                if (!_disposed && _settings.UpdateInterval.Interval is { } interval && interval > MinimumInterval)
+                {
+                    _retryCount = Math.Min(_retryCount + 1, MaximumRetryCount);
+                    TimeSpan delay = BackoffDelay * _retryCount;
+                    _retryAt = DateTimeOffset.UtcNow + delay;
+                    _timer.Change(delay, Timeout.InfiniteTimeSpan);
+                }
             }
         }
         else
         {
-            Reschedule();
+            Reschedule(resetRetry: true);
         }
     }
 
     private void OnSettingsChanged(object? sender, EventArgs e)
     {
+        if (e is SettingsChangedEventArgs
+            {
+                PropertyName: not (nameof(SettingsManager.UpdateInterval) or nameof(SettingsManager.IgnoreUpdatesWhenBatteryLow)),
+            })
+        {
+            return;
+        }
+
         Reschedule();
     }
 

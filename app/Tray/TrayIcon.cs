@@ -177,7 +177,7 @@ public sealed class TrayIcon : IDisposable
         ShowWindow();
     }
 
-    private void ShowWindow()
+    public void ShowWindow()
     {
         _clickTimer.Stop();
         _awaitingSecondClick = false;

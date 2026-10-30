@@ -4,7 +4,7 @@ Libreccio Weather aims to reproduce [Breezy Weather](https://github.com/breezy-w
 
 ## Port status
 
-Each item names the part of Breezy Weather it ports. An item is ticked once every part under it is ported and has been built. Only the parts listed under Tests are checked by tests, and only the location search, the main screen header and reopening on a saved location have been tried in the running app.
+Each item names the part of Breezy Weather it ports. An item is ticked once every part under it is ported and has been built. Only the parts listed under Tests are checked by tests. The parts tried in the running app are the location search and list, the main screen with its forecast cards, Mistray's icons, popup, menu and settings, display scaling, animations at the monitor's refresh rate and switching between locations.
 
 ### Engine
 
@@ -14,12 +14,12 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Temperature display from the translated unit strings
   - [ ] Display of every other unit
     - [x] Unit names from CLDR through Windows' ICU, or from the translated unit strings without it
-    - [ ] Precipitation values in the selected unit and localized percentages
+    - [x] Precipitation values in the selected unit and localized percentages
     - [ ] Values of every other unit with their unit
-  - [ ] CLDR unit patterns
-    - [ ] Measured temperature and precipitation values through ICU, preserving translated narrow temperatures
-    - [ ] Locale-aware percentage fallback with half-even rounding and optional decimals
-  - [ ] Aggregate air-quality index and level names from the four contributing pollutants
+  - [x] CLDR unit patterns
+    - [x] Measured temperature and precipitation values through ICU, preserving translated narrow temperatures
+    - [x] Locale-aware percentage fallback with half-even rounding and optional decimals
+  - [x] Aggregate air-quality index and level names from the four contributing pollutants
   - [ ] Duration formatting
     - [x] Hours and minutes, such as "1 hour, 30 minutes", through ICU or the translated strings
     - [ ] Single units with decimals
@@ -30,12 +30,12 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Completion of hourly, daily and current data
   - [ ] Sources other than Open-Meteo
   - [ ] Location parameters and restricted sources
-  - [ ] Saving the completed weather to the database
+  - [x] Saving the completed weather to the database
   - [ ] Sun and moon times, with sun times from Seasonal-plus-plus and the moon later
 - [ ] Current location, reverse geocoding and time zone lookup (`RefreshHelper`)
-- [ ] Database
+- [x] Database
   - [x] Saved locations and the parameters of their sources (`LocationRepository`)
-  - [ ] Weather (`WeatherRepository`): current conditions, daily and hourly forecasts, minutely precipitation, alerts and normals
+  - [x] Weather (`WeatherRepository`): current conditions, daily and hourly forecasts, minutely precipitation, alerts and normals
 - [x] Settings (`SettingsManager`)
   - [x] Settings stored in a JSON file with Breezy Weather's keys and defaults: units, refresh interval, notifications, dark mode, cards and charts, animations, forecast times and the ongoing notification's options for Mistray
   - [x] Language setting, which marks saved weather as outdated when it changes
@@ -45,6 +45,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Updates that fell due while the app was closed or the computer was asleep run when it can
   - [x] The first location, plus the next three once a day when Mistray shows several locations
   - [x] The main screen shows weather refreshed in the background
+  - [x] Failed background jobs retried with linear backoff, with pending retries retained across network and power events
   - [ ] Current position, error notifications, alerts and precipitation notifications after an update
 
 ### Sources
@@ -61,14 +62,14 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 
 ### Translations
 
-- [ ] English and French
+- [x] English and French
   - [x] String importer
   - [x] English used for strings missing from the selected language
   - [x] CLDR plural rules for English and French
   - [x] Language taken from Windows
   - [x] Language setting
   - [x] String arrays in the importer
-  - [ ] Libreccio Weather's own English and French interface text in resource files
+  - [x] Libreccio Weather's own English and French interface text in resource files
 
 ### Main window
 
@@ -80,21 +81,21 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Temperatures of the next day and night halves, which depend on the time of day
   - [x] Time since the last refresh
   - [ ] Weather background
-    - [ ] Static weather gradients from the weather-view resources
+    - [x] Static weather gradients from the weather-view resources
     - [ ] Animated sun, clouds, precipitation and stars
   - [ ] Temperature animation
   - [ ] Descriptions read by screen readers
-- [ ] Vertical scrolling of the header and forecast cards
+- [x] Vertical scrolling of the header and forecast cards
 - [ ] Cards
-  - [ ] Daily and hourly temperature plots with weather icons and precipitation probability
+  - [x] Daily and hourly temperature plots with weather icons and precipitation probability
   - [ ] Daily and hourly chart tabs
-    - [ ] Temperature and feels-like selection following the saved chart order and available data
-    - [ ] Selected tabs retained across refreshes and location changes
-    - [ ] Daily precipitation with separate day and night bars and hourly precipitation amounts
-    - [ ] Hourly humidity percentages with a dew-point curve
+    - [x] Temperature and feels-like selection following the saved chart order and available data
+    - [x] Selected tabs retained across refreshes and location changes
+    - [x] Daily precipitation with separate day and night bars and hourly precipitation amounts
+    - [x] Hourly humidity percentages with a dew-point curve
     - [ ] Air quality, wind, UV and the remaining daily and hourly charts
-  - [ ] Normal-temperature reference lines controlled by the horizontal-lines setting
-  - [ ] Chart label shadows, device-pixel histogram sizing and full forecast accessibility descriptions
+  - [x] Normal-temperature reference lines controlled by the horizontal-lines setting
+  - [x] Chart label shadows, device-pixel histogram sizing and full forecast accessibility descriptions
   - [ ] Daily and hourly detail navigation
   - [ ] Precipitation nowcast, air quality, pollen, alerts, wind, humidity, pressure, visibility, UV, sun, moon, clock and footer
 - [ ] Daily and hourly detail screens
@@ -115,50 +116,54 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [ ] Sliding a card towards the start to choose its weather sources
   - [ ] Current location
   - [x] The list as a pane beside the main screen in wide windows, folded and unfolded by the list button
-- [ ] Loading saved weather before refreshing on startup
+  - [x] Location cards and the in-memory location list updated after a manual weather refresh
+- [x] Loading saved weather before refreshing on startup
 - [ ] Settings screens
   - [x] Settings home, with every category
   - [x] Background updates: refresh interval with the warning before turning it off, battery saver switch and last run
   - [x] Appearance: language, applied at once, and units
   - [x] Units: temperature, precipitation, speed, distance and pressure
-  - [ ] External modules: Notification widget, Persistent, Style, Temperature as status bar icon and Use feels like temperature
+  - [x] External modules: Notification widget, Persistent, Style, Temperature as status bar icon and Use feels like temperature
   - [ ] Appearance: calendar, dark mode and the rest of the theme section
   - [ ] Main screen, notifications, widgets, location, weather sources and debug settings
   - [ ] About screen
 - [ ] Breezy Weather's colors and light theme, in place of the Material 3 baseline dark colors used now
 - [ ] Single instance
-- [ ] Closing the window to the tray, restoring it and exiting through the tray menu
-- [ ] Mouse back and forward buttons moving through the screens
-- [ ] Middle-button autoscroll
-- [ ] Thin scrollbars in both interface modes
-- [ ] Sharp rendering at each monitor's display scale, including when it changes or the window moves between monitors
+  - [x] One process per Windows user, enforced before settings and database access
+  - [x] A second launch restores the existing window, including from the tray or a minimized state
+  - [ ] Already-running notice on a second launch, with English and French text
+- [x] Closing the window to the tray, restoring it and exiting through the tray menu
+- [x] Mouse back and forward buttons moving through the screens
+- [x] Middle-button autoscroll
+- [x] Thin scrollbars in both interface modes
+- [x] Sharp rendering at each monitor's display scale, including when it changes or the window moves between monitors
 - [x] Animations at the refresh rate of the monitor the window is on
-- [ ] Setting to keep animations at 60 frames per second on slower computers
+- [x] Setting to keep animations at 60 frames per second on slower computers
 - [x] Main window icon of the current season at the location on screen, reversed in the southern hemisphere
 
 ### Experimental desktop interface
 
-- [ ] Appearance option applying desktop adjustments to the existing views
-- [ ] Smaller corner radii and compact controls using the existing palette, typography and layouts
-- [ ] Compact actions in the existing weather top bar
-- [ ] Context menus and keyboard controls for locations, settings and navigation
+- [x] Appearance option applying desktop adjustments to the existing views
+- [x] Smaller corner radii and compact controls using the existing palette, typography and layouts
+- [x] Compact actions in the existing weather top bar
+- [x] Context menus and keyboard controls for locations, settings and navigation
 
 ### Mistray
 
-- [ ] Tray icon with the temperature or a condition icon, tooltip and menu
-  - [ ] Condition artwork, with the app icon when weather is unavailable
-  - [ ] Tooltip with the shown location, conditions, temperature and refresh status
-  - [ ] Open, Refresh, Change location, Settings and Exit menu
-  - [ ] Temperature drawn into the icon
-  - [ ] Optional second icon with the condition next to the temperature
-  - [ ] Menu in the app's own style, opening while the main window is open
-  - [ ] Tray icon switch controls tray visibility, with the mobile defaults
-  - [ ] Dismiss action available when Persistent is off, restoring the icon on refresh
-- [ ] Popup in its four styles: compact, multiple locations, daily and hourly
-  - [ ] Popup opening at once on a click, and close on focus loss
-  - [ ] Optional double-click opening the main window, with an adjustable double-click delay
-  - [ ] Current weather, air-quality or wind caption, and actual or feels-like temperatures
-  - [ ] Three secondary locations, five days or five hours according to the style
+- [x] Tray icon with the temperature or a condition icon, tooltip and menu
+  - [x] Condition artwork, with the app icon when weather is unavailable
+  - [x] Tooltip with the shown location, conditions, temperature and refresh status
+  - [x] Open, Refresh, Change location, Settings and Exit menu
+  - [x] Temperature drawn into the icon
+  - [x] Optional second icon with the condition next to the temperature
+  - [x] Menu in the app's own style, opening while the main window is open
+  - [x] Tray icon switch controls tray visibility, with the mobile defaults
+  - [x] Dismiss action available when Persistent is off, restoring the icon on refresh
+- [x] Popup in its four styles: compact, multiple locations, daily and hourly
+  - [x] Popup opening at once on a click, and close on focus loss
+  - [x] Optional double-click opening the main window, with an adjustable double-click delay
+  - [x] Current weather, air-quality or wind caption, and actual or feels-like temperatures
+  - [x] Three secondary locations, five days or five hours according to the style
 - [ ] Starting with Windows in the tray, and coming back after Explorer restarts
 
 ### Notifications
@@ -168,16 +173,17 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 ### Project
 
 - [x] Solution, build configuration, code style, `README.md`, `CONTRIBUTING.md`, `AGENTS.md` and `CHANGELOG.md`
-- [ ] Tests
+- [x] Tests
   - [x] Breezy Weather's tests for temperature conversions, humidex and total precipitation
   - [x] Checks on rounding and the Beaufort scale
   - [x] Weather database migrations, quantity storage and transaction rollback
   - [x] Breezy Weather's number formatting tests
-  - [ ] Breezy Weather's tests for card and chart lists and option names
-  - [ ] Settings file storage
-  - [ ] Plot and reference-line coordinate checks for equal minimum and maximum values, and paired histogram coordinates with a zero maximum
-  - [ ] Percent-format checks for .NET rounding, optional decimals and English/French spacing differences
-  - [ ] Integer-rounding saturation and NaN rejection, and air-quality index saturation
+  - [x] Breezy Weather's tests for card and chart lists and option names
+  - [x] Settings file storage
+  - [x] Plot and reference-line coordinate checks for equal minimum and maximum values, and paired histogram coordinates with a zero maximum
+  - [x] Percent-format checks for .NET rounding, optional decimals and English/French spacing differences
+  - [x] Integer-rounding saturation and NaN rejection, and air-quality index saturation
+  - [x] Windows instance-gate lifetime and repeated activation through named pipes
 - [ ] Third-party notices for the ported parts that come from other projects
 - [ ] Libreccio Weather's logo
 - [ ] Installer and releases
