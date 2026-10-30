@@ -401,6 +401,43 @@ public sealed class SettingsManager
         set => SetAndNotify(() => _config.PutBoolean("notification_widget_feelslike", value));
     }
 
+    /// <summary>
+    /// Shows the condition in a second tray icon next to the temperature icon.
+    /// </summary>
+    public bool IsTrayWeatherIconEnabled
+    {
+        get => _config.GetBoolean("tray_weather_icon", false);
+        set => SetAndNotify(() => _config.PutBoolean("tray_weather_icon", value));
+    }
+
+    /// <summary>
+    /// Makes a double-click on the tray icon open the main window.
+    /// </summary>
+    public bool IsTrayDoubleClickEnabled
+    {
+        get => _config.GetBoolean("tray_double_click", false);
+        set => SetAndNotify(() => _config.PutBoolean("tray_double_click", value));
+    }
+
+    /// <summary>
+    /// Milliseconds within which a second click on the tray icon makes a double-click, or null to follow Windows' setting.
+    /// </summary>
+    public int? TrayDoubleClickDelay
+    {
+        get => _config.Contains("tray_double_click_delay") ? _config.GetInt("tray_double_click_delay", 0) : null;
+        set => SetAndNotify(() =>
+        {
+            if (value is { } delay)
+            {
+                _config.PutInt("tray_double_click_delay", delay);
+            }
+            else
+            {
+                _config.Remove("tray_double_click_delay");
+            }
+        });
+    }
+
     private void SetAndNotify(Action write, [CallerMemberName] string propertyName = "")
     {
         write();

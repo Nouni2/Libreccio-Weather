@@ -15,7 +15,8 @@
 -->
 <!-- Material 3 baseline dark colors. -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:c="clr-namespace:LibreccioWeather.Controls">
     <CornerRadius x:Key="ButtonCornerRadius">20</CornerRadius>
     <CornerRadius x:Key="ForecastCardCornerRadius">28</CornerRadius>
     <CornerRadius x:Key="SearchCornerRadius">28</CornerRadius>
@@ -108,6 +109,131 @@
                     <Border Background="{TemplateBinding Background}" CornerRadius="{DynamicResource SearchCornerRadius}" Padding="{TemplateBinding Padding}">
                         <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
                     </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="NumberField" TargetType="TextBox">
+        <Setter Property="Width" Value="80" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+        <Setter Property="CaretBrush" Value="{StaticResource PrimaryBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{StaticResource OutlineBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="HorizontalContentAlignment" Value="Right" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Outline" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                        <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Outline" Property="BorderBrush" Value="{StaticResource OnSurfaceBrush}" />
+                        </Trigger>
+                        <!-- A focused outlined field has a thicker primary outline; the padding shrinks to keep the text in place. -->
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="Outline" Property="BorderBrush" Value="{StaticResource PrimaryBrush}" />
+                            <Setter TargetName="Outline" Property="BorderThickness" Value="2" />
+                            <Setter TargetName="Outline" Property="Padding" Value="11,7" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Material 3 slider, extra-small size: a 16-pixel track with 8-pixel outer corners and 2-pixel inner corners. -->
+    <Style x:Key="SliderActiveTrack" TargetType="RepeatButton">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Grid Background="Transparent">
+                        <Border Height="16" CornerRadius="8,2,2,8" Background="{StaticResource PrimaryBrush}" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SliderInactiveTrack" TargetType="RepeatButton">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Grid Background="Transparent">
+                        <Border Height="16" CornerRadius="2,8,8,2" Background="{StaticResource SecondaryContainerBrush}" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="AppSlider" TargetType="c:MaterialSlider">
+        <Setter Property="Height" Value="44" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="c:MaterialSlider">
+                    <Grid>
+                        <Track x:Name="PART_Track">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Style="{StaticResource SliderActiveTrack}" Command="{x:Static Slider.DecreaseLarge}" />
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Style="{StaticResource SliderInactiveTrack}" Command="{x:Static Slider.IncreaseLarge}" />
+                            </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb>
+                                    <Thumb.Template>
+                                        <!-- A 4-pixel handle with a 6-pixel gap on each side, which SliderStops relies on. -->
+                                        <ControlTemplate TargetType="Thumb">
+                                            <Grid Width="16" Height="44" Background="Transparent">
+                                                <Border x:Name="Handle" Width="4" CornerRadius="2" Background="{StaticResource PrimaryBrush}" />
+                                                <!-- A canvas does not clip, so the value indicator can sit above the slider. -->
+                                                <Canvas Width="16" Height="0" VerticalAlignment="Top">
+                                                    <!-- 44 pixels high, 12 pixels above the handle. -->
+                                                    <Border x:Name="Indicator" Canvas.Left="-16" Canvas.Top="-56" Width="48" Height="44"
+                                                            CornerRadius="22" Background="{StaticResource InverseSurfaceBrush}" Visibility="Collapsed">
+                                                        <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" FontWeight="Medium"
+                                                                   Foreground="{StaticResource InverseOnSurfaceBrush}"
+                                                                   Text="{Binding Value, RelativeSource={RelativeSource AncestorType=Slider}, StringFormat={}{0:0}}" />
+                                                    </Border>
+                                                </Canvas>
+                                            </Grid>
+                                            <ControlTemplate.Triggers>
+                                                <!-- The handle narrows while pressed or focused. -->
+                                                <Trigger Property="IsDragging" Value="True">
+                                                    <Setter TargetName="Handle" Property="Width" Value="2" />
+                                                    <Setter TargetName="Indicator" Property="Visibility" Value="Visible" />
+                                                </Trigger>
+                                                <!-- The slider takes keyboard focus, not its handle, so the value shows from here. -->
+                                                <DataTrigger Binding="{Binding IsKeyboardFocused, RelativeSource={RelativeSource AncestorType=Slider}}" Value="True">
+                                                    <Setter TargetName="Handle" Property="Width" Value="2" />
+                                                    <Setter TargetName="Indicator" Property="Visibility" Value="Visible" />
+                                                </DataTrigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Thumb.Template>
+                                </Thumb>
+                            </Track.Thumb>
+                        </Track>
+                        <c:SliderStops IsHitTestVisible="False" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}"
+                                       Value="{TemplateBinding Value}" StopValue="{TemplateBinding StopValue}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.38" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -396,6 +522,215 @@
             <DataTrigger Binding="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
                 <Setter Property="Visibility" Value="Visible" />
             </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="AppContextMenu" TargetType="ContextMenu">
+        <Setter Property="Background" Value="{StaticResource SurfaceContainerHighBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContextMenu">
+                    <Border Background="{TemplateBinding Background}" Padding="4" CornerRadius="4"
+                            BorderBrush="{StaticResource OutlineBrush}" BorderThickness="1">
+                        <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle" />
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Resources>
+            <!-- Implicit styles here also reach the items of submenus, which follow the logical tree. -->
+            <Style TargetType="MenuItem">
+                <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+                <Setter Property="Padding" Value="12,6" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="MenuItem">
+                            <Grid>
+                                <Border x:Name="Highlight" Padding="{TemplateBinding Padding}" CornerRadius="4" Background="Transparent">
+                                    <DockPanel>
+                                        <!-- The icons live in a sibling dictionary, so they are resolved at run time. -->
+                                        <Path x:Name="Check" DockPanel.Dock="Left" Width="16" Height="16" Margin="0,0,8,0"
+                                              Stretch="Uniform" Fill="{TemplateBinding Foreground}"
+                                              Data="{DynamicResource IconCheck}" Visibility="Collapsed" />
+                                        <Path x:Name="Arrow" DockPanel.Dock="Right" Width="16" Height="16" Margin="16,0,0,0"
+                                              Stretch="Uniform" Fill="{TemplateBinding Foreground}"
+                                              Data="{DynamicResource IconChevronRight}" Visibility="Collapsed" />
+                                        <!-- Location names are shown as written, so an underscore is not an access key. -->
+                                        <ContentPresenter ContentSource="Header" RecognizesAccessKey="False" VerticalAlignment="Center" />
+                                    </DockPanel>
+                                </Border>
+                                <Popup x:Name="PART_Popup" Placement="Right" HorizontalOffset="4" AllowsTransparency="True"
+                                       Focusable="False" PopupAnimation="None"
+                                       IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}">
+                                    <Border Background="{StaticResource SurfaceContainerHighBrush}" Padding="4" CornerRadius="4"
+                                            BorderBrush="{StaticResource OutlineBrush}" BorderThickness="1">
+                                        <ItemsPresenter KeyboardNavigation.DirectionalNavigation="Cycle" />
+                                    </Border>
+                                </Popup>
+                            </Grid>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsHighlighted" Value="True">
+                                    <Setter TargetName="Highlight" Property="Background" Value="{StaticResource HoverLayerBrush}" />
+                                </Trigger>
+                                <Trigger Property="Role" Value="SubmenuHeader">
+                                    <Setter TargetName="Arrow" Property="Visibility" Value="Visible" />
+                                </Trigger>
+                                <!-- Checkable items keep the check column so their names stay aligned. -->
+                                <Trigger Property="IsCheckable" Value="True">
+                                    <Setter TargetName="Check" Property="Visibility" Value="Hidden" />
+                                </Trigger>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="Check" Property="Visibility" Value="Visible" />
+                                </Trigger>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="Opacity" Value="0.38" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="Separator">
+                <Setter Property="Margin" Value="0,4" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Separator">
+                            <Border Height="1" Background="{StaticResource OutlineBrush}" Opacity="0.5" />
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+        </Style.Resources>
+    </Style>
+
+    <!-- One scrollbar for the whole app: a thin rounded thumb with small arrows, and no track of its own. -->
+    <Geometry x:Key="ScrollArrowUp">M0,5 L4,0 L8,5 Z</Geometry>
+    <Geometry x:Key="ScrollArrowDown">M0,0 L8,0 L4,5 Z</Geometry>
+    <Geometry x:Key="ScrollArrowLeft">M5,0 L0,4 L5,8 Z</Geometry>
+    <Geometry x:Key="ScrollArrowRight">M0,0 L5,4 L0,8 Z</Geometry>
+
+    <Style x:Key="ScrollBarArrow" TargetType="RepeatButton">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Grid Background="Transparent">
+                        <Path x:Name="Arrow" HorizontalAlignment="Center" VerticalAlignment="Center"
+                              Fill="{StaticResource OnSurfaceVariantBrush}" Opacity="0.5"
+                              Data="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Arrow" Property="Opacity" Value="0.87" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ScrollBarPage" TargetType="RepeatButton">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="RepeatButton">
+                    <Border Background="Transparent" />
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="ScrollBarThumb" TargetType="Thumb">
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="IsTabStop" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Thumb">
+                    <Border x:Name="Bar" Margin="3" CornerRadius="3" Background="{StaticResource OnSurfaceVariantBrush}" Opacity="0.35" />
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Bar" Property="Opacity" Value="0.6" />
+                        </Trigger>
+                        <Trigger Property="IsDragging" Value="True">
+                            <Setter TargetName="Bar" Property="Opacity" Value="0.75" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="ScrollBar">
+        <Setter Property="Width" Value="12" />
+        <Setter Property="MinWidth" Value="12" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ScrollBar">
+                    <Grid Background="{TemplateBinding Background}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="12" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="12" />
+                        </Grid.RowDefinitions>
+                        <RepeatButton Style="{StaticResource ScrollBarArrow}" Command="ScrollBar.LineUpCommand"
+                                      Tag="{StaticResource ScrollArrowUp}" />
+                        <!-- Reversed so that the top of the track is the start of the content. -->
+                        <Track x:Name="PART_Track" Grid.Row="1" IsDirectionReversed="True">
+                            <Track.DecreaseRepeatButton>
+                                <RepeatButton Style="{StaticResource ScrollBarPage}" Command="ScrollBar.PageUpCommand" />
+                            </Track.DecreaseRepeatButton>
+                            <Track.IncreaseRepeatButton>
+                                <RepeatButton Style="{StaticResource ScrollBarPage}" Command="ScrollBar.PageDownCommand" />
+                            </Track.IncreaseRepeatButton>
+                            <Track.Thumb>
+                                <Thumb Style="{StaticResource ScrollBarThumb}" />
+                            </Track.Thumb>
+                        </Track>
+                        <RepeatButton Grid.Row="2" Style="{StaticResource ScrollBarArrow}" Command="ScrollBar.LineDownCommand"
+                                      Tag="{StaticResource ScrollArrowDown}" />
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Orientation" Value="Horizontal">
+                <Setter Property="Width" Value="Auto" />
+                <Setter Property="MinWidth" Value="0" />
+                <Setter Property="Height" Value="12" />
+                <Setter Property="MinHeight" Value="12" />
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="ScrollBar">
+                            <Grid Background="{TemplateBinding Background}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="12" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="12" />
+                                </Grid.ColumnDefinitions>
+                                <RepeatButton Style="{StaticResource ScrollBarArrow}" Command="ScrollBar.LineLeftCommand"
+                                              Tag="{StaticResource ScrollArrowLeft}" />
+                                <Track x:Name="PART_Track" Grid.Column="1">
+                                    <Track.DecreaseRepeatButton>
+                                        <RepeatButton Style="{StaticResource ScrollBarPage}" Command="ScrollBar.PageLeftCommand" />
+                                    </Track.DecreaseRepeatButton>
+                                    <Track.IncreaseRepeatButton>
+                                        <RepeatButton Style="{StaticResource ScrollBarPage}" Command="ScrollBar.PageRightCommand" />
+                                    </Track.IncreaseRepeatButton>
+                                    <Track.Thumb>
+                                        <Thumb Style="{StaticResource ScrollBarThumb}" />
+                                    </Track.Thumb>
+                                </Track>
+                                <RepeatButton Grid.Column="2" Style="{StaticResource ScrollBarArrow}" Command="ScrollBar.LineRightCommand"
+                                              Tag="{StaticResource ScrollArrowRight}" />
+                            </Grid>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
         </Style.Triggers>
     </Style>
 </ResourceDictionary>

@@ -70,6 +70,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Daily and hourly temperature forecast cards on the shared main screen, following the saved card order and enabled temperature charts. They include weather icons, daily high and low curves, hourly temperatures, precipitation-probability bars and date labels in the location's time zone.
 - Chart coordinate edge-case tests for equal temperature bounds and Kotlin-compatible conversion of NaN and infinite coordinates to integers.
 - Breezy Weather's forecast artwork with its LGPL licence and attribution. Application and artwork licences and third-party notices are copied to build and publish output.
+- Chart tabs on the daily and hourly forecast cards, in the saved chart order: temperature, feels-like, precipitation and, on the hourly card, humidity with the dew point. The feels-like tab appears once a feels-like value exists and uses the actual temperature where one is missing. Daily precipitation shows separate day and night bars and hourly precipitation its amounts, colored by intensity as in Breezy Weather and scaled from at least 57.75 mm per half-day and 15 mm per hour. The selector is hidden when only one chart is available, and the selected tab is kept while the app runs. A card is left out when none of its enabled charts has data.
+- Normal-temperature reference lines on the temperature charts, when both of the month's normals exist and horizontal lines are on in the settings.
+- Chart labels with Breezy Weather's shadow, and a description of each forecast column, read by screen readers and shown as a tooltip, with its date or hour, temperatures, condition and precipitation probability.
+- Precipitation in the selected unit, temperatures and precipitation formatted through ICU when available, and percentages formatted for the language without ICU, with halves rounded to even, no trailing zeros and the French non-breaking space.
+- Full dates, weekdays and hours in the location's time zone, with hours following Windows' 12- or 24-hour preference.
+- Tests for percent formatting, unit formatting, and chart coordinates of reference lines and day and night bars at their edge cases.
+- Mistray, the tray icon replacing Breezy Weather's ongoing notification. It shows the condition of the location on the main screen, the app icon when there is no weather, or the temperature drawn in Breezy Weather's Asap Condensed Bold font, actual or feels-like. Its tooltip gives the location, conditions, temperature and the time of the last refresh. Its menu offers Open, Refresh, Change location, Settings and Exit, and Dismiss when the icon is not persistent. Closing the main window hides it while the icon is shown.
+- A popup opened by clicking the Mistray icon, in the four styles of Breezy Weather's notification: compact, several locations, daily and hourly, with the air quality or wind caption.
+- The notification settings of Breezy Weather in Settings, External modules: the tray icon switch, persistent, style, temperature icon and feels-like, with Breezy Weather's defaults and dependencies.
+- The air quality index, ported from Breezy Weather with a test of very large concentrations.
+- The Asap Condensed Bold font with its SIL Open Font License, copied to build and publish output, and its third-party notice.
+- A second Mistray icon showing the weather condition next to the temperature icon, turned on with "Weather icon" in Settings, External modules, while the temperature icon is on. Windows decides the order of the two icons, which share the tooltip, popup and menu.
+- An optional double-click on the Mistray icon to open the main window, off by default. While it is on, an Accessibility section sets the double-click delay with a Material 3 slider from 100 to 900 ms, like Windows' own double-click speed slider, and a field accepting 1 to 5,000 ms, the most Windows allows. A value outside the slider's range leaves the handle at the nearest end without changing the scale. A stop on the track marks the recommended value, Windows' double-click time, and a reset button returns to it, after which the app follows Windows' setting again. Two clicks within the chosen delay count as a double-click even when the delay is longer than Windows' own.
+- A Material 3 slider, at its extra-small size with stop indicators and a value label shown while dragging or focused, and an outlined number field, as shared styles for settings.
+- The mouse's back and forward buttons move through the screens like a browser's, in both interface modes. Back closes an open dialog first and does nothing on the main screen; forward reopens a screen left with back until another screen is opened.
+- Middle-button autoscroll, as in web browsers, in both interface modes: a middle click sets an anchor and the content scrolls towards the pointer, faster the further it is. A click without moving keeps it running until the next click, wheel or Escape; holding the button while moving stops it on release. A forecast scrolls sideways while the page around it scrolls down.
+- A thin, rounded scrollbar with small arrows, used everywhere in the app.
+- A context menu style shared by every menu, with check marks, submenus and separators, and check and arrow icons.
+- A translator note on each of the app's own strings in `resources/InterfaceStrings.resx`, saying where it appears and which names stay untranslated.
 - This changelog.
 
 ### Changed
@@ -83,6 +102,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - The location search has a back button.
 - The Cancel button of dialogs uses Windows' own text, as Breezy Weather uses Android's.
 - The main weather header and forecast cards scroll together in both interface modes. The mouse wheel scrolls the page over forecast cards, Shift+wheel scrolls a forecast horizontally, and desktop mode exposes scrollbars.
+- Scrollbars are shown in touch mode too, on the main screen and the forecast cards, where Breezy Weather shows none.
+- Mistray's settings are titled Mistray, and its master switch and temperature icon switch are named "Tray icon" and "Temperature icon" instead of Breezy Weather's "Notification widget" and "Temperature as status bar icon", which describe Android. Breezy Weather's other labels and translations are kept.
+- A click on the Mistray icon opens the popup at once. With double-click on, the popup opens after 75 ms whatever the delay, and a second click within the delay still opens the main window.
+- The Mistray popup is created once and hidden between clicks instead of being rebuilt as a new window each time.
+- Mistray's menu uses the app's colors and menu style instead of the Windows Forms menu, and the location list's right-click menu uses the same style.
 
 ### Fixed
 
@@ -96,3 +120,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Weather texts and other strings that Breezy Weather defines only as a pointer to another string, such as Open-Meteo's "Clear sky", are now translated: the French app shows "Ciel dégagé" instead of the English text.
 - The main weather header takes the height of its content instead of being pushed to the bottom of the viewport, removing the large blank area above the current conditions.
 - Forecast date labels use a public Core formatting method instead of accessing the internal ICU implementation, resolving the application's inaccessible-type compilation errors.
+- A right-click on the Mistray icon now opens its menu while the main window is open, instead of only once the window was hidden.

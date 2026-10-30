@@ -16,7 +16,11 @@
 
 using System.ComponentModel;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
+using System.Windows.Interop;
 using System.Windows.Threading;
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Locations;
@@ -32,20 +36,28 @@ namespace LibreccioWeather.Tray;
 
 public sealed class TrayIcon : IDisposable
 {
+    // How long a click waits before the popup opens while double-click is on. Short, so a click stays quick; a slower
+    // double-click shows the popup briefly before the window opens.
+    private const int PopupWait = 75;
+
     private readonly Window _window;
     private readonly MainViewModel _main;
     private readonly Forms.NotifyIcon _notifyIcon;
-    private readonly Forms.ContextMenuStrip _menu;
+    private readonly Forms.NotifyIcon _weatherIcon;
+    private readonly ContextMenu _menu;
+    private readonly TrayPopup _popup;
     private readonly DispatcherTimer _tooltipTimer;
     private readonly DispatcherTimer _clickTimer;
     private WeatherViewModel? _weather;
-    private TrayPopup? _popup;
     private Point _popupAnchor;
-    private long _lastDoubleClickTick;
+    private long _firstClickTick;
+    private bool _awaitingSecondClick;
     private bool _dismissed;
     private Core.Models.Weather? _dismissedWeather;
     private Icon? _icon;
     private string? _imageKey;
+    private Icon? _weatherImage;
+    private string? _weatherImageKey;
     private WindowState _restoreState = WindowState.Normal;
     private bool _isExiting;
     private bool _disposed;
@@ -54,11 +66,12 @@ public sealed class TrayIcon : IDisposable
     {
         _window = window;
         _main = main;
-        _menu = new Forms.ContextMenuStrip();
-        _menu.Opening += OnMenuOpening;
-        _notifyIcon = new Forms.NotifyIcon { ContextMenuStrip = _menu };
-        _notifyIcon.MouseDoubleClick += OnMouseDoubleClick;
-        _notifyIcon.MouseClick += OnMouseClick;
+        _menu = new ContextMenu { Placement = PlacementMode.MousePoint };
+        _menu.SetResourceReference(FrameworkElement.StyleProperty, "AppContextMenu");
+        _notifyIcon = CreateNotifyIcon();
+        _weatherIcon = CreateNotifyIcon();
+        _popup = new TrayPopup();
+        _popup.OpenRequested += OnPopupOpenRequested;
         _window.Closing += OnWindowClosing;
         _window.StateChanged += OnWindowStateChanged;
         _main.PropertyChanged += OnMainPropertyChanged;
@@ -82,7 +95,8 @@ public sealed class TrayIcon : IDisposable
     {
         _isExiting = true;
         _clickTimer.Stop();
-        ClosePopup();
+        _menu.IsOpen = false;
+        _popup.Dismiss();
     }
 
     public void Dispose()
@@ -93,10 +107,16 @@ public sealed class TrayIcon : IDisposable
         }
 
         _disposed = true;
-        _isExiting = true;
-        _clickTimer.Stop();
+        PrepareForShutdown();
         _clickTimer.Tick -= OnSingleClick;
-        ClosePopup();
+        _popup.OpenRequested -= OnPopupOpenRequested;
+
+        // Application shutdown may already have closed the popup, which removes its presentation source.
+        if (PresentationSource.FromVisual(_popup) is not null)
+        {
+            _popup.Close();
+        }
+
         _window.Closing -= OnWindowClosing;
         _window.StateChanged -= OnWindowStateChanged;
         _main.PropertyChanged -= OnMainPropertyChanged;
@@ -111,8 +131,20 @@ public sealed class TrayIcon : IDisposable
         _tooltipTimer.Tick -= OnTooltipTick;
         _notifyIcon.Visible = false;
         _notifyIcon.Dispose();
-        _menu.Dispose();
+        _weatherIcon.Visible = false;
+        _weatherIcon.Dispose();
         _icon?.Dispose();
+        _weatherImage?.Dispose();
+    }
+
+    private Forms.NotifyIcon CreateNotifyIcon()
+    {
+        var icon = new Forms.NotifyIcon();
+        icon.MouseDown += OnMouseDown;
+        icon.MouseClick += OnMouseClick;
+        icon.MouseDoubleClick += OnMouseDoubleClick;
+        icon.MouseUp += OnMouseUp;
+        return icon;
     }
 
     private void OnWindowClosing(object? sender, CancelEventArgs e)
@@ -140,10 +172,16 @@ public sealed class TrayIcon : IDisposable
         }
     }
 
+    private void OnPopupOpenRequested(object? sender, EventArgs e)
+    {
+        ShowWindow();
+    }
+
     private void ShowWindow()
     {
         _clickTimer.Stop();
-        ClosePopup();
+        _awaitingSecondClick = false;
+        _popup.Dismiss();
         _window.Show();
         if (_window.WindowState == WindowState.Minimized)
         {
@@ -153,29 +191,62 @@ public sealed class TrayIcon : IDisposable
         _window.Activate();
     }
 
-    private void OnMouseDoubleClick(object? sender, Forms.MouseEventArgs e)
-    {
-        if (e.Button == Forms.MouseButtons.Left)
-        {
-            _lastDoubleClickTick = Environment.TickCount64;
-            ShowWindow();
-        }
-    }
+    // Held within what Windows accepts for its own double-click time, whatever a hand-edited settings file contains.
+    private int DoubleClickDelay =>
+        Math.Clamp(_main.Settings.TrayDoubleClickDelay ?? Forms.SystemInformation.DoubleClickTime, 1, 5000);
 
-    private void OnMouseClick(object? sender, Forms.MouseEventArgs e)
+    // Windows reports a double-click only within its own double-click time, so with the chosen delay the clicks are
+    // paired here, on the button presses, which Windows reports for both clicks of a pair.
+    private void OnMouseDown(object? sender, Forms.MouseEventArgs e)
     {
-        if (e.Button != Forms.MouseButtons.Left
-            || (_lastDoubleClickTick > 0 && Environment.TickCount64 - _lastDoubleClickTick < Forms.SystemInformation.DoubleClickTime))
+        if (e.Button != Forms.MouseButtons.Left || !_main.Settings.IsTrayDoubleClickEnabled)
         {
             return;
         }
 
+        long now = Environment.TickCount64;
+        if (_awaitingSecondClick && now - _firstClickTick <= DoubleClickDelay)
+        {
+            _awaitingSecondClick = false;
+            ShowWindow();
+            return;
+        }
+
+        // The popup waits only briefly, however long the double-click delay: a second click that comes after the popup
+        // has opened still opens the window, and the popup closes on its own when the tray icon takes the focus.
+        _awaitingSecondClick = true;
+        _firstClickTick = now;
         _popupAnchor = Forms.Cursor.Position;
         _clickTimer.Stop();
+        _clickTimer.Interval = TimeSpan.FromMilliseconds(Math.Min(DoubleClickDelay, PopupWait));
         _clickTimer.Start();
     }
 
+    private void OnMouseClick(object? sender, Forms.MouseEventArgs e)
+    {
+        if (e.Button == Forms.MouseButtons.Left && !_main.Settings.IsTrayDoubleClickEnabled)
+        {
+            _popupAnchor = Forms.Cursor.Position;
+            TogglePopup();
+        }
+    }
+
+    // The second click of a quick pair raises no click of its own, so without double-click it counts here.
+    private void OnMouseDoubleClick(object? sender, Forms.MouseEventArgs e)
+    {
+        if (e.Button == Forms.MouseButtons.Left && !_main.Settings.IsTrayDoubleClickEnabled)
+        {
+            _popupAnchor = Forms.Cursor.Position;
+            TogglePopup();
+        }
+    }
+
     private void OnSingleClick(object? sender, EventArgs e)
+    {
+        TogglePopup();
+    }
+
+    private void TogglePopup()
     {
         _clickTimer.Stop();
         if (!_notifyIcon.Visible || _isExiting)
@@ -183,34 +254,19 @@ public sealed class TrayIcon : IDisposable
             return;
         }
 
-        if (_popup is not null)
+        if (_popup.IsVisible)
         {
-            ClosePopup();
+            _popup.Dismiss();
             return;
         }
 
-        var popup = new TrayPopup
-        {
-            DataContext = TrayPopupContent.Create(_weather?.ShownLocation, _main.Locations,
-                _main.Settings, _main.Settings.GetTemperatureUnit(_main.RegionCode)),
-        };
-        popup.OpenRequested += (_, _) => ShowWindow();
-        popup.Closed += (_, _) =>
-        {
-            if (ReferenceEquals(_popup, popup))
-            {
-                _popup = null;
-            }
-        };
-        _popup = popup;
-        popup.ShowAt(_popupAnchor);
+        _popup.DataContext = CreatePopupContent(_weather?.ShownLocation);
+        _popup.ShowAt(_popupAnchor);
     }
 
-    private void ClosePopup()
+    private TrayPopupContent CreatePopupContent(Location? location)
     {
-        TrayPopup? popup = _popup;
-        _popup = null;
-        popup?.Close();
+        return TrayPopupContent.Create(location, _main.Locations, _main.Settings, _main.Settings.GetTemperatureUnit(_main.RegionCode));
     }
 
     private void OnMainPropertyChanged(object? sender, PropertyChangedEventArgs e)
@@ -231,6 +287,7 @@ public sealed class TrayIcon : IDisposable
             if (!_disposed && !_isExiting)
             {
                 _imageKey = null;
+                _weatherImageKey = null;
                 Update();
             }
         });
@@ -299,8 +356,8 @@ public sealed class TrayIcon : IDisposable
         Core.Models.Weather? weather = location?.Weather;
         if (!_main.Settings.IsWidgetNotificationEnabled)
         {
-            _notifyIcon.Visible = false;
-            ClosePopup();
+            HideIcons();
+            _popup.Dismiss();
             if (!_window.IsVisible)
             {
                 ShowWindow();
@@ -334,14 +391,40 @@ public sealed class TrayIcon : IDisposable
             : "temperature:" + iconTemperature + ":" + TrayIconImages.IsLightTaskbar;
         if (_icon is null || _imageKey != imageKey)
         {
-            Icon replacement = iconTemperature is null ? TrayIconImages.Create(iconPath) : TrayIconImages.CreateTemperature(iconTemperature);
-            Icon? previous = _icon;
-            _notifyIcon.Icon = replacement;
-            _icon = replacement;
+            SetImage(_notifyIcon, ref _icon,
+                iconTemperature is null ? TrayIconImages.Create(iconPath) : TrayIconImages.CreateTemperature(iconTemperature));
             _imageKey = imageKey;
-            previous?.Dispose();
         }
 
+        // Without a temperature the main icon already shows the condition, so a second one would repeat it.
+        bool showWeatherIcon = iconTemperature is not null && _main.Settings.IsTrayWeatherIconEnabled;
+        if (showWeatherIcon && (_weatherImage is null || _weatherImageKey != iconPath))
+        {
+            SetImage(_weatherIcon, ref _weatherImage, TrayIconImages.Create(iconPath));
+            _weatherImageKey = iconPath;
+        }
+
+        string tooltip = BuildTooltip(location, weather, temperature);
+        _notifyIcon.Text = tooltip;
+        _weatherIcon.Text = tooltip;
+        _notifyIcon.Visible = true;
+        _weatherIcon.Visible = showWeatherIcon;
+        if (_popup.IsVisible)
+        {
+            _popup.DataContext = CreatePopupContent(location);
+        }
+    }
+
+    private static void SetImage(Forms.NotifyIcon target, ref Icon? current, Icon replacement)
+    {
+        Icon? previous = current;
+        target.Icon = replacement;
+        current = replacement;
+        previous?.Dispose();
+    }
+
+    private string BuildTooltip(Location? location, Core.Models.Weather? weather, Core.Units.Temperature? temperature)
+    {
         List<string> lines = [location?.GetPlace() ?? Strings.Get("desktop_app_name")];
         List<string> conditions = [];
         if (weather?.Current?.WeatherText is { Length: > 0 } text)
@@ -370,6 +453,7 @@ public sealed class TrayIcon : IDisposable
             lines.Add(Strings.Format("location_last_updated_x", time));
         }
 
+        // Windows limits tray tooltips to 127 UTF-16 code units.
         string tooltip = string.Join(Environment.NewLine, lines);
         if (tooltip.Length > 127)
         {
@@ -382,83 +466,101 @@ public sealed class TrayIcon : IDisposable
             tooltip = tooltip[..length] + "…";
         }
 
-        _notifyIcon.Text = tooltip;
-        _notifyIcon.Visible = true;
-        if (_popup is not null)
+        return tooltip;
+    }
+
+    private void HideIcons()
+    {
+        _notifyIcon.Visible = false;
+        _weatherIcon.Visible = false;
+    }
+
+    private void OnMouseUp(object? sender, Forms.MouseEventArgs e)
+    {
+        if (e.Button == Forms.MouseButtons.Right && !_isExiting)
         {
-            _popup.DataContext = TrayPopupContent.Create(location, _main.Locations,
-                _main.Settings, _main.Settings.GetTemperatureUnit(_main.RegionCode));
+            ShowMenu();
         }
     }
 
-    private void OnMenuOpening(object? sender, CancelEventArgs e)
+    private void ShowMenu()
     {
         _clickTimer.Stop();
-        ClosePopup();
-        foreach (Forms.ToolStripItem item in _menu.Items.Cast<Forms.ToolStripItem>().ToArray())
-        {
-            item.Dispose();
-        }
-
+        _awaitingSecondClick = false;
+        _popup.Dismiss();
+        _menu.IsOpen = false;
         _menu.Items.Clear();
-        AddMenuItem("desktop_open", ShowWindow);
-        AddMenuItem("action_refresh", () =>
+        AddMenuItem(_menu, Strings.Get("desktop_open"), ShowWindow);
+        AddMenuItem(_menu, Strings.Get("action_refresh"), () =>
         {
             if (_weather?.RefreshCommand.CanExecute(null) == true)
             {
                 _weather.RefreshCommand.Execute(null);
             }
-        }).Enabled = _weather is { IsLoading: false } && _weather.RefreshCommand.CanExecute(null);
+        }).IsEnabled = _weather is { IsLoading: false } && _weather.RefreshCommand.CanExecute(null);
 
-        var locations = new Forms.ToolStripMenuItem(Strings.Get("tray_change_location"))
+        var locations = new MenuItem
         {
-            Enabled = _main.Locations.Count > 0 && !_main.IsRefreshing && _main.Dialog is null,
+            Header = Strings.Get("tray_change_location"),
+            IsEnabled = _main.Locations.Count > 0 && !_main.IsRefreshing && _main.Dialog is null,
         };
         foreach (Location location in _main.Locations)
         {
-            var item = new Forms.ToolStripMenuItem(location.GetPlace().Replace("&", "&&", StringComparison.Ordinal))
+            var item = new MenuItem
             {
-                Checked = location.FormattedId == _main.CurrentFormattedId,
+                Header = location.GetPlace(),
+                IsCheckable = true,
+                IsChecked = location.FormattedId == _main.CurrentFormattedId,
             };
             item.Click += (_, _) =>
             {
                 _main.ShowLocation(location);
                 ShowWindow();
             };
-            locations.DropDownItems.Add(item);
+            locations.Items.Add(item);
         }
 
         _menu.Items.Add(locations);
-        AddMenuItem("action_settings", () =>
+        AddMenuItem(_menu, Strings.Get("action_settings"), () =>
         {
             _main.OpenSettings();
             ShowWindow();
-        }).Enabled = _main.Dialog is null;
-        _menu.Items.Add(new Forms.ToolStripSeparator());
+        }).IsEnabled = _main.Dialog is null;
+        _menu.Items.Add(new Separator());
         if (!_main.Settings.IsWidgetNotificationPersistent)
         {
-            AddMenuItem("tray_dismiss", () =>
+            AddMenuItem(_menu, Strings.Get("tray_dismiss"), () =>
             {
                 ShowWindow();
                 _dismissed = true;
                 _dismissedWeather = _weather?.ShownLocation.Weather;
-                _notifyIcon.Visible = false;
+                HideIcons();
             });
         }
 
-        AddMenuItem("tray_exit", () =>
+        AddMenuItem(_menu, Strings.Get("tray_exit"), () =>
         {
             PrepareForShutdown();
             Application.Current.Shutdown();
         });
-        e.Cancel = false;
+        _menu.IsOpen = true;
+
+        // A menu only closes on a click elsewhere while its window is in the foreground, which a tray click does not give.
+        if (PresentationSource.FromVisual(_menu) is HwndSource source)
+        {
+            SetForegroundWindow(source.Handle);
+        }
     }
 
-    private Forms.ToolStripMenuItem AddMenuItem(string key, Action action)
+    private static MenuItem AddMenuItem(ItemsControl parent, string header, Action action)
     {
-        var item = new Forms.ToolStripMenuItem(Strings.Get(key));
+        var item = new MenuItem { Header = header };
         item.Click += (_, _) => action();
-        _menu.Items.Add(item);
+        parent.Items.Add(item);
         return item;
     }
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool SetForegroundWindow(IntPtr window);
 }

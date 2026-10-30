@@ -17,6 +17,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:l="clr-namespace:LibreccioWeather.Localization"
+             xmlns:c="clr-namespace:LibreccioWeather.Controls"
              xmlns:s="clr-namespace:LibreccioWeather.ViewModels.Settings">
     <UserControl.Resources>
         <!-- The card behind every preference. It lights up under the pointer when it can be used. -->
@@ -28,6 +29,7 @@
             <Setter Property="Focusable" Value="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" />
             <Setter Property="AutomationProperties.Name" Value="{Binding Title}" />
             <Setter Property="IsEnabled" Value="{Binding IsEnabled}" />
+            <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}" />
             <Style.Triggers>
                 <DataTrigger Binding="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
                     <Setter Property="CornerRadius" Value="6" />
@@ -61,7 +63,8 @@
 
         <DataTemplate DataType="{x:Type s:SectionHeaderPreference}">
             <TextBlock Margin="{StaticResource NormalMargin}" FontSize="14" FontWeight="SemiBold"
-                       Foreground="{StaticResource PrimaryBrush}" Text="{Binding Title}" />
+                       Foreground="{StaticResource PrimaryBrush}" Text="{Binding Title}"
+                       Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}" />
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type s:SeparatorPreference}">
@@ -118,6 +121,38 @@
                               IsChecked="{Binding IsChecked}" IsEnabled="{Binding IsEnabled}" IsHitTestVisible="False" />
                     <ContentControl Focusable="False" Content="{Binding}" ContentTemplate="{StaticResource PreferenceText}" />
                 </DockPanel>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type s:SliderPreference}">
+            <Border Style="{StaticResource PreferenceCard}" Cursor="Arrow">
+                <StackPanel>
+                    <DockPanel>
+                        <StackPanel DockPanel.Dock="Right" Margin="16,0,0,0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBox x:Name="Field" Style="{StaticResource NumberField}" Text="{Binding ValueText}"
+                                     IsEnabled="{Binding IsEnabled}" AutomationProperties.Name="{Binding Title}">
+                                <TextBox.InputBindings>
+                                    <KeyBinding Key="Enter" Command="{Binding CommitTextCommand}"
+                                                CommandParameter="{Binding Text, ElementName=Field}" />
+                                </TextBox.InputBindings>
+                            </TextBox>
+                            <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" Style="{StaticResource BodyMediumText}" Text="{Binding UnitText}" />
+                            <Button Margin="8,0,0,0" Style="{StaticResource CompactIconButton}" Command="{Binding ResetCommand}"
+                                    IsEnabled="{Binding IsEnabled}"
+                                    ToolTip="{l:Translate action_reset_to_default}" AutomationProperties.Name="{l:Translate action_reset_to_default}">
+                                <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconRestore}" />
+                            </Button>
+                        </StackPanel>
+                        <TextBlock VerticalAlignment="Center" Style="{StaticResource TitleMediumText}" FontWeight="Normal"
+                                   TextWrapping="Wrap" Text="{Binding Title}" />
+                    </DockPanel>
+                    <!-- The delay keeps the settings file from being written at every step of a drag. -->
+                    <c:MaterialSlider Margin="0,12,0,0" Style="{StaticResource AppSlider}"
+                                      Minimum="{Binding SliderMinimum}" Maximum="{Binding SliderMaximum}" StopValue="{Binding Recommended}"
+                                      SmallChange="10" LargeChange="100"
+                                      Value="{Binding SliderValue, Delay=250}" IsEnabled="{Binding IsEnabled}"
+                                      AutomationProperties.Name="{Binding Title}" />
+                </StackPanel>
             </Border>
         </DataTemplate>
     </UserControl.Resources>

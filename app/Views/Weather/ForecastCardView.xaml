@@ -85,18 +85,8 @@
                 </ListBox.ItemTemplate>
             </ListBox>
             <Grid x:Name="ForecastViewport" Margin="0,8,0,0">
-                <ScrollViewer x:Name="ForecastScroller" VerticalScrollBarVisibility="Disabled"
+                <ScrollViewer x:Name="ForecastScroller" VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Auto"
                               PanningMode="HorizontalOnly" PreviewMouseWheel="OnForecastMouseWheel">
-                    <ScrollViewer.Style>
-                        <Style TargetType="ScrollViewer">
-                            <Setter Property="HorizontalScrollBarVisibility" Value="Hidden" />
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                                    <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ScrollViewer.Style>
                     <ItemsControl ItemsSource="{Binding Columns}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>

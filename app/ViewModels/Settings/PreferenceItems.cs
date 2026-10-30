@@ -14,17 +14,25 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Globalization;
 using System.Windows;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LibreccioWeather.Core.Localization;
 
 namespace LibreccioWeather.ViewModels.Settings;
 
 /// <summary>
 /// A section title in primary color above a group of preferences.
 /// </summary>
-public sealed record SectionHeaderPreference(string Title);
+public sealed partial class SectionHeaderPreference(string title) : ObservableObject
+{
+    public string Title { get; } = title;
+
+    [ObservableProperty]
+    private bool _isVisible = true;
+}
 
 /// <summary>
 /// Space between two preferences: 2 pixels inside a group, 16 between groups.
@@ -61,6 +69,9 @@ public abstract partial class CardPreference : ObservableObject
 
     [ObservableProperty]
     private bool _isEnabled;
+
+    [ObservableProperty]
+    private bool _isVisible = true;
 
     [ObservableProperty]
     private string? _summary;
@@ -220,6 +231,124 @@ public sealed partial class SwitchPreference : CardPreference
         if (_initialized)
         {
             _onValueChanged(value);
+        }
+    }
+}
+
+/// <summary>
+/// A whole number chosen with a slider or typed in a field next to the title. The slider covers a narrower range than
+/// the field, so a rare extreme value does not squeeze the usual ones together; a value outside it puts the handle at
+/// the nearest end. A stop indicator marks the recommended value, which the reset button restores.
+/// </summary>
+public sealed partial class SliderPreference : CardPreference
+{
+    private readonly Action<int> _onValueChanged;
+    private readonly Action _onReset;
+
+    // The stored value is shown without being written back, and a reset is stored by its own action.
+    private bool _writesValue;
+
+    public SliderPreference(
+        string title,
+        string unitText,
+        int value,
+        int minimum,
+        int maximum,
+        int sliderMinimum,
+        int sliderMaximum,
+        int recommended,
+        Action<int> onValueChanged,
+        Action onReset,
+        bool isEnabled = true,
+        bool isFirst = false,
+        bool isLast = false)
+        : base(title, isFirst, isLast, isEnabled)
+    {
+        UnitText = unitText;
+        Minimum = minimum;
+        Maximum = maximum;
+        SliderMinimum = sliderMinimum;
+        SliderMaximum = sliderMaximum;
+        Recommended = recommended;
+        _onValueChanged = onValueChanged;
+        _onReset = onReset;
+        Value = value;
+        _writesValue = true;
+    }
+
+    public string UnitText { get; }
+
+    public int Minimum { get; }
+
+    public int Maximum { get; }
+
+    public int SliderMinimum { get; }
+
+    public int SliderMaximum { get; }
+
+    public int Recommended { get; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(SliderValue))]
+    private int _value;
+
+    [ObservableProperty]
+    private string _valueText = "";
+
+    /// <summary>
+    /// The value as the slider shows it, held at the nearest end of the slider's range.
+    /// </summary>
+    public double SliderValue
+    {
+        get => Math.Clamp(Value, SliderMinimum, SliderMaximum);
+        set
+        {
+            int moved = (int)Math.Round(value, MidpointRounding.AwayFromZero);
+            if (moved != Math.Clamp(Value, SliderMinimum, SliderMaximum))
+            {
+                Value = Math.Clamp(moved, SliderMinimum, SliderMaximum);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Applies the typed text, clamped to the allowed range. Text that is not a number puts the current value back.
+    /// </summary>
+    [RelayCommand]
+    private void CommitText(string? text)
+    {
+        if (int.TryParse(text, NumberStyles.Integer | NumberStyles.AllowThousands, Strings.Culture, out int typed))
+        {
+            Value = Math.Clamp(typed, Minimum, Maximum);
+        }
+
+        ValueText = Value.ToString(Strings.Culture);
+    }
+
+    [RelayCommand]
+    private void Reset()
+    {
+        _writesValue = false;
+        Value = Recommended;
+        _writesValue = true;
+        _onReset();
+    }
+
+    partial void OnValueChanged(int value)
+    {
+        ValueText = value.ToString(Strings.Culture);
+        if (_writesValue)
+        {
+            _onValueChanged(value);
+        }
+    }
+
+    // The field's binding updates when it loses focus, which commits what was typed.
+    partial void OnValueTextChanged(string value)
+    {
+        if (_writesValue)
+        {
+            CommitText(value);
         }
     }
 }

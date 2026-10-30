@@ -18,6 +18,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 using LibreccioWeather.Core.Localization;
+using LibreccioWeather.Input;
 using LibreccioWeather.ViewModels;
 
 namespace LibreccioWeather;
@@ -30,8 +31,31 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        // The window's event handlers keep the autoscroll alive for as long as the window.
+        _ = new AutoScroll(this);
         DataContextChanged += OnViewModelChanged;
         DialogHost.IsVisibleChanged += OnDialogVisibilityChanged;
+    }
+
+    // The side buttons of a mouse move through the screens like a browser's back and forward buttons.
+    protected override void OnMouseUp(MouseButtonEventArgs e)
+    {
+        base.OnMouseUp(e);
+        if (e.Handled || DataContext is not MainViewModel main)
+        {
+            return;
+        }
+
+        if (e.ChangedButton == MouseButton.XButton1)
+        {
+            main.BrowseBack();
+            e.Handled = true;
+        }
+        else if (e.ChangedButton == MouseButton.XButton2)
+        {
+            main.BrowseForward();
+            e.Handled = true;
+        }
     }
 
     private void OnDialogVisibilityChanged(object sender, DependencyPropertyChangedEventArgs e)

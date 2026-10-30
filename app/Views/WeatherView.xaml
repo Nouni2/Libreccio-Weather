@@ -87,18 +87,8 @@
                      Background="Transparent" Foreground="{StaticResource PrimaryBrush}"
                      Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibility}}" />
 
-        <ScrollViewer x:Name="WeatherScroll" Grid.Row="2"
+        <ScrollViewer x:Name="WeatherScroll" Grid.Row="2" VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
-            <ScrollViewer.Style>
-                <Style TargetType="ScrollViewer">
-                    <Setter Property="VerticalScrollBarVisibility" Value="Hidden" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                            <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </ScrollViewer.Style>
             <StackPanel>
                 <StackPanel Margin="8,0,8,16">
                     <!-- The time since the last refresh, with a clock icon, at the start of the header. -->

@@ -31,4 +31,12 @@
     <data name="tray_change_location" xml:space="preserve"><value>Changer de lieu</value></data>
     <data name="tray_exit" xml:space="preserve"><value>Quitter</value></data>
     <data name="tray_dismiss" xml:space="preserve"><value>Masquer</value></data>
+    <data name="tray_section" xml:space="preserve"><value>Mistray</value></data>
+    <data name="tray_icon" xml:space="preserve"><value>Icône de la zone de notification</value></data>
+    <data name="tray_temperature_icon" xml:space="preserve"><value>Icône de température</value></data>
+    <data name="tray_weather_icon" xml:space="preserve"><value>Icône météo</value></data>
+    <data name="tray_accessibility" xml:space="preserve"><value>Accessibilité</value></data>
+    <data name="tray_double_click" xml:space="preserve"><value>Double-cliquer sur l'icône pour ouvrir l'application</value></data>
+    <data name="tray_double_click_delay" xml:space="preserve"><value>Délai du double-clic</value></data>
+    <data name="tray_milliseconds" xml:space="preserve"><value>ms</value></data>
 </root>

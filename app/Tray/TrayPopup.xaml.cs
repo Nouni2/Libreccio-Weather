@@ -14,7 +14,6 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
-using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
@@ -25,22 +24,26 @@ using Point = System.Drawing.Point;
 
 namespace LibreccioWeather.Tray;
 
+/// <summary>
+/// Created once and hidden instead of closed, so a click on the tray icon only refreshes and shows it.
+/// </summary>
 public partial class TrayPopup : Window
 {
-    private bool _closing;
-
     public TrayPopup()
     {
         InitializeComponent();
-        Deactivated += (_, _) => ClosePopup();
+        Deactivated += (_, _) => Dismiss();
         PreviewKeyDown += (_, e) =>
         {
             if (e.Key == Key.Escape)
             {
                 e.Handled = true;
-                ClosePopup();
+                Dismiss();
             }
         };
+
+        // Creating the native window now makes the first opening as fast as the next ones.
+        new WindowInteropHelper(this).EnsureHandle();
     }
 
     public event EventHandler? OpenRequested;
@@ -66,27 +69,21 @@ public partial class TrayPopup : Window
         Opacity = 1;
         if (!Activate())
         {
-            ClosePopup();
+            Dismiss();
         }
     }
 
-    protected override void OnClosing(CancelEventArgs e)
+    public void Dismiss()
     {
-        _closing = true;
-        base.OnClosing(e);
-    }
-
-    private void ClosePopup()
-    {
-        if (!_closing)
+        if (IsVisible)
         {
-            Close();
+            Hide();
         }
     }
 
     private void OnCloseClick(object sender, RoutedEventArgs e)
     {
-        ClosePopup();
+        Dismiss();
     }
 
     private void OnOpenClick(object sender, RoutedEventArgs e)

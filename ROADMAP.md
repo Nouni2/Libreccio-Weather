@@ -127,6 +127,9 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 - [ ] Breezy Weather's colors and light theme, in place of the Material 3 baseline dark colors used now
 - [ ] Single instance
 - [ ] Closing the window to the tray, restoring it and exiting through the tray menu
+- [ ] Mouse back and forward buttons moving through the screens
+- [ ] Middle-button autoscroll
+- [ ] Thin scrollbars in both interface modes
 - [x] Main window icon of the current season at the location on screen, reversed in the southern hemisphere
 
 ### Experimental desktop interface
@@ -141,12 +144,15 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 - [ ] Tray icon with the temperature or a condition icon, tooltip and menu
   - [ ] Condition artwork, with the app icon when weather is unavailable
   - [ ] Tooltip with the shown location, conditions, temperature and refresh status
-  - [ ] Open, Refresh, Change location, Settings and Exit menu, and double-click restoration
+  - [ ] Open, Refresh, Change location, Settings and Exit menu
   - [ ] Temperature drawn into the icon
-  - [ ] Notification widget switch controls tray visibility, with the mobile defaults
+  - [ ] Optional second icon with the condition next to the temperature
+  - [ ] Menu in the app's own style, opening while the main window is open
+  - [ ] Tray icon switch controls tray visibility, with the mobile defaults
   - [ ] Dismiss action available when Persistent is off, restoring the icon on refresh
 - [ ] Popup in its four styles: compact, multiple locations, daily and hourly
-  - [ ] Single-click popup and close on focus loss, with double-click opening the main window
+  - [ ] Popup opening at once on a click, and close on focus loss
+  - [ ] Optional double-click opening the main window, with an adjustable double-click delay
   - [ ] Current weather, air-quality or wind caption, and actual or feels-like temperatures
   - [ ] Three secondary locations, five days or five hours according to the style
 - [ ] Starting with Windows in the tray, and coming back after Explorer restarts

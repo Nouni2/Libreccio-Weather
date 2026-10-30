@@ -18,17 +18,25 @@
     <resheader name="version"><value>2.0</value></resheader>
     <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
     <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-    <data name="desktop_app_name" xml:space="preserve"><value>Libreccio Weather</value></data>
-    <data name="desktop_interface_section" xml:space="preserve"><value>Interface</value></data>
-    <data name="desktop_interface_title" xml:space="preserve"><value>Desktop interface</value></data>
-    <data name="desktop_interface_on" xml:space="preserve"><value>Smaller corners, location dropdown and mouse and keyboard navigation.</value></data>
-    <data name="desktop_interface_off" xml:space="preserve"><value>Adapt the existing interface for desktop use. Changes apply immediately.</value></data>
-    <data name="desktop_open" xml:space="preserve"><value>Open</value></data>
-    <data name="desktop_move_up" xml:space="preserve"><value>Move up</value></data>
-    <data name="desktop_move_down" xml:space="preserve"><value>Move down</value></data>
-    <data name="desktop_remove" xml:space="preserve"><value>Remove</value></data>
-    <data name="desktop_location_actions" xml:space="preserve"><value>Right-click for location actions.</value></data>
-    <data name="tray_change_location" xml:space="preserve"><value>Change location</value></data>
-    <data name="tray_exit" xml:space="preserve"><value>Exit</value></data>
-    <data name="tray_dismiss" xml:space="preserve"><value>Dismiss</value></data>
+    <data name="desktop_app_name" xml:space="preserve"><value>Libreccio Weather</value><comment>The application's name, shown in the window title and the tray. A name: keep it as it is in every language.</comment></data>
+    <data name="desktop_interface_section" xml:space="preserve"><value>Interface</value><comment>Settings > Appearance: title of the section holding the desktop interface switch.</comment></data>
+    <data name="desktop_interface_title" xml:space="preserve"><value>Desktop interface</value><comment>Settings > Appearance: switch that adapts the interface for mouse and keyboard.</comment></data>
+    <data name="desktop_interface_on" xml:space="preserve"><value>Smaller corners, location dropdown and mouse and keyboard navigation.</value><comment>Settings > Appearance: summary under the desktop interface switch while it is on.</comment></data>
+    <data name="desktop_interface_off" xml:space="preserve"><value>Adapt the existing interface for desktop use. Changes apply immediately.</value><comment>Settings > Appearance: summary under the desktop interface switch while it is off.</comment></data>
+    <data name="desktop_open" xml:space="preserve"><value>Open</value><comment>Verb. Opens a location from its right-click menu in the location list, opens the main window from the tray menu and the tray popup.</comment></data>
+    <data name="desktop_move_up" xml:space="preserve"><value>Move up</value><comment>Location list right-click menu: moves the location one place up.</comment></data>
+    <data name="desktop_move_down" xml:space="preserve"><value>Move down</value><comment>Location list right-click menu: moves the location one place down.</comment></data>
+    <data name="desktop_remove" xml:space="preserve"><value>Remove</value><comment>Location list right-click menu: deletes the location.</comment></data>
+    <data name="desktop_location_actions" xml:space="preserve"><value>Right-click for location actions.</value><comment>Location list: hint that a right-click shows the location's actions.</comment></data>
+    <data name="tray_change_location" xml:space="preserve"><value>Change location</value><comment>Tray icon menu: submenu listing the saved locations to show.</comment></data>
+    <data name="tray_exit" xml:space="preserve"><value>Exit</value><comment>Tray icon menu: quits the application.</comment></data>
+    <data name="tray_dismiss" xml:space="preserve"><value>Dismiss</value><comment>Tray icon menu: hides the tray icon until the next refresh. Offered only when the tray icon is not persistent.</comment></data>
+    <data name="tray_section" xml:space="preserve"><value>Mistray</value><comment>Settings > External modules: title of the tray icon section. Mistray is the name of the tray feature: keep it as it is in every language.</comment></data>
+    <data name="tray_icon" xml:space="preserve"><value>Tray icon</value><comment>Settings > External modules: switch showing the icon in the Windows notification area, the tray.</comment></data>
+    <data name="tray_temperature_icon" xml:space="preserve"><value>Temperature icon</value><comment>Settings > External modules: switch drawing the temperature as the tray icon.</comment></data>
+    <data name="tray_weather_icon" xml:space="preserve"><value>Weather icon</value><comment>Settings > External modules: switch adding a second tray icon with the weather condition next to the temperature icon.</comment></data>
+    <data name="tray_accessibility" xml:space="preserve"><value>Accessibility</value><comment>Settings > External modules: section title above the double-click delay.</comment></data>
+    <data name="tray_double_click" xml:space="preserve"><value>Double-click the tray icon to open the app</value><comment>Settings > External modules: switch making a double-click on the tray icon open the main window.</comment></data>
+    <data name="tray_double_click_delay" xml:space="preserve"><value>Double-click delay</value><comment>Settings > External modules > Accessibility: the longest time between two clicks that still counts as a double-click.</comment></data>
+    <data name="tray_milliseconds" xml:space="preserve"><value>ms</value><comment>Unit shown after the double-click delay field: the CLDR short symbol for milliseconds in the language.</comment></data>
 </root>

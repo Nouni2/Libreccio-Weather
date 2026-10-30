@@ -44,6 +44,10 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly SettingsManager _settings;
     private readonly string _regionCode;
     private readonly Stack<ObservableObject> _backStack = new();
+
+    // Screens left with Back, which Forward opens again until another screen is opened.
+    private readonly Stack<ObservableObject> _forwardStack = new();
+    private bool _movingThroughHistory;
     private readonly DispatcherTimer _snackbarTimer;
     private List<Location> _locations = [];
     private string? _currentFormattedId;
@@ -115,7 +119,10 @@ public sealed partial class MainViewModel : ObservableObject
                         or nameof(SettingsManager.IsWidgetNotificationPersistent)
                         or nameof(SettingsManager.WidgetNotificationStyle)
                         or nameof(SettingsManager.IsWidgetNotificationTemperatureIconEnabled)
-                        or nameof(SettingsManager.IsWidgetNotificationUsingFeelsLike),
+                        or nameof(SettingsManager.IsWidgetNotificationUsingFeelsLike)
+                        or nameof(SettingsManager.IsTrayWeatherIconEnabled)
+                        or nameof(SettingsManager.IsTrayDoubleClickEnabled)
+                        or nameof(SettingsManager.TrayDoubleClickDelay),
                 })
             {
                 return;
@@ -182,6 +189,11 @@ public sealed partial class MainViewModel : ObservableObject
 
     partial void OnCurrentPageChanged(ObservableObject? value)
     {
+        if (!_movingThroughHistory)
+        {
+            _forwardStack.Clear();
+        }
+
         NotifyDesktopLocationsChanged();
     }
 
@@ -299,7 +311,12 @@ public sealed partial class MainViewModel : ObservableObject
     {
         if (_backStack.Count > 0)
         {
-            CurrentPage = _backStack.Pop();
+            ObservableObject? left = CurrentPage;
+            MoveThroughHistory(_backStack.Pop());
+            if (left is not null)
+            {
+                _forwardStack.Push(left);
+            }
         }
         else if (CurrentLocation() is { } current)
         {
@@ -312,6 +329,51 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     public bool CanGoBack => _backStack.Count > 0 || _currentFormattedId is not null;
+
+    /// <summary>
+    /// The mouse's back button. It closes an open dialog, and otherwise goes back like the back arrow, which the main
+    /// screen does not have.
+    /// </summary>
+    public void BrowseBack()
+    {
+        if (Dialog is not null)
+        {
+            CloseDialog();
+        }
+        else if (CurrentPage is not WeatherViewModel && CanGoBack)
+        {
+            GoBack();
+        }
+    }
+
+    /// <summary>
+    /// The mouse's forward button. It opens again the screen that was left with Back.
+    /// </summary>
+    public void BrowseForward()
+    {
+        if (Dialog is null && _forwardStack.Count > 0)
+        {
+            if (CurrentPage is not null)
+            {
+                _backStack.Push(CurrentPage);
+            }
+
+            MoveThroughHistory(_forwardStack.Pop());
+        }
+    }
+
+    private void MoveThroughHistory(ObservableObject page)
+    {
+        _movingThroughHistory = true;
+        try
+        {
+            CurrentPage = page;
+        }
+        finally
+        {
+            _movingThroughHistory = false;
+        }
+    }
 
     public void OpenLocationList()
     {

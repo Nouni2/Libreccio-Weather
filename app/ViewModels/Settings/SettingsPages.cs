@@ -208,27 +208,67 @@ public static class SettingsPages
         {
             IsEnabled = enabled,
         };
+
+        // The weather icon is a second tray icon beside the temperature, so it needs the temperature icon.
+        SwitchPreference weatherIcon = new(
+            Strings.Get("tray_weather_icon"), on, off,
+            settings.IsTrayWeatherIconEnabled, value => settings.IsTrayWeatherIconEnabled = value,
+            isEnabled: enabled && settings.IsWidgetNotificationTemperatureIconEnabled);
         SwitchPreference temperatureIcon = new(
-            Strings.Get("settings_modules_notification_temp_icon_switch"), on, off,
+            Strings.Get("tray_temperature_icon"), on, off,
             settings.IsWidgetNotificationTemperatureIconEnabled,
-            value => settings.IsWidgetNotificationTemperatureIconEnabled = value, isEnabled: enabled);
+            value =>
+            {
+                settings.IsWidgetNotificationTemperatureIconEnabled = value;
+                weatherIcon.IsEnabled = value;
+            }, isEnabled: enabled);
         SwitchPreference feelsLike = new(
             Strings.Get("settings_modules_notification_feels_like_switch"), on, off,
             settings.IsWidgetNotificationUsingFeelsLike,
-            value => settings.IsWidgetNotificationUsingFeelsLike = value, isEnabled: enabled, isLast: true);
+            value => settings.IsWidgetNotificationUsingFeelsLike = value, isEnabled: enabled);
+
+        bool doubleClickEnabled = settings.IsTrayDoubleClickEnabled;
+        SectionHeaderPreference accessibility = new(Strings.Get("tray_accessibility")) { IsVisible = doubleClickEnabled };
+
+        // The field accepts anything Windows accepts for its own double-click time, up to 5,000 ms. The slider spans
+        // Windows' own double-click speed slider, 100 to 900 ms. The recommended value is Windows' double-click time,
+        // which the tray follows until a delay is chosen here.
+        int recommendedDelay = System.Windows.Forms.SystemInformation.DoubleClickTime;
+        SliderPreference delay = new(
+            Strings.Get("tray_double_click_delay"), Strings.Get("tray_milliseconds"),
+            settings.TrayDoubleClickDelay ?? recommendedDelay,
+            minimum: 1, maximum: 5000, sliderMinimum: 100, sliderMaximum: 900, recommendedDelay,
+            value => settings.TrayDoubleClickDelay = value,
+            () => settings.TrayDoubleClickDelay = null,
+            isEnabled: enabled, isFirst: true, isLast: true)
+        {
+            IsVisible = doubleClickEnabled,
+        };
+        SwitchPreference doubleClick = new(
+            Strings.Get("tray_double_click"), on, off,
+            doubleClickEnabled,
+            value =>
+            {
+                settings.IsTrayDoubleClickEnabled = value;
+                accessibility.IsVisible = value;
+                delay.IsVisible = value;
+            }, isEnabled: enabled, isLast: true);
         SwitchPreference notification = new(
-            Strings.Get("settings_modules_notification_widget_title"), on, off,
+            Strings.Get("tray_icon"), on, off,
             enabled, value =>
             {
                 settings.IsWidgetNotificationEnabled = value;
                 persistent.IsEnabled = value;
                 style.IsEnabled = value;
                 temperatureIcon.IsEnabled = value;
+                weatherIcon.IsEnabled = value && settings.IsWidgetNotificationTemperatureIconEnabled;
                 feelsLike.IsEnabled = value;
+                doubleClick.IsEnabled = value;
+                delay.IsEnabled = value;
             }, isFirst: true);
         List<object> items =
         [
-            new SectionHeaderPreference(Strings.Get("settings_modules_section_notification_widget")),
+            new SectionHeaderPreference(Strings.Get("tray_section")),
             notification,
             SeparatorPreference.Small,
             persistent,
@@ -237,7 +277,13 @@ public static class SettingsPages
             SeparatorPreference.Small,
             temperatureIcon,
             SeparatorPreference.Small,
+            weatherIcon,
+            SeparatorPreference.Small,
             feelsLike,
+            SeparatorPreference.Small,
+            doubleClick,
+            accessibility,
+            delay,
         ];
         return new SettingsPageViewModel(Strings.Get("settings_modules"), items, main.GoBack, () => Modules(main));
     }

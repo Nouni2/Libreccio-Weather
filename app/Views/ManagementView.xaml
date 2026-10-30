@@ -18,39 +18,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:l="clr-namespace:LibreccioWeather.Localization">
     <UserControl.Resources>
-        <ContextMenu x:Key="LocationActions"
-                     DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}"
-                     Background="{StaticResource SurfaceContainerHighBrush}" Foreground="{StaticResource OnSurfaceBrush}">
-            <ContextMenu.Template>
-                <ControlTemplate TargetType="ContextMenu">
-                    <Border Background="{TemplateBinding Background}" Padding="4" CornerRadius="4"
-                            BorderBrush="{StaticResource OutlineBrush}" BorderThickness="1">
-                        <ItemsPresenter />
-                    </Border>
-                </ControlTemplate>
-            </ContextMenu.Template>
-            <ContextMenu.ItemContainerStyle>
-                <Style TargetType="MenuItem">
-                    <Setter Property="Padding" Value="12,6" />
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="MenuItem">
-                                <Border x:Name="Highlight" Padding="{TemplateBinding Padding}" CornerRadius="4" Background="Transparent">
-                                    <ContentPresenter ContentSource="Header" />
-                                </Border>
-                                <ControlTemplate.Triggers>
-                                    <Trigger Property="IsHighlighted" Value="True">
-                                        <Setter TargetName="Highlight" Property="Background" Value="{StaticResource HoverLayerBrush}" />
-                                    </Trigger>
-                                    <Trigger Property="IsEnabled" Value="False">
-                                        <Setter Property="Opacity" Value="0.38" />
-                                    </Trigger>
-                                </ControlTemplate.Triggers>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </ContextMenu.ItemContainerStyle>
+        <ContextMenu x:Key="LocationActions" Style="{StaticResource AppContextMenu}"
+                     DataContext="{Binding PlacementTarget.Tag, RelativeSource={RelativeSource Self}}">
             <MenuItem Header="{l:Translate desktop_open}" Command="{Binding OpenCommand}"
                       CommandParameter="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource AncestorType=ContextMenu}}" />
             <MenuItem Header="{l:Translate desktop_move_up}" Command="{Binding MoveUpCommand}"
