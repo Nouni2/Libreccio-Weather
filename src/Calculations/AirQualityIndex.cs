@@ -14,8 +14,8 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Models;
-using LibreccioWeather.Core.Units;
 
 namespace LibreccioWeather.Core.Calculations;
 
@@ -23,47 +23,60 @@ public static class AirQualityIndex
 {
     public static IReadOnlyList<int> AqiThresholds { get; } = [0, 20, 50, 100, 150, 250];
 
+    public static int IndexExcessivePollution => AqiThresholds[^1];
+
+    /// <summary>
+    /// The air quality index, which is the highest index of O3, NO2, PM10 and PM2.5. SO2 and CO are not part of it.
+    /// </summary>
     public static int? GetIndex(AirQuality airQuality)
     {
         int?[] pollutants =
         [
-            GetIndex(airQuality.O3?.InMicrogramsPerCubicMeter, [0, 50, 100, 160, 240, 480]),
-            GetIndex(airQuality.NO2?.InMicrogramsPerCubicMeter, [0, 10, 25, 200, 400, 1000]),
-            GetIndex(airQuality.PM10?.InMicrogramsPerCubicMeter, [0, 15, 45, 80, 160, 400]),
-            GetIndex(airQuality.PM25?.InMicrogramsPerCubicMeter, [0, 5, 15, 30, 60, 150]),
+            PollutantIndex.O3.GetIndex(PollutantIndex.O3.GetConcentration(airQuality)),
+            PollutantIndex.NO2.GetIndex(PollutantIndex.NO2.GetConcentration(airQuality)),
+            PollutantIndex.PM10.GetIndex(PollutantIndex.PM10.GetConcentration(airQuality)),
+            PollutantIndex.PM25.GetIndex(PollutantIndex.PM25.GetConcentration(airQuality)),
         ];
         return pollutants.Max();
     }
 
+    /// <summary>
+    /// The air quality index, or the index of one pollutant.
+    /// </summary>
+    public static int? GetIndex(AirQuality airQuality, PollutantIndex? pollutant)
+    {
+        return pollutant is null ? GetIndex(airQuality) : pollutant.GetIndex(pollutant.GetConcentration(airQuality));
+    }
+
     public static int? GetAqiToLevel(int? aqi)
     {
-        return aqi is { } value ? GetLevel(value, AqiThresholds) : null;
+        return aqi is { } value ? PollutantIndex.GetLevel(value, AqiThresholds) : null;
     }
 
-    private static int? GetLevel(double concentration, IReadOnlyList<int> thresholds)
+    public static string? GetAqiToName(int? aqi)
     {
-        for (int level = thresholds.Count - 1; level >= 0; level--)
-        {
-            if (concentration >= thresholds[level])
-            {
-                return level;
-            }
-        }
-
-        return null;
+        return GetAqiToLevel(aqi) is { } level ? Strings.GetArray("air_quality_levels").ElementAtOrDefault(level) : null;
     }
 
-    private static int? GetIndex(double? concentration, IReadOnlyList<int> thresholds)
+    public static string? GetAqiToDescription(int? aqi)
     {
-        if (concentration is not { } cp || GetLevel(cp, thresholds) is not { } level)
-        {
-            return null;
-        }
+        return GetAqiToLevel(aqi) is { } level
+            ? Strings.GetArray("air_quality_level_descriptions").ElementAtOrDefault(level) : null;
+    }
 
-        double index = level < thresholds.Count - 1
-            ? ((double)AqiThresholds[level + 1] - AqiThresholds[level])
-                / ((double)thresholds[level + 1] - thresholds[level]) * (cp - thresholds[level]) + AqiThresholds[level]
-            : cp * AqiThresholds[^1] / thresholds[^1];
-        return (int)Math.Clamp(UnitRounding.RoundToLong(index), int.MinValue, int.MaxValue);
+    public static string? GetAqiToHarmlessExposure(int? aqi)
+    {
+        return GetAqiToLevel(aqi) is { } level
+            ? Strings.GetArray("air_quality_level_harmless_exposures").ElementAtOrDefault(level) : null;
+    }
+
+    public static string? GetName(AirQuality airQuality, PollutantIndex? pollutant = null)
+    {
+        return GetAqiToName(GetIndex(airQuality, pollutant));
+    }
+
+    public static string? GetDescription(AirQuality airQuality, PollutantIndex? pollutant = null)
+    {
+        return GetAqiToDescription(GetIndex(airQuality, pollutant));
     }
 }

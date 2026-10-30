@@ -100,8 +100,18 @@ public static class UnitFormatting
         Precipitation precipitation, PrecipitationUnit unit,
         UnitWidth valueWidth = UnitWidth.Short, UnitWidth unitWidth = UnitWidth.Short)
     {
+        return Format(precipitation.ToDouble(unit), unit, valueWidth, unitWidth);
+    }
+
+    /// <summary>
+    /// A number already expressed in a precipitation unit, with that unit.
+    /// </summary>
+    public static string Format(
+        double value, PrecipitationUnit unit,
+        UnitWidth valueWidth = UnitWidth.Short, UnitWidth unitWidth = UnitWidth.Short)
+    {
         UnitNames names = GetUnitNames(unit);
-        if (names.IcuUnit is { } icuUnit && FormatIcuMeasure(precipitation.ToDouble(unit), unit.GetPrecision(valueWidth),
+        if (names.IcuUnit is { } icuUnit && FormatIcuMeasure(value, unit.GetPrecision(valueWidth),
             $"measure-unit/{icuUnit}" + (unit == PrecipitationUnit.LiterPerSquareMeter ? " per-measure-unit/area-square-meter" : ""),
             unitWidth) is { } formatted)
         {
@@ -110,8 +120,29 @@ public static class UnitFormatting
 
         string suffix = unitWidth == UnitWidth.Long ? "long" : "short";
         string text = string.Format(Strings.Culture, Strings.GetUnit($"{names.Name}_nominative_{suffix}"),
-            FormatValue(precipitation, unit, valueWidth));
+            NumberFormatting.Format(value, unit.GetPrecision(valueWidth), Strings.Culture));
         return names.Per is null ? text : string.Format(Strings.Culture, Strings.GetUnit($"{names.Per}_per_{suffix}"), text);
+    }
+
+    /// <summary>
+    /// A pollutant concentration, already expressed in its unit. Pollutant units have no CLDR unit, so their names
+    /// always come from the translated unit strings.
+    /// </summary>
+    public static string Format(
+        double value, PollutantConcentrationUnit unit,
+        UnitWidth valueWidth = UnitWidth.Short, UnitWidth unitWidth = UnitWidth.Short)
+    {
+        return FormatMeasure(value, unit, valueWidth, unitWidth);
+    }
+
+    /// <summary>
+    /// A pollen or mold concentration, such as "25/m³". Its unit has no CLDR name.
+    /// </summary>
+    public static string Format(PollenConcentration concentration, UnitWidth unitWidth = UnitWidth.Short)
+    {
+        string pattern = Strings.GetUnit(unitWidth == UnitWidth.Long ? "volume_m3_per_long" : "volume_m3_per_short");
+        return string.Format(Strings.Culture, pattern, NumberFormatting.Format(
+            concentration.InPerCubicMeter, PollenConcentrationUnit.PerCubicMeter.GetPrecision(UnitWidth.Short), Strings.Culture));
     }
 
     public static string FormatPercent(Ratio ratio, UnitWidth valueWidth = UnitWidth.Short)
@@ -120,7 +151,21 @@ public static class UnitFormatting
             ?? PercentFormatting.Format(ratio.InPercent, RatioUnit.Percent.GetPrecision(valueWidth), Strings.Culture);
     }
 
-    private static string? FormatIcuMeasure(double value, int precision, string measure, UnitWidth width, CultureInfo? culture = null)
+    /// <summary>
+    /// A percentage without its percent sign, such as the start of a range.
+    /// </summary>
+    public static string FormatValue(Ratio ratio, UnitWidth width = UnitWidth.Short)
+    {
+        return NumberFormatting.Format(ratio.InPercent, RatioUnit.Percent.GetPrecision(width), Strings.Culture);
+    }
+
+    public static string FormatValue(Temperature temperature, TemperatureUnit unit, UnitWidth width = UnitWidth.Short)
+    {
+        return NumberFormatting.Format(temperature.ToDouble(unit), unit.GetPrecision(width), Strings.Culture);
+    }
+
+    private static string? FormatIcuMeasure(
+        double value, int precision, string measure, UnitWidth width, CultureInfo? culture = null, bool showSign = false)
     {
         if (!Icu.SupportsUnitNames)
         {
@@ -134,26 +179,29 @@ public static class UnitFormatting
             UnitWidth.Narrow => "unit-width-narrow",
             _ => "unit-width-short",
         };
+        string sign = showSign ? " sign-always" : "";
         double number = precision == 0 ? RoundToInt(value) : value;
-        return Icu.FormatNumber($"{measure} {unitWidth} {precisionSkeleton}", number, culture ?? Strings.Culture)?.Text;
+        return Icu.FormatNumber($"{measure} {unitWidth} {precisionSkeleton}{sign}", number, culture ?? Strings.Culture)?.Text;
     }
 
     public static string Format(
         Temperature temperature,
         TemperatureUnit unit,
         UnitWidth valueWidth = UnitWidth.Short,
-        UnitWidth unitWidth = UnitWidth.Short)
+        UnitWidth unitWidth = UnitWidth.Short,
+        bool showSign = false)
     {
         string language = Strings.Culture.TwoLetterISOLanguageName;
         UnitNames names = GetUnitNames(unit);
         if (unitWidth != UnitWidth.Narrow && language != "eo" && !(language == "pl" && unitWidth == UnitWidth.Short)
             && names.IcuUnit is { } icuUnit
-            && FormatIcuMeasure(temperature.ToDouble(unit), unit.GetPrecision(valueWidth), $"measure-unit/{icuUnit}", unitWidth) is { } formatted)
+            && FormatIcuMeasure(temperature.ToDouble(unit), unit.GetPrecision(valueWidth), $"measure-unit/{icuUnit}", unitWidth,
+                showSign: showSign) is { } formatted)
         {
             return formatted;
         }
 
-        string value = NumberFormatting.Format(temperature.ToDouble(unit), unit.GetPrecision(valueWidth), Strings.Culture);
+        string value = NumberFormatting.Format(temperature.ToDouble(unit), unit.GetPrecision(valueWidth), Strings.Culture, showSign);
         return string.Format(Strings.Culture, Nominative("temperature", unit, unitWidth), value);
     }
 
@@ -230,6 +278,8 @@ public static class UnitFormatting
             _ when unit == SpeedUnit.Knot => new("speed_kn", null, "speed-knot", null),
             _ when unit == SpeedUnit.FootPerSecond => new("length_ft", "duration_sec", "length-foot", "duration_sec"),
             _ when unit == SpeedUnit.BeaufortScale => new("speed_bf", null, "speed-beaufort", null),
+            _ when unit == PollutantConcentrationUnit.MicrogramPerCubicMeter => new("weight_microg", "volume_m3", null, null),
+            _ when unit == PollutantConcentrationUnit.MilligramPerCubicMeter => new("weight_mg", "volume_m3", null, null),
             _ => throw new ArgumentException($"No display name for the unit '{unit.Id}'.", nameof(unit)),
         };
     }

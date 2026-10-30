@@ -94,6 +94,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Grid Width="67" Height="{Binding DataContext.ColumnHeight, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                      Background="Transparent" Cursor="Hand" MouseLeftButtonUp="OnColumnClick"
                                       ToolTip="{Binding Description}" AutomationProperties.Name="{Binding Description}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />

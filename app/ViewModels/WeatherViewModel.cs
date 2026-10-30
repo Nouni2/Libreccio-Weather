@@ -122,6 +122,26 @@ public sealed partial class WeatherViewModel : ObservableObject
     }
 
     /// <summary>
+    /// A card of the current conditions opens today's page of its kind on the detail screen.
+    /// </summary>
+    [RelayCommand]
+    private void OpenCardDetails(ConditionsCardViewModel card)
+    {
+        DetailScreen screen = card.Kind switch
+        {
+            ConditionsCardKind.Precipitation => DetailScreen.Precipitation,
+            ConditionsCardKind.Wind => DetailScreen.Wind,
+            ConditionsCardKind.AirQuality => DetailScreen.AirQuality,
+            ConditionsCardKind.Humidity => DetailScreen.Humidity,
+            ConditionsCardKind.UV => DetailScreen.UVIndex,
+            ConditionsCardKind.Visibility => DetailScreen.Visibility,
+            ConditionsCardKind.Pressure => DetailScreen.Pressure,
+            _ => DetailScreen.Pollen,
+        };
+        _main.OpenDetails(_location, _location.Weather?.TodayIndex, screen);
+    }
+
+    /// <summary>
     /// Shows the result of a refresh that the screen this one replaces is still running, so the location is not
     /// requested a second time.
     /// </summary>
@@ -217,6 +237,7 @@ public sealed partial class WeatherViewModel : ObservableObject
                 if (ForecastCardViewModel.CreateDaily(weather, _location, _temperatureUnit, _precipitationUnit, _speedUnit, _main.Settings,
                     _main.SelectedDailyTab, tab => _main.SelectedDailyTab = tab) is { } daily)
                 {
+                    daily.DetailsRequested += (_, request) => _main.OpenDetails(_location, request.DailyIndex, request.Screen);
                     cards.Add(daily);
                 }
             }
@@ -226,6 +247,7 @@ public sealed partial class WeatherViewModel : ObservableObject
                     _speedUnit, _pressureUnit, _distanceUnit, _main.Settings,
                     _main.SelectedHourlyTab, tab => _main.SelectedHourlyTab = tab) is { } hourly)
                 {
+                    hourly.DetailsRequested += (_, request) => _main.OpenDetails(_location, request.DailyIndex, request.Screen);
                     cards.Add(hourly);
                 }
             }

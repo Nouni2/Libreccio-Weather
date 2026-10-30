@@ -41,6 +41,16 @@ public static class WindFormatting
             + (shortName && direction != "variable" ? "_short" : ""));
     }
 
+    /// <summary>
+    /// The name of the Beaufort force of a speed, such as "Moderate breeze".
+    /// </summary>
+    public static string? GetBeaufortScaleStrength(Speed speed)
+    {
+        int force = speed.InBeaufort;
+        IReadOnlyList<string> descriptions = Strings.GetArray("wind_strength_descriptions");
+        return force >= 0 && force < descriptions.Count ? descriptions[force] : null;
+    }
+
     public static string GetContentDescription(Wind wind, SpeedUnit unit, bool withGusts = false)
     {
         string separator = Strings.GetUnit("locale_separator");

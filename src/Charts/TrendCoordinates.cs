@@ -47,7 +47,10 @@ public static class TrendCoordinates
         return ToInt(cy - marginCenter / 2f - topCanvasHeight * value / max);
     }
 
-    private static int ToInt(float coordinate)
+    /// <summary>
+    /// Truncates towards zero, turns NaN into zero and stops at the integer bounds, as Kotlin's Float.toInt() does.
+    /// </summary>
+    internal static int ToInt(float coordinate)
     {
         if (float.IsNaN(coordinate))
         {

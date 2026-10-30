@@ -102,7 +102,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
     - [x] Daily sunshine duration, scaled against available day lengths or forecast sunshine
   - [x] Normal-temperature reference lines controlled by the horizontal-lines setting
   - [x] Chart label shadows, device-pixel histogram sizing and full forecast accessibility descriptions
-  - [ ] Daily and hourly detail navigation
+  - [ ] Daily and hourly detail navigation from each chart column
   - [ ] Current-weather cards
     - [x] Half-day precipitation totals with rain and snow labels
     - [x] Wind speed, direction and stronger gusts
@@ -115,7 +115,17 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
     - [x] Square cards in saved order, adapting to the available weather-pane width
     - [ ] Card enter animations and detail actions
     - [ ] Precipitation nowcast, alerts, sun, moon, clock and footer
-- [ ] Daily and hourly detail screens
+- [ ] Daily and hourly detail screens (`DetailsActivity`)
+  - [ ] A tab for each day and a page menu of the available kinds of data
+  - [ ] Conditions with real and feels-like temperatures, normals, daily summary, degree days and precipitation probability
+  - [ ] Precipitation amounts, types, probability and duration
+  - [ ] Wind with gusts, direction arrows and the Beaufort scale
+  - [ ] Air quality with its index or each pollutant, pollutant details and scales
+  - [ ] Pollen with the primary pollen and every measured pollen
+  - [ ] UV, humidity with dew point, pressure with its trend, cloud cover with sunshine duration, and visibility, each with its scale or explanation
+  - [ ] Sun, twilight and moon times
+  - [ ] Sun and moon altitude chart and moon phase
+  - [ ] Swiping between days
 - [ ] Location search (`SearchActivity`)
   - [x] Search by name, with each result's region and country
   - [x] Attribution, and the no-results and failure messages
@@ -190,7 +200,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 ### Project
 
 - [x] Solution, build configuration, code style, `README.md`, `CONTRIBUTING.md`, `AGENTS.md` and `CHANGELOG.md`
-- [x] Tests
+- [ ] Tests
   - [x] Breezy Weather's tests for temperature conversions, humidex and total precipitation
   - [x] Checks on rounding and the Beaufort scale
   - [x] Weather database migrations, quantity storage and transaction rollback
@@ -203,6 +213,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Quantity conversion limits, large exact integers and values immediately below half-rounding boundaries
   - [x] Negative duration components and number formatting above the .NET decimal range
   - [x] Windows instance-gate lifetime and repeated activation through named pipes
+  - [ ] Detail chart top-label saturation and hours skipped by a daylight saving change
 - [ ] Third-party notices for the ported parts that come from other projects
 - [ ] Libreccio Weather's logo
 - [ ] Installer and releases

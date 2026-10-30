@@ -23,7 +23,9 @@ using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Locations;
 using LibreccioWeather.Core.Refresh;
 using LibreccioWeather.Core.Settings;
+using LibreccioWeather.Core.Settings.Options;
 using LibreccioWeather.Core.Sources.OpenMeteo;
+using LibreccioWeather.ViewModels.Details;
 using LibreccioWeather.ViewModels.Settings;
 
 namespace LibreccioWeather.ViewModels;
@@ -63,6 +65,12 @@ public sealed partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _isLocationPaneOpen;
+
+    /// <summary>
+    /// Whether the window is wider than tall, as a landscape screen is.
+    /// </summary>
+    [ObservableProperty]
+    private bool _isLandscapeWindow;
 
     [ObservableProperty]
     private ObservableObject? _currentPage;
@@ -202,6 +210,7 @@ public sealed partial class MainViewModel : ObservableObject
     {
         bool wide = width >= LocationPaneMinWindowWidth;
         bool landscape = width > height;
+        IsLandscapeWindow = landscape;
         if (wide == IsWideLayout && landscape == _isLandscape)
         {
             return;
@@ -383,6 +392,11 @@ public sealed partial class MainViewModel : ObservableObject
         {
             CloseDialog();
         }
+        else if (CurrentPage is DetailsViewModel { IsMenuOpen: true } details)
+        {
+            // Back closes the page menu before it leaves the screen.
+            details.CloseMenuCommand.Execute(null);
+        }
         else if (CurrentPage is not WeatherViewModel && CanGoBack)
         {
             GoBack();
@@ -443,6 +457,20 @@ public sealed partial class MainViewModel : ObservableObject
     public void OpenSettings()
     {
         NavigateTo(SettingsPages.Root(this));
+    }
+
+    /// <summary>
+    /// Opens the detail screen of a location on a day and a page. A location without daily forecast has none.
+    /// </summary>
+    public void OpenDetails(Location location, int? dailyIndex, DetailScreen? screen)
+    {
+        location = _locations.FirstOrDefault(item => item.FormattedId == location.FormattedId) ?? location;
+        if (location.Weather is not { DailyForecast.Count: > 0 })
+        {
+            return;
+        }
+
+        NavigateTo(new DetailsViewModel(this, location, dailyIndex, screen));
     }
 
     /// <summary>
@@ -636,6 +664,8 @@ public sealed partial class MainViewModel : ObservableObject
             case ManagementViewModel management:
                 management.Refresh();
                 return management;
+            case DetailsViewModel details:
+                return details.Rebuild();
             default:
                 return screen;
         }

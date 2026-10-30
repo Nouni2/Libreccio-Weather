@@ -100,6 +100,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - A pollen index for each of the 21 pollen types, from the standard concentration thresholds used for Open-Meteo.
 - Speed, distance and pressure values in the selected unit with its precision, UV level names and descriptions, and wind direction and strength descriptions.
 - Tests of quantity conversions at their edge cases, and of hour components of negative durations.
+- The detail screen of a location's days, opened from each current-condition card on today, and from each column of the daily and hourly forecast charts on its day and the page of the selected tab. It has a back button and the page name at the top, a tab for each day with its weekday, day and month, and a button at the bottom end that opens a menu of the pages the location's data allows. The page and the selected pollutant stay the same when another day is selected, and the mouse's back button closes the menu before leaving the screen.
+- Detail pages for each kind of data, as in Breezy Weather:
+  - Conditions: the daytime and nighttime temperatures with their weather, the deviation from the month's normals with its explanation, a temperature chart with weather icons and normal reference lines, a switch between real and feels-like temperatures, the daily summary, heating or cooling degree days, and the precipitation probability with its chart and its rain, snow, ice and thunderstorm details.
+  - Precipitation: daytime and nighttime amounts, an hourly bar chart with light, medium and heavy reference lines, amounts by type in the precipitation or snowfall unit, the precipitation probability, and the precipitation duration by type.
+  - Wind: speed with its direction and stronger gusts, a chart of speed and gusts colored by strength with direction arrows above it and Beaufort reference lines, an explanation, and the Beaufort scale with its speeds in the selected unit.
+  - Air quality: the index or the concentration of a chosen pollutant with its level and color, a chart colored by level with reference levels, a selector of the index and each available pollutant, health information, the primary pollutant and its sources, a bar for each pollutant, an explanation, and the scale of the index or of the chosen pollutant with harmless exposure times.
+  - Pollen: the primary pollen and every measured pollen with its concentration and level, in alphabetical order.
+  - UV index, humidity with dew point, pressure with trend arrows and a standard-pressure line, cloud cover with sunshine duration and the daily summary, and visibility, each with its chart, its explanation and, for UV, cloud cover and visibility, its scale.
+  - Sun and moon: sunrise, sunset, day length, dawn, dusk, moonrise and moonset when they are known, and an explanation of these times.
+- The detail charts show a day from midnight to midnight in the location's time zone, with hours at 06:00, 12:00 and 18:00, values on the end side, and labels or icons above for as many hours as fit. Pressing or dragging on a chart shows the value of the nearest hour at the top of its section, with a guideline. A chart is replaced by a message when the day has fewer than two hours of data. Charts take a quarter of the window height, and at least 100 pixels.
+- Tests of the detail chart's top labels when none fits, and of an hour skipped by a daylight saving change.
 - This changelog.
 
 ### Changed

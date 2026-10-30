@@ -61,6 +61,14 @@ public partial class ForecastCardView : UserControl
         ReferenceLines.ChartBottom = (int)(origin.Y + (int)chart.ActualHeight - 36);
     }
 
+    private void OnColumnClick(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: ForecastColumn column } && DataContext is ForecastCardViewModel card)
+        {
+            card.OpenDetailsCommand.Execute(column);
+        }
+    }
+
     private void OnForecastMouseWheel(object sender, MouseWheelEventArgs e)
     {
         e.Handled = true;

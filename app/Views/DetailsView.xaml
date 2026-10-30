@@ -1,0 +1,643 @@
+<!--
+  This file is part of Libreccio Weather.
+
+  Libreccio Weather is free software: you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the Free
+  Software Foundation, version 3 of the License.
+
+  Libreccio Weather is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  more details.
+
+  You should have received a copy of the GNU General Public License along
+  with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
+-->
+<UserControl x:Class="LibreccioWeather.Views.DetailsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:l="clr-namespace:LibreccioWeather.Localization"
+             xmlns:d="clr-namespace:LibreccioWeather.ViewModels.Details"
+             xmlns:c="clr-namespace:LibreccioWeather.Controls.Details"
+             Background="{StaticResource SurfaceBrush}">
+    <UserControl.InputBindings>
+        <KeyBinding Key="Escape" Command="{Binding CloseMenuCommand}" />
+    </UserControl.InputBindings>
+    <UserControl.Resources>
+        <c:DetailsItemSpacingConverter x:Key="ItemMargin" />
+
+        <!-- Material 3 type scale: label medium, label large, body large, title large and display small. -->
+        <Style x:Key="LabelMedium" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="LineHeight" Value="16" />
+            <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+            <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style x:Key="LabelLarge" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="LineHeight" Value="20" />
+            <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+            <Setter Property="Height" Value="20" />
+            <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        </Style>
+        <Style x:Key="BodyLarge" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+        <Style x:Key="DisplaySmall" TargetType="c:DetailsRunsText">
+            <Setter Property="FontSize" Value="36" />
+            <Setter Property="LineHeight" Value="44" />
+            <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
+            <Setter Property="Height" Value="44" />
+            <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        </Style>
+
+        <!-- The card behind texts, tables and grids. -->
+        <Style x:Key="CardListItem" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource SurfaceContainerLowBrush}" />
+            <Setter Property="CornerRadius" Value="28" />
+        </Style>
+
+        <!-- A label, with a help icon that opens its explanation on a click. -->
+        <DataTemplate DataType="{x:Type d:DetailsLabel}">
+            <StackPanel Height="16" Orientation="Horizontal" Background="Transparent" MouseLeftButtonUp="OnHelpClick" ToolTip="{Binding Help}">
+                <TextBlock Style="{StaticResource LabelMedium}" Text="{Binding Text}" />
+                <c:DetailsIcon Key="IconHelp" Width="16" Height="16" Margin="8,0,0,0" Foreground="{StaticResource OnSurfaceBrush}">
+                    <c:DetailsIcon.Style>
+                        <Style TargetType="c:DetailsIcon">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Help}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </c:DetailsIcon.Style>
+                </c:DetailsIcon>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsSpacer}">
+            <Border Height="{Binding Height}" />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsDivider}">
+            <Border Height="1" Margin="0,16" Background="#49454F" />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsHeadline}">
+            <TextBlock Style="{StaticResource HeadlineSmallText}" Text="{Binding Text}" />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsBodySmall}">
+            <TextBlock FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource OnSurfaceBrush}" Text="{Binding Text}" />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsMessage}">
+            <TextBlock Margin="16" FontStyle="Italic" Style="{StaticResource BodyLarge}" Text="{Binding Text}" />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsSectionHeader}">
+            <StackPanel Margin="16,0,0,8">
+                <c:DetailsRunsText FontSize="22" Foreground="{StaticResource OnSurfaceBrush}" TextWrapping="Wrap" Runs="{Binding Title}" />
+                <c:DetailsRunsText FontSize="12" Foreground="{StaticResource OnSurfaceVariantBrush}" TextWrapping="Wrap" Runs="{Binding Subtitle}">
+                    <c:DetailsRunsText.Style>
+                        <Style TargetType="c:DetailsRunsText">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Subtitle}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </c:DetailsRunsText.Style>
+                </c:DetailsRunsText>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsCardText}">
+            <Border Style="{StaticResource CardListItem}" Padding="16,8">
+                <StackPanel>
+                    <TextBlock Style="{StaticResource BodyLarge}" Text="{Binding Text1}" />
+                    <TextBlock Margin="0,16,0,0" Text="{Binding Text2}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource BodyLarge}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Text2}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsUnavailableChart}">
+            <Grid Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" AutomationProperties.Name="">
+                    <c:DetailsIcon Key="IconAbout" VerticalAlignment="Center" Foreground="{StaticResource OnSurfaceBrush}" />
+                    <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap"
+                               Foreground="{StaticResource OnSurfaceBrush}" Text="{Binding Text}" />
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsHeader}">
+            <ContentControl Content="{Binding Content}" Focusable="False" />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsHeaderRow}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="8" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <ContentControl Grid.Column="0" Content="{Binding Day}" Focusable="False" />
+                <ContentControl Grid.Column="2" Content="{Binding Night}" Focusable="False" />
+            </Grid>
+        </DataTemplate>
+
+        <!-- A value under its label, with a colored dot before them for levels such as UV and air quality. -->
+        <DataTemplate DataType="{x:Type d:DetailsHeaderItem}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Path Grid.Column="0" Width="24" Height="24" Margin="0,0,8,0" VerticalAlignment="Center" Stretch="Uniform"
+                      Data="{StaticResource IconCircle}">
+                    <Path.Fill>
+                        <SolidColorBrush Color="{Binding Dot}" />
+                    </Path.Fill>
+                    <Path.Style>
+                        <Style TargetType="Path">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Dot}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Path.Style>
+                </Path>
+                <StackPanel Grid.Column="1">
+                    <ContentControl Content="{Binding Label}" Focusable="False" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <c:DetailsRunsText Style="{StaticResource DisplaySmall}" Runs="{Binding Value}"
+                                               AutomationProperties.Name="{Binding ValueName}" />
+                            <TextBlock Text="{Binding Subtext.Text}" MouseLeftButtonUp="OnHelpClick" Background="Transparent" ToolTip="{Binding Subtext.Help}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource LabelLarge}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Subtext}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding SubtextIsVariant}" Value="True">
+                                                <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <TextBlock Text="{Binding Description.Text}" Height="16">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource LabelMedium}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Description}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                        <!-- In landscape, the weather sits beside the temperature. -->
+                        <ContentControl Grid.Column="1" Margin="20,0,0,0" Content="{Binding}" Focusable="False"
+                                        ContentTemplate="{DynamicResource WeatherCondition}">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding ShowWeather}" Value="True" />
+                                                <Condition Binding="{Binding DataContext.IsLandscapeWindow, RelativeSource={RelativeSource AncestorType=Window}}" Value="True" />
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+                        </ContentControl>
+                    </Grid>
+                    <ContentControl Margin="0,8,0,0" Content="{Binding}" Focusable="False" ContentTemplate="{DynamicResource WeatherCondition}">
+                        <ContentControl.Style>
+                            <Style TargetType="ContentControl">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                                <Style.Triggers>
+                                    <MultiDataTrigger>
+                                        <MultiDataTrigger.Conditions>
+                                            <Condition Binding="{Binding ShowWeather}" Value="True" />
+                                            <Condition Binding="{Binding DataContext.IsLandscapeWindow, RelativeSource={RelativeSource AncestorType=Window}}" Value="False" />
+                                        </MultiDataTrigger.Conditions>
+                                        <Setter Property="Visibility" Value="Visible" />
+                                    </MultiDataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ContentControl.Style>
+                    </ContentControl>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+
+        <!-- The weather icon and its text, on up to two lines. -->
+        <DataTemplate x:Key="WeatherCondition" DataType="{x:Type d:DetailsHeaderItem}">
+            <StackPanel Orientation="Horizontal">
+                <Image Width="42" Height="42" Margin="0,0,8,0" Source="{Binding WeatherIcon}" />
+                <TextBlock VerticalAlignment="Center" MaxHeight="48" FontSize="16" FontWeight="Bold" LineHeight="24"
+                           LineStackingStrategy="BlockLineHeight" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
+                           Foreground="{StaticResource OnSurfaceBrush}" Text="{Binding WeatherText}" />
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsChartData}">
+            <c:DetailsChartView Data="{Binding}" />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsItem}">
+            <StackPanel Orientation="Horizontal" Background="Transparent" MouseLeftButtonUp="OnHelpClick"
+                        ToolTip="{Binding Help}" AutomationProperties.Name="{Binding AutomationName}">
+                <c:DetailsIcon Key="{Binding IconKey}" Margin="0,0,8,0" VerticalAlignment="Center" Foreground="{StaticResource OnSurfaceBrush}">
+                    <c:DetailsIcon.Style>
+                        <Style TargetType="c:DetailsIcon">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IconKey}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </c:DetailsIcon.Style>
+                </c:DetailsIcon>
+                <StackPanel VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontSize="16" FontWeight="Bold" Foreground="{StaticResource OnSurfaceBrush}" Text="{Binding Headline}" />
+                        <c:DetailsIcon Key="IconHelp" Width="16" Height="16" Margin="8,0,0,0" VerticalAlignment="Center"
+                                       Foreground="{StaticResource OnSurfaceBrush}">
+                            <c:DetailsIcon.Style>
+                                <Style TargetType="c:DetailsIcon">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Help}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Collapsed" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </c:DetailsIcon.Style>
+                        </c:DetailsIcon>
+                    </StackPanel>
+                    <TextBlock FontSize="16" Foreground="{StaticResource OnSurfaceBrush}" Text="{Binding Supporting}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Supporting}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsLargeValue}">
+            <c:DetailsRunsText FontSize="36" Foreground="{StaticResource OnSurfaceBrush}" Runs="{Binding Value}"
+                               AutomationProperties.Name="{Binding AutomationName}" />
+        </DataTemplate>
+
+        <!-- Items under the daytime and nighttime labels. Every item after a label starts 16 lower. -->
+        <DataTemplate x:Key="HalfDayColumn">
+            <ItemsControl ItemsSource="{Binding}" Focusable="False">
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Converter={StaticResource ItemMargin}}" Value="True">
+                                <Setter Property="Margin" Value="0,16,0,0" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
+            </ItemsControl>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsHalfDayColumns}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="8" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <ContentControl Grid.Column="0" Content="{Binding Day}" ContentTemplate="{StaticResource HalfDayColumn}" Focusable="False" />
+                <ContentControl Grid.Column="2" Content="{Binding Night}" ContentTemplate="{StaticResource HalfDayColumn}" Focusable="False" />
+            </Grid>
+        </DataTemplate>
+
+        <!-- Connected toggle buttons: the outer corners are round, and a checked button shows a check mark. -->
+        <DataTemplate DataType="{x:Type d:DetailsToggleGroup}">
+            <ItemsControl ItemsSource="{Binding Toggles}" Focusable="False">
+                <ItemsControl.Style>
+                    <Style TargetType="ItemsControl">
+                        <Setter Property="ItemsPanel">
+                            <Setter.Value>
+                                <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding FillWidth}" Value="True">
+                                <Setter Property="ItemsPanel">
+                                    <Setter.Value>
+                                        <ItemsPanelTemplate><UniformGrid Rows="1" /></ItemsPanelTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ItemsControl.Style>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Margin="0,0,2,2" MinHeight="40" Padding="16,0" Command="{Binding Command}" Cursor="Hand"
+                                Loaded="OnToggleLoaded">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="Container" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"
+                                            CornerRadius="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}, FallbackValue=20, TargetNullValue=20}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Border>
+                                </ControlTemplate>
+                            </Button.Template>
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Background" Value="{StaticResource SurfaceContainerBrush}" />
+                                    <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsChecked}" Value="True">
+                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                            <Setter Property="Foreground" Value="{StaticResource OnPrimaryBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                            <StackPanel Orientation="Horizontal">
+                                <c:DetailsIcon Key="IconCheck" Width="18" Height="18" Margin="0,0,8,0" VerticalAlignment="Center"
+                                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                                               AutomationProperties.Name="{l:Translate settings_enabled}"
+                                               Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibility}}" />
+                                <c:DetailsRunsText FontSize="14" FontWeight="Medium" VerticalAlignment="Center" Runs="{Binding Text}"
+                                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
+                            </StackPanel>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsScale}">
+            <Border Style="{StaticResource CardListItem}" Padding="16,8">
+                <c:DetailsScaleView Scale="{Binding}" />
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsPollutantGrid}">
+            <Border Style="{StaticResource CardListItem}" Padding="8">
+                <ItemsControl ItemsSource="{Binding Items}" Focusable="False">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><UniformGrid Columns="2" VerticalAlignment="Top" /></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="8" AutomationProperties.Name="{Binding AutomationName}">
+                                <c:DetailsRunsText FontSize="16" FontWeight="Bold" Foreground="{StaticResource OnSurfaceBrush}" Runs="{Binding Title}" />
+                                <Grid Height="10" Loaded="OnProgressLoaded" SizeChanged="OnProgressSizeChanged">
+                                    <Border CornerRadius="5">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{Binding Color}" Opacity="0.1" />
+                                        </Border.Background>
+                                    </Border>
+                                    <Border x:Name="Indicator" HorizontalAlignment="Left" CornerRadius="5">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{Binding Color}" />
+                                        </Border.Background>
+                                    </Border>
+                                </Grid>
+                                <TextBlock HorizontalAlignment="Right" FontSize="14" Foreground="{StaticResource OnSurfaceBrush}" Text="{Binding Content}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsPollenGrid}">
+            <Border Style="{StaticResource CardListItem}" Padding="16">
+                <ItemsControl ItemsSource="{Binding Items}" Focusable="False">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><UniformGrid Columns="2" VerticalAlignment="Top" /></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemContainerStyle>
+                        <Style TargetType="ContentPresenter">
+                            <Setter Property="Margin" Value="0,0,0,16" />
+                        </Style>
+                    </ItemsControl.ItemContainerStyle>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Path Width="24" Height="24" Margin="0,0,8,0" VerticalAlignment="Center" Stretch="Uniform" Data="{StaticResource IconCircle}">
+                                    <Path.Fill>
+                                        <SolidColorBrush Color="{Binding Color}" />
+                                    </Path.Fill>
+                                </Path>
+                                <StackPanel>
+                                    <TextBlock FontSize="16" FontWeight="Medium" TextTrimming="CharacterEllipsis"
+                                               Foreground="{StaticResource OnSurfaceBrush}" Text="{Binding Title}" />
+                                    <TextBlock FontSize="14" TextTrimming="CharacterEllipsis"
+                                               Foreground="{StaticResource OnSurfaceVariantBrush}" Text="{Binding Subtitle}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type d:DetailsAstroList}">
+            <Border Style="{StaticResource CardListItem}" Padding="0,8">
+                <ItemsControl ItemsSource="{Binding Items}" Focusable="False">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Margin="16,8" Orientation="Horizontal" AutomationProperties.Name="{Binding AutomationName}">
+                                <c:DetailsIcon Key="{Binding IconKey}" Margin="0,0,16,0" VerticalAlignment="Center" Foreground="{StaticResource OnSurfaceBrush}" />
+                                <TextBlock VerticalAlignment="Center" Style="{StaticResource BodyLarge}" Text="{Binding Text}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Border>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- A centered title with the back button at the start. -->
+        <Grid Grid.Row="0" Height="64" Margin="4,0">
+            <Button HorizontalAlignment="Left" Style="{StaticResource IconButton}" Command="{Binding BackCommand}"
+                    ToolTip="{l:Translate action_back}" AutomationProperties.Name="{l:Translate action_back}">
+                <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconArrowBack}" />
+            </Button>
+            <TextBlock Margin="56,0" HorizontalAlignment="Center" Style="{StaticResource TopAppBarTitle}" Text="{Binding Title}" />
+        </Grid>
+
+        <!-- A tab for each day, with its weekday, day and month. -->
+        <Grid Grid.Row="1">
+            <ListBox x:Name="DayTabs" ItemsSource="{Binding Days}" SelectedIndex="{Binding SelectedDayIndex, Mode=TwoWay}"
+                     Background="Transparent" BorderThickness="0" Padding="0" KeyboardNavigation.TabNavigation="Once"
+                     ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                     SelectionChanged="OnDaySelectionChanged">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Margin="52,0" /></ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}" />
+                        <Setter Property="MinWidth" Value="90" />
+                        <Setter Property="Cursor" Value="Hand" />
+                        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                        <Setter Property="AutomationProperties.Name" Value="{Binding AutomationName}" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Grid Background="Transparent">
+                                        <ContentPresenter x:Name="Presenter" Margin="16,12" HorizontalAlignment="Center" />
+                                        <Border x:Name="Indicator" Height="3" VerticalAlignment="Bottom" HorizontalAlignment="Center"
+                                                MinWidth="24" Width="{Binding ActualWidth, ElementName=Presenter}" CornerRadius="3,3,0,0"
+                                                Background="{StaticResource PrimaryBrush}" Visibility="Collapsed" />
+                                    </Grid>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="Indicator" Property="Visibility" Value="Visible" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}" />
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <TextBlock HorizontalAlignment="Center" FontSize="14" FontWeight="Medium"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Text="{Binding Weekday}" />
+                            <TextBlock HorizontalAlignment="Center" FontSize="28"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Text="{Binding DayOfMonth}" />
+                            <TextBlock HorizontalAlignment="Center" FontSize="14" FontWeight="Medium"
+                                       Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=ListBoxItem}}" Text="{Binding Month}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <Border Height="1" VerticalAlignment="Bottom" Background="#49454F" IsHitTestVisible="False" />
+        </Grid>
+
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+            <ItemsControl Margin="16,8" ItemsSource="{Binding Content}" Focusable="False" />
+        </ScrollViewer>
+
+        <!-- The page menu: a toggle button at the bottom end, which opens the pages above it. -->
+        <Grid Grid.Row="0" Grid.RowSpan="3" Margin="16" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <ScrollViewer Grid.Row="0" Margin="0,0,0,8" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                          Visibility="{Binding IsMenuOpen, Converter={StaticResource BooleanToVisibility}}">
+                <ItemsControl ItemsSource="{Binding Screens}" Focusable="False" HorizontalAlignment="Right">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Margin="0,4,0,0" HorizontalAlignment="Right" Height="56" Padding="16,0,24,0" Cursor="Hand"
+                                    Command="{Binding Command}" AutomationProperties.Name="{Binding Name}"
+                                    Background="{StaticResource PrimaryContainerBrush}" Foreground="{StaticResource OnPrimaryContainerBrush}">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border Background="{TemplateBinding Background}" CornerRadius="28" Padding="{TemplateBinding Padding}">
+                                            <ContentPresenter VerticalAlignment="Center" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </Button.Template>
+                                <StackPanel Orientation="Horizontal">
+                                    <c:DetailsIcon Key="{Binding IconKey}" Margin="0,0,8,0" VerticalAlignment="Center"
+                                                   Foreground="{StaticResource OnPrimaryContainerBrush}" />
+                                    <TextBlock VerticalAlignment="Center" FontSize="16" FontWeight="Medium"
+                                               Foreground="{StaticResource OnPrimaryContainerBrush}" Text="{Binding Name}" />
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+            <Button Grid.Row="1" HorizontalAlignment="Right" Width="56" Height="56" Cursor="Hand" Command="{Binding ToggleMenuCommand}"
+                    AutomationProperties.Name="{l:Translate action_toggle_data_type_menu}"
+                    AutomationProperties.ItemStatus="{Binding MenuState}">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Container" Background="{StaticResource PrimaryContainerBrush}" CornerRadius="16">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <DataTrigger Binding="{Binding IsMenuOpen}" Value="True">
+                                <Setter TargetName="Container" Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                <Setter TargetName="Container" Property="CornerRadius" Value="28" />
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+                <c:DetailsIcon Key="{Binding MenuIconKey}">
+                    <c:DetailsIcon.Style>
+                        <Style TargetType="c:DetailsIcon">
+                            <Setter Property="Foreground" Value="{StaticResource OnPrimaryContainerBrush}" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsMenuOpen}" Value="True">
+                                    <Setter Property="Foreground" Value="{StaticResource OnPrimaryBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </c:DetailsIcon.Style>
+                </c:DetailsIcon>
+            </Button>
+        </Grid>
+    </Grid>
+</UserControl>

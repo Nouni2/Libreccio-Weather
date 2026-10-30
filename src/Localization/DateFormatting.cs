@@ -69,6 +69,64 @@ public static class DateFormatting
         return TimeZoneInfo.ConvertTime(date, timeZone).ToString("MM-dd", Strings.Culture);
     }
 
+    public static string GetFormattedDayOfTheMonth(DateTimeOffset date, TimeZoneInfo timeZone)
+    {
+        return FormatBestPattern(date, timeZone, "dd", "dd");
+    }
+
+    /// <summary>
+    /// The abbreviated month, such as "Oct".
+    /// </summary>
+    public static string GetFormattedAbbreviatedMonth(DateTimeOffset date, TimeZoneInfo timeZone)
+    {
+        return FormatBestPattern(date, timeZone, "MMM", "MMM");
+    }
+
+    /// <summary>
+    /// "Today", "Yesterday" or "Tomorrow", the weekday within a week, then the weekday with its date, such as
+    /// "Monday 3 November".
+    /// </summary>
+    public static string GetFullLabel(DateTimeOffset date, TimeZoneInfo timeZone)
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        if (date > now.AddDays(6))
+        {
+            return Capitalize(FormatBestPattern(date, timeZone, "EEEEdMMMM", "dddd d MMMM"));
+        }
+
+        DateTime current = TimeZoneInfo.ConvertTime(now, timeZone).DateTime;
+        DateTime thisDay = TimeZoneInfo.ConvertTime(date, timeZone).DateTime;
+        if (current.Year == thisDay.Year && current.DayOfYear == thisDay.DayOfYear)
+        {
+            return Strings.Get("daily_today");
+        }
+
+        if ((current.Year == thisDay.Year && current.DayOfYear - 1 == thisDay.DayOfYear)
+            || (current.Year - 1 == thisDay.Year && current.DayOfYear == 1 && thisDay.DayOfYear is >= 365 and <= 366))
+        {
+            return Strings.Get("daily_yesterday");
+        }
+
+        if ((current.Year == thisDay.Year && current.DayOfYear + 1 == thisDay.DayOfYear)
+            || (current.Year + 1 == thisDay.Year && thisDay.DayOfYear == 1 && current.DayOfYear is >= 365 and <= 366))
+        {
+            return Strings.Get("daily_tomorrow");
+        }
+
+        return GetWeek(date, timeZone, full: true);
+    }
+
+    // The ICU best pattern for a skeleton in the selected language, or the closest .NET pattern without ICU.
+    private static string FormatBestPattern(DateTimeOffset date, TimeZoneInfo timeZone, string skeleton, string fallbackPattern)
+    {
+        if (Icu.SupportsRelativeTimes && Icu.FormatDate(date, skeleton, timeZone, Strings.Culture) is { } formatted)
+        {
+            return formatted;
+        }
+
+        return TimeZoneInfo.ConvertTime(date, timeZone).ToString(fallbackPattern, Strings.Culture);
+    }
+
     private static string Capitalize(string value)
     {
         return value.Length > 0 && char.IsLower(value[0])

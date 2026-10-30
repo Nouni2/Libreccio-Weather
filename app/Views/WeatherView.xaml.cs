@@ -14,9 +14,12 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
 using LibreccioWeather.ViewModels;
+using LibreccioWeather.ViewModels.WeatherCards;
 
 namespace LibreccioWeather.Views;
 
@@ -35,5 +38,13 @@ public partial class WeatherView : UserControl
             _clock.Start();
         };
         Unloaded += (_, _) => _clock.Stop();
+    }
+
+    private void OnConditionsCardClick(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: ConditionsCardViewModel card } && DataContext is WeatherViewModel weather)
+        {
+            weather.OpenCardDetailsCommand.Execute(card);
+        }
     }
 }

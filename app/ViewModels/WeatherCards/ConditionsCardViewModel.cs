@@ -133,16 +133,7 @@ public sealed record ConditionsCardViewModel(
         {
             DistanceUnit unit = settings.GetDistanceUnit(regionCode);
             string value = UnitFormatting.Format(visibility, unit);
-            string? description = visibility.InMeters switch
-            {
-                >= 0 and < 1000 => Strings.Get("visibility_very_poor"),
-                >= 1000 and < 4000 => Strings.Get("visibility_poor"),
-                >= 4000 and < 10000 => Strings.Get("visibility_moderate"),
-                >= 10000 and < 20000 => Strings.Get("visibility_good"),
-                >= 20000 and < 40000 => Strings.Get("visibility_clear"),
-                >= 40000 and <= double.MaxValue => Strings.Get("visibility_perfectly_clear"),
-                _ => null,
-            };
+            string? description = VisibilityFormatting.GetDescription(visibility);
             return new ConditionsCardViewModel(ConditionsCardKind.Visibility, Strings.Get("visibility"), value, description,
                 Strings.Get("visibility") + Strings.Get("colon_separator")
                     + UnitFormatting.Format(visibility, unit, unitWidth: UnitWidth.Long)
@@ -188,29 +179,9 @@ public sealed record ConditionsCardViewModel(
         return null;
     }
 
-    private static string? GetPollenName(int? index)
-    {
-        return index == 0 ? Strings.Get("pollen_level_0") : PollenIndex.GetPollenIndexToLevel(index) is { } level
-            ? Strings.GetArray("pollen_levels").ElementAtOrDefault(level) : null;
-    }
+    private static string? GetPollenName(int? index) => PollenIndex.GetPollenIndexToName(index);
 
-    private static Color GetPollenColor(int? index)
-    {
-        if (index == 0)
-        {
-            return Color.FromRgb(0xBF, 0xBF, 0xBF);
-        }
-
-        return PollenIndex.GetPollenIndexToLevel(index) switch
-        {
-            0 => Color.FromRgb(0x08, 0xC2, 0x86),
-            1 => Color.FromRgb(0x6A, 0xD5, 0x55),
-            2 => Color.FromRgb(0xFF, 0xD7, 0x41),
-            3 => Color.FromRgb(0xFF, 0xAB, 0x40),
-            4 => Color.FromRgb(0xFF, 0x3B, 0x30),
-            _ => System.Windows.Media.Colors.Transparent,
-        };
-    }
+    private static Color GetPollenColor(int? index) => ForecastColors.GetPollenColor(index);
 
     private static ConditionsCardViewModel? CreatePrecipitation(Core.Models.Weather weather, Location location, PrecipitationUnit unit)
     {

@@ -14,6 +14,7 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Models;
 using LibreccioWeather.Core.Units;
 
@@ -83,6 +84,24 @@ public sealed class PollenIndex
                 / ((double)_thresholds[level + 1] - _thresholds[level]) * (value - _thresholds[level]) + IndexThresholds[level]
             : value * IndexThresholds[^1] / _thresholds[^1];
         return (int)Math.Clamp(UnitRounding.RoundToLong(index), int.MinValue, int.MaxValue);
+    }
+
+    /// <summary>
+    /// The name of a pollen index level, with its own name for a negligible index of zero.
+    /// </summary>
+    public static string? GetPollenIndexToName(int? index)
+    {
+        if (index is null)
+        {
+            return null;
+        }
+
+        if (index == 0)
+        {
+            return Strings.Get("pollen_level_0");
+        }
+
+        return GetPollenIndexToLevel(index) is { } level ? Strings.GetArray("pollen_levels").ElementAtOrDefault(level) : null;
     }
 
     public static int? GetPollenIndexToLevel(int? index)

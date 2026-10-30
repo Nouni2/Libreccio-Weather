@@ -80,6 +80,9 @@ Kotlin's `/` and `%` behave like C#'s.
 |---|---|---|---|
 | `Calendar` and `Date` with a location's `TimeZone` | Days, hours and day boundaries fall in the location's time zone. | `DateTime.Now`, `ToLocalTime` and `DateTimeKind.Local` use the computer's time zone. | `TimeZoneInfo.ConvertTime` with the location's IANA time zone. |
 | `Duration.toComponents` | Whole hours truncate towards zero and the remaining minutes and seconds keep the duration's sign. | Flooring `TimeSpan.TotalHours` turns −90 minutes into −2 hours and −30 minutes. | Divide ticks by ticks per hour using integer division, then use the minute and second components, as checked by `DurationFormattingTests`. |
+| `Calendar.set(HOUR_OF_DAY, …)` on a lenient calendar | A local hour skipped by a daylight saving change is read with the offset before the change, so it moves forward by the skipped time. | `TimeZoneInfo` reports the hour as invalid, and a `DateTimeOffset` built from it needs an offset chosen by the caller. | Take the offset of the previous day for an invalid local time, as `DetailsChartAxes.GetHourOfDay` does. |
+| `DateFormatSymbols.getMonths()` | Month names in their formatting form, which differs from the standalone form in languages such as Polish. | `DateTimeFormatInfo.MonthNames` is the standalone form. | `DateTimeFormatInfo.MonthGenitiveNames`. |
+| `Collator.getInstance(locale).compare` | Sorts by the language's collation rules. | Ordinal comparison sorts by code point. | `StringComparer.Create(culture, ignoreCase: false)`. |
 
 ## Platform
 
