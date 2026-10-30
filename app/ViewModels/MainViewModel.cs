@@ -445,6 +445,15 @@ public sealed partial class MainViewModel : ObservableObject
     /// </summary>
     public void ShowLocation(Location location)
     {
+        // The location already on the main screen keeps its screen, and any refresh running on it.
+        if (location.FormattedId == _currentFormattedId
+            && FindMainScreen() is { } shown && shown.LocationFormattedId == location.FormattedId)
+        {
+            _backStack.Clear();
+            CurrentPage = shown;
+            return;
+        }
+
         _backStack.Clear();
         _currentFormattedId = location.FormattedId;
         WeatherViewModel weather = new(_refresher, this, location);
@@ -454,10 +463,14 @@ public sealed partial class MainViewModel : ObservableObject
     }
 
     // A location's weather is refreshed when its screen opens only once it is older than the update interval allows,
-    // or 1.5 hours when background updates are off. Weather that is still valid is shown as it is.
+    // or 1.5 hours when background updates are off, or older than the last language change, since its weather texts
+    // are then in the previous language. Weather that is still valid is shown as it is.
     private void RefreshIfOutdated(WeatherViewModel weather, Location location)
     {
-        if (location.Weather?.IsValid(_settings.UpdateInterval.Validity) != true)
+        DateTimeOffset languageUpdateTime = DateTimeOffset.FromUnixTimeMilliseconds(_settings.LanguageUpdateLastTimestamp);
+        if (location.Weather is not { } saved
+            || !saved.IsValid(_settings.UpdateInterval.Validity)
+            || saved.Base.RefreshTime < languageUpdateTime)
         {
             weather.RefreshCommand.Execute(null);
         }
@@ -657,6 +670,7 @@ public sealed partial class MainViewModel : ObservableObject
     private void ReplaceMainScreen()
     {
         Location? current = CurrentLocation();
+        WeatherViewModel? previous = FindMainScreen();
         WeatherViewModel? replacement = current is null ? null : new WeatherViewModel(_refresher, this, current);
         List<ObservableObject> screens = [.. _backStack.Reverse()];
         if (screens.Count > 0 && screens[0] is WeatherViewModel)
@@ -680,7 +694,16 @@ public sealed partial class MainViewModel : ObservableObject
         }
 
         ShownLocationChanged?.Invoke(this, current);
-        if (replacement is not null && current is not null)
+        if (replacement is null || current is null)
+        {
+            return;
+        }
+
+        if (previous is not null && previous.IsLoading && previous.LocationFormattedId == current.FormattedId)
+        {
+            replacement.FollowRefresh(previous);
+        }
+        else
         {
             RefreshIfOutdated(replacement, current);
         }

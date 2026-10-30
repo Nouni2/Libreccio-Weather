@@ -14,6 +14,7 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.ComponentModel;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -108,9 +109,37 @@ public sealed partial class WeatherViewModel : ObservableObject
         _main.OpenLocationList();
     }
 
+    /// <summary>
+    /// Shows the result of a refresh that the screen this one replaces is still running, so the location is not
+    /// requested a second time.
+    /// </summary>
+    public void FollowRefresh(WeatherViewModel previous)
+    {
+        IsLoading = true;
+        previous.PropertyChanged += OnPreviousChanged;
+
+        void OnPreviousChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(IsLoading) || previous.IsLoading)
+            {
+                return;
+            }
+
+            previous.PropertyChanged -= OnPreviousChanged;
+            UpdateFromBackground(previous.ShownLocation);
+            IsLoading = false;
+        }
+    }
+
     [RelayCommand]
     private async Task RefreshAsync()
     {
+        // A refresh already running for this location is not started again.
+        if (IsLoading)
+        {
+            return;
+        }
+
         IsLoading = true;
         try
         {
