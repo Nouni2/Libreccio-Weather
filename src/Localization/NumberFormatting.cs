@@ -19,7 +19,7 @@ using System.Globalization;
 namespace LibreccioWeather.Core.Localization;
 
 /// <summary>
-/// Numbers formatted the way Android's ICU number formatter shows them, with the conventions of a language.
+/// Numbers formatted with ICU's number formatter conventions for a language: grouping, rounding and signs.
 /// </summary>
 public static class NumberFormatting
 {

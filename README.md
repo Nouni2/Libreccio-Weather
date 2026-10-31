@@ -9,7 +9,7 @@
 [![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
 [![WPF](https://img.shields.io/badge/UI-WPF-512BD4)](https://learn.microsoft.com/dotnet/desktop/wpf/)
 [![Licence](https://img.shields.io/github/license/Nouni2/Libreccio-Weather)](LICENCE.md)
-[![Release v0.1.0-alpha1](https://img.shields.io/badge/release-v0.1.0--alpha1-red)](https://github.com/Nouni2/Libreccio-Weather/releases/tag/v0.1.0-alpha1)
+[![Release v0.2.0-alpha1](https://img.shields.io/badge/release-v0.2.0--alpha1-red)](https://github.com/Nouni2/Libreccio-Weather/releases/tag/v0.2.0-alpha1)
 
 #### Libreccio Weather is an unofficial Windows port of [Breezy Weather](https://github.com/breezy-weather/breezy-weather), free and open source.
 
@@ -17,7 +17,7 @@
 
 ## Download
 
-Download `0.1.0-alpha1` from its [GitHub release](https://github.com/Nouni2/Libreccio-Weather/releases/tag/v0.1.0-alpha1).
+Download `0.2.0-alpha1` from its [GitHub release](https://github.com/Nouni2/Libreccio-Weather/releases/tag/v0.2.0-alpha1).
 
 Libreccio Weather is developed and tested on Windows 11. Solar calculations require an x64 process.
 
@@ -46,7 +46,7 @@ Libreccio Weather is developed and tested on Windows 11. Solar calculations requ
 
 ## Origin
 
-I wanted a good weather app on Windows. I tried plenty of them, and none were good enough for my liking. Breezy Weather was one I really liked on Android, so so I decided to port it.
+I wanted a good weather app on Windows. I tried plenty of them, and none were good enough for my liking. Breezy Weather was one I really liked on Android, so I decided to port it.
 
 ## App icons
 
@@ -58,7 +58,7 @@ The main window uses the selected location's meteorological season for its icon,
 
 ## Alpha scope
 
-In `0.1.0-alpha1`, you get Open-Meteo forecasts and a dark interface. I haven't ported automatic location detection, provider selection, light themes, Windows weather notifications or autostart. See the [roadmap](ROADMAP.md) for the remaining features.
+In `0.2.0-alpha1`, you get Open-Meteo forecasts with light and dark themes. I haven't ported automatic location detection, weather providers other than Open-Meteo, Windows weather notifications or autostart. See the [roadmap](ROADMAP.md) for the remaining features.
 
 The bundled solar DLL requires x64; you cannot use it in an ARM64 process.
 

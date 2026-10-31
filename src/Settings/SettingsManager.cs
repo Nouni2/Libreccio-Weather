@@ -21,7 +21,7 @@ using LibreccioWeather.Core.Units;
 namespace LibreccioWeather.Core.Settings;
 
 /// <summary>
-/// The app's settings. Keys and defaults are those of Breezy Weather, so its settings keep their meaning.
+/// The app's settings. Keys and defaults must stay as they are, or saved settings would lose their meaning.
 /// </summary>
 public sealed class SettingsManager
 {
@@ -57,6 +57,14 @@ public sealed class SettingsManager
         _config = config;
     }
 
+    /// <summary>
+    /// The settings file of one source, beside the app's own, as each source keeps its settings apart.
+    /// </summary>
+    public static string GetSourcePath(string sourceId)
+    {
+        return Path.Combine(Path.GetDirectoryName(DefaultPath)!, "source_" + sourceId + "_preferences.json");
+    }
+
     public static string DefaultPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "Libreccio Weather",
@@ -79,6 +87,26 @@ public sealed class SettingsManager
     {
         get => _config.GetBoolean("app_update_check_switch", false);
         set => _config.PutBoolean("app_update_check_switch", value);
+    }
+
+    /// <summary>
+    /// Whether update checks also offer pre-releases. Null follows the running version: a pre-release build is
+    /// offered pre-releases, a full release only full releases.
+    /// </summary>
+    public bool? AppUpdateCheckPrereleases
+    {
+        get => _config.Contains("app_update_check_prereleases") ? _config.GetBoolean("app_update_check_prereleases", false) : null;
+        set
+        {
+            if (value is { } include)
+            {
+                _config.PutBoolean("app_update_check_prereleases", include);
+            }
+            else
+            {
+                _config.Remove("app_update_check_prereleases");
+            }
+        }
     }
 
     public bool IsAppUpdateCheckPromptAlreadyAsked

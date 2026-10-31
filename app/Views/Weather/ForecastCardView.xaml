@@ -17,11 +17,11 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:c="clr-namespace:LibreccioWeather.Controls.Forecast">
-    <Border Margin="8" Background="{StaticResource SurfaceContainerBrush}" CornerRadius="{DynamicResource ForecastCardCornerRadius}">
+    <Border Margin="8" Background="{DynamicResource SurfaceContainerBrush}" CornerRadius="{DynamicResource ForecastCardCornerRadius}">
         <StackPanel>
             <StackPanel Margin="20,20,20,0">
                 <StackPanel Orientation="Horizontal">
-                    <ContentControl Foreground="{StaticResource OnSurfaceBrush}">
+                    <ContentControl Foreground="{DynamicResource OnSurfaceBrush}">
                         <ContentControl.Style>
                             <Style TargetType="ContentControl" BasedOn="{StaticResource Icon960}">
                                 <Setter Property="Tag" Value="{StaticResource IconCalendar}" />
@@ -50,8 +50,8 @@
                 </ListBox.ItemsPanel>
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
-                        <Setter Property="Background" Value="{StaticResource SurfaceContainerHighBrush}" />
-                        <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+                        <Setter Property="Background" Value="{DynamicResource SurfaceContainerHighBrush}" />
+                        <Setter Property="Foreground" Value="{DynamicResource OnSurfaceBrush}" />
                         <Setter Property="BorderBrush" Value="Transparent" />
                         <Setter Property="BorderThickness" Value="1" />
                         <Setter Property="Padding" Value="14,8" />
@@ -71,11 +71,11 @@
                         </Setter>
                         <Style.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                <Setter Property="Foreground" Value="{StaticResource OnPrimaryBrush}" />
+                                <Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
+                                <Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" />
                             </Trigger>
                             <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                <Setter Property="BorderBrush" Value="{StaticResource OnSurfaceBrush}" />
+                                <Setter Property="BorderBrush" Value="{DynamicResource OnSurfaceBrush}" />
                             </Trigger>
                         </Style.Triggers>
                     </Style>

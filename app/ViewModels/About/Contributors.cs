@@ -1,0 +1,422 @@
+/*
+ * This file is part of Libreccio Weather.
+ *
+ * Libreccio Weather is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the Free
+ * Software Foundation, version 3 of the License.
+ *
+ * Libreccio Weather is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+namespace LibreccioWeather.ViewModels.About;
+
+/// <summary>
+/// Someone who contributed to Breezy Weather, with the page their name links to and, for some, what they contributed.
+/// </summary>
+public sealed class ContributorItem(
+    string name,
+    string? github = null,
+    string? weblate = null,
+    string? mail = null,
+    string? url = null,
+    string? contribution = null)
+{
+    public string Name { get; } = name;
+
+    /// <summary>
+    /// The key of the text describing the contribution, or null.
+    /// </summary>
+    public string? Contribution { get; } = contribution;
+
+    public string Link { get; } = TranslatorItem.GetLink(github, weblate, mail, url);
+}
+
+/// <summary>
+/// Someone who translated Breezy Weather, with the languages they translated, as resource qualifiers such as
+/// "fr" or "zh_rTW".
+/// </summary>
+public sealed class TranslatorItem(
+    string[] lang,
+    string name,
+    string? github = null,
+    string? weblate = null,
+    string? mail = null,
+    string? url = null)
+{
+    public IReadOnlyList<string> Lang { get; } = lang;
+
+    public string Name { get; } = name;
+
+    public string Link { get; } = GetLink(github, weblate, mail, url);
+
+    // The first link that is known, in this order.
+    internal static string GetLink(string? github, string? weblate, string? mail, string? url)
+    {
+        if (!string.IsNullOrEmpty(github))
+        {
+            return "https://github.com/" + github;
+        }
+
+        if (!string.IsNullOrEmpty(weblate))
+        {
+            return "https://hosted.weblate.org/user/" + weblate + "/";
+        }
+
+        if (!string.IsNullOrEmpty(mail))
+        {
+            return "mailto:" + mail;
+        }
+
+        return string.IsNullOrEmpty(url) ? "" : url;
+    }
+}
+
+/// <summary>
+/// Breezy Weather's contributors and translators, credited on the About screen. Translators are grouped by the main
+/// language they translated.
+/// </summary>
+public static class Contributors
+{
+    public static IReadOnlyList<ContributorItem> AppContributors { get; } =
+    [
+        new("Julien Papasian", github: "papjul"),
+        new("WangDaYeeeeee", github: "WangDaYeeeeee", contribution: "about_contribution_WangDaYeeeeee"),
+        new("min7-i", github: "min7-i"),
+        new("chunshek", github: "chunshek"),
+        new("Cod3d.", github: "Cod3dDOT"),
+        new("ecawthorne", github: "ecawthorne"),
+        new("Romain Théry", github: "rthery"),
+        new("Mark Bestavros", github: "mbestavros"),
+        new("Suyash Gupta", github: "suyashgupta25"),
+        new("Coelacanthus", github: "CoelacanthusHex"),
+        new("danielzhang130", github: "danielzhang130"),
+        new("majjejjam", github: "majjejjam"),
+        new("bunburya", github: "bunburya"),
+        new("Willem Schipper", github: "willem640"),
+        new("Sven", github: "SKBotNL"),
+        new("jayyuz", github: "jayyuz"),
+        new("JiunnTarn", github: "JiunnTarn"),
+        new("mags0ft", github: "mags0ft"),
+        new("Devy Ballard", github: "devycarol"),
+        new("Mushfiq1060", github: "Mushfiq1060"),
+        new("ccyybn", github: "ccyybn"),
+        new("Doğaç Tanrıverdi", github: "DogacTanriverdi"),
+        new("Nero Nguyen", github: "neronguyenvn"),
+        new("Dipesh Pal", github: "codewithdipesh"),
+        new("Cactric", github: "Cactric"),
+        new("ntzb", github: "ntzb"),
+        new("mu", github: "4eUeP"),
+        new("Anthony Dégrange", url: "https://anthony-degrange-design.fr/", contribution: "about_contribution_designer"),
+    ];
+
+    public static IReadOnlyList<TranslatorItem> AppTranslators { get; } =
+    [
+        new(["ar"], "sodqe muhammad", mail: "sodqe.younes@gmail.com"),
+        new(["ar"], "Rex_sa", github: "rex07"),
+        new(["ar"], "TomatoScriptCPP", github: "TomatoScriptCPP"),
+        new(["ar"], "jonnysemon", weblate: "jonnysemon"),
+        new(["ar"], "Mohammed Lahboub", github: "Mohammed-Lahboub"),
+        new(["az"], "Aydin Salmanli", weblate: "aydin.salmanli"),
+        new(["az"], "Elçin", weblate: "Aze44"),
+        new(["be"], "Yauhen", weblate: "Bugomol"),
+        new(["be"], "Drugi Sapog", weblate: "DinDrugi"),
+        new(["be"], "Ding User", weblate: "DeNGus"),
+        new(["bg"], "elgratea", weblate: "flantito"),
+        new(["bg"], "StoyanDimitrov", github: "StoyanDimitrov"),
+        new(["bg"], "srmihnev", github: "srmihnev"),
+        new(["bg"], "Bitcoin Fifty", weblate: "bitcoin.fifty"),
+        new(["bn"], "Manab Ray", github: "manabray"),
+        new(["bn"], "The Contributor", weblate: "another_user"),
+        new(["bn"], "Fahim Ahmed", github: "fahim-ahmed05"),
+        new(["bn"], "Dipyaman Roy", github: "dipyamanroy"),
+        new(["bn"], "ferus3", weblate: "ferus3"),
+        new(["bn"], "Abhishek Dasgupta", github: "abdasgupta"),
+        new(["bs"], "Erudaro", github: "Erudaro"),
+        new(["bs"], "SecularSteve", github: "SecularSteve"),
+        new(["ca"], "Álvaro Martínez Majado", github: "alvaromartinezmajado"),
+        new(["ca"], "Arnau Mora", github: "ArnyminerZ"),
+        new(["ca"], "Sabrina Khan", weblate: "khansabrina594"),
+        new(["ca"], "Pere Orga", github: "pereorga"),
+        new(["ca"], "Jaime Muñoz Martín", github: "kayron8"),
+        new(["ca"], "John Doe", weblate: "healthyburrito"),
+        new(["ca"], "gReventos", github: "gReventos"),
+        new(["ca"], "BennyBeat", github: "BennyBeat"),
+        new(["ckb", "ar"], "anyone00", weblate: "anyone00"),
+        new(["cs"], "Jiří Král", mail: "jirkakral978@gmail.com"),
+        new(["cs"], "ikanakova", github: "ikanakova"),
+        new(["cs"], "esszed", github: "esszed"),
+        new(["cs"], "Vojta", github: "vojta-dev"),
+        new(["cs"], "Jiří Král", github: "FrameXX"),
+        new(["cs"], "Fjuro", github: "Fjuro"),
+        new(["da"], "Rasmus", weblate: "Grooty"),
+        new(["da"], "Peter", github: "peetabix"),
+        new(["da"], "Grooty12", weblate: "Grooty12"),
+        new(["da"], "Benjamin Nielsen", weblate: "devjam1n"),
+        new(["da"], "Michael Millet", weblate: "mrMillet"),
+        new(["da"], "hao123111230", github: "hao123111230"),
+        new(["de"], "Ken Berns", mail: "ken.berns@yahoo.de"),
+        new(["de"], "Jörg Meinhardt", mail: "jorime@web.de"),
+        new(["de"], "Thorsten Eckerlein", mail: "thorsten.eckerlein@gmx.de"),
+        new(["de"], "Pascal Dietrich", github: "Cameo007"),
+        new(["de"], "min7-i", github: "min7-i"),
+        new(["de"], "Ettore Atalan", github: "Atalanttore"),
+        new(["de"], "FineFindus", github: "FineFindus"),
+        new(["de"], "elea11", github: "elea11"),
+        new(["de"], "Ulion", weblate: "ulion"),
+        new(["de"], "ColorfulRhino", weblate: "ColorfulRhino"),
+        new(["de"], "Lacey Anaya", weblate: "lanAYA"),
+        new(["de"], "Kachelkaiser", github: "Kachelkaiser"),
+        new(["de"], "Lenny Angst", github: "Lezurex"),
+        new(["de"], "ich Bin May", weblate: "Maxterdf"),
+        new(["de"], "Nonni", github: "nonni-heere"),
+        new(["el"], "Μιχάλης Καζώνης", mail: "istrios@gmail.com"),
+        new(["el"], "Kostas Giapis", github: "tsiflimagas"),
+        new(["el"], "giwrgosmant", github: "giwrgosmant"),
+        new(["el"], "Steven Shehata", weblate: "Stidon"),
+        new(["el"], "Lefteris T.", github: "trlef19"),
+        new(["el"], "Makis", github: "80-svg"),
+        new(["eo", "cs"], "Valentin Lluba", weblate: "circulate"),
+        new(["eo"], "phlostically", weblate: "phlostically"),
+        new(["eo"], "Oasis Tri", weblate: "Oasis3"),
+        new(["eo"], "tuxayo", github: "tuxayo"),
+        new(["es"], "dylan", github: "d-l-n"),
+        new(["es"], "Miguel Torrijos", mail: "migueltg352340@gmail.com"),
+        new(["es"], "Julio Martínez Ródenas", github: "juliomartinezrodenas"),
+        new(["es"], "Hin Weisner", weblate: "Hinweis"),
+        new(["es"], "gallegonovato", weblate: "gallegonovato"),
+        new(["es"], "Jose", github: "AzagraMac"),
+        new(["es"], "Yayi23", github: "Yayi23"),
+        new(["es"], "Eraorahan", weblate: "eraorahan"),
+        new(["es"], "Jose l. Azagra", github: "azagramac"),
+        new(["es"], "Traductor", github: "cyphra"),
+        new(["es"], "Richa371", github: "Richa371"),
+        new(["es"], "No name", weblate: "CertainBot"),
+        new(["et"], "kovabait12", github: "kovabait12"),
+        new(["et"], "Priit Jõerüüt", weblate: "jrthwlate"),
+        new(["et"], "Gert Lutter", weblate: "ruut.103"),
+        new(["et"], "Theodor Põlluste", github: "theodor373"),
+        new(["et"], "rimasx", github: "rimasx"),
+        new(["et"], "Priit Jõerüüt", weblate: "jrthwlate"),
+        new(["eu"], "Dabid", github: "desertorea"),
+        new(["eu"], "beriain", github: "beriain"),
+        new(["eu"], "xabiliza", github: "xabiliza"),
+        new(["eu"], "Isolus", weblate: "isolus"),
+        new(["fa"], "Aspen", weblate: "olden"),
+        new(["fa"], "Armin Bashizade", github: "arminbashizade"),
+        new(["fa"], "Alireza Rashidi", github: "alr86"),
+        new(["fa"], "Monirzadeh", github: "Monirzadeh"),
+        new(["fa"], "hulse", weblate: "hulse"),
+        new(["fr", "en", "eo"], "Julien Papasian", github: "papjul"),
+        new(["fr"], "Benjamin Tourrel", mail: "polo_naref@hotmail.fr"),
+        new(["fr"], "Nam", github: "ldmpub"),
+        new(["fi"], "huuhaa", github: "huuhaa"),
+        new(["fi"], "nimxaa", github: "nimxaa"),
+        new(["fi"], "MillionsToOne", github: "MillionsToOne"),
+        new(["fi"], "Jane Doe", weblate: "Decaf3683"),
+        new(["fi"], "Ricky-Tigg", github: "Ricky-Tigg"),
+        new(["fi"], "Juli", weblate: "Julimiro"),
+        new(["fi"], "Jiri Grönroos", weblate: "artnay"),
+        new(["ga"], "Aindriú Mac Giolla Eoin", github: "aindriu80"),
+        new(["gl"], "Adrian Hermida Baloira", github: "adrianhermida"),
+        new(["gl"], "xcomesana", github: "xcomesana"),
+        new(["gl"], "Roi", weblate: "roicou"),
+        new(["gl"], "AlbertoBujan", github: "AlbertoBujan"),
+        new(["gl"], "ninjum", github: "ninjum"),
+        new(["haw", "cpe"], "En Oh", weblate: "helmsmansulu"),
+        new(["he", "iw"], "Doge", weblate: "Doge"),
+        new(["he", "iw"], "Doge", weblate: "Doge"),
+        new(["he", "iw"], "Kurpaph", github: "Kurpaph"),
+        new(["he", "iw"], "Arthur Zamarin", github: "arthurzam"),
+        new(["he", "iw"], " Omer I.S.", github: "omeritzics"),
+        new(["hi", "mr"], "Sapate Vaibhav", github: "sapatevaibhav"),
+        new(["hi"], "Chandra Mohan Jha", github: "ChAJ07"),
+        new(["hi"], "Deepesh Singh Chauhan", github: "master2619"),
+        new(["hi"], "ShareASmile", weblate: "ShareASmile"),
+        new(["hi"], "Akshat", weblate: "Akshat-Projects"),
+        new(["hr"], "Mateo Spajić", github: "Spajki001"),
+        new(["hr"], "Milo Ivir", github: "milotype"),
+        new(["hr"], "ggdorman", github: "ggdorman"),
+        new(["hu"], "Viktor Blaskó", github: "blaskoviktor"),
+        new(["hu"], "Olivér Paróczai", github: "OliverParoczai"),
+        new(["hu"], "summoner001", github: "summoner001"),
+        new(["hu"], "NBencee", github: "NBencee"),
+        new(["ia"], "softinterlingua", github: "softinterlingua"),
+        new(["id"], "Arif Budiman", github: "arifpedia"),
+        new(["in"], "MDP43140", github: "MDP43140"),
+        new(["in"], "Reza", github: "rezaalmanda"),
+        new(["in"], "Christian Elbrianno", github: "crse"),
+        new(["in"], "Linerly", github: "Linerly"),
+        new(["in"], "Adrien N", weblate: "adriennathaniel1999"),
+        new(["it"], "Andrea Carulli", mail: "rctandrew100@gmail.com"),
+        new(["it"], "Giovanni Donisi", github: "gdonisi"),
+        new(["it"], "Henry The Mole", weblate: "htmole"),
+        new(["it"], "Lorenzo J. Lucchini", github: "LuccoJ"),
+        new(["it"], "Gabriele Monaco", github: "glemco"),
+        new(["it"], "Manuel Tassi", github: "Mannivu"),
+        new(["it"], "Ulisse Perusin", github: "ulipo"),
+        new(["it"], "Lorenzo Romano", weblate: "lloranmorenzio"),
+        new(["it"], "Innominatapersona", github: "Innominatapersona"),
+        new(["it"], "bryce-lynch", weblate: "bryce-lynch"),
+        new(["it"], "Giorgio", github: "dimeglio98"),
+        new(["it"], "mapi68", github: "mapi68"),
+        new(["it"], "Nicola Cesarini", weblate: "Cianfrugo"),
+        new(["ja"], "rikupin1105", github: "rikupin1105"),
+        new(["ja"], "Suguru Hirahara", weblate: "shirahara"),
+        new(["ja"], "Meiru", weblate: "Tenbin"),
+        new(["ja"], "若林 さち", weblate: "05e82918ec434690"),
+        new(["ja"], "しいたけ", github: "Shiitakeeeee"),
+        new(["kab"], "ButterflyOfFire", weblate: "boffire"),
+        new(["kab"], "Ziri Sut", github: "ZiriSut"),
+        new(["kn"], "Vinay", github: "vinigani01"),
+        new(["ko"], "이서경", mail: "ng0972@naver.com"),
+        new(["ko"], "Yurical", github: "yurical"),
+        new(["ko"], "ID J", weblate: "tabby4442"),
+        new(["ko"], "Alex", github: "whatthesamuel"),
+        new(["ko"], "agw76638", github: "agw76638"),
+        new(["ko"], "tabby", weblate: "tabby"),
+        new(["ko"], "multivac", github: "Centurion-Mk2"),
+        new(["ko"], "Coding-Young", github: "Coding-Young"),
+        new(["lt"], "Deividas Paukštė", weblate: "RustyOperator"),
+        new(["lt"], "D221", github: "D221"),
+        new(["lt"], "splice11", github: "splice11"),
+        new(["lt"], "Oliveinparis", github: "Oliveinparis"),
+        new(["lv"], "Niks Rodžers", weblate: "niks.rodzers.auzins"),
+        new(["lv"], "Eduards Lusts", weblate: "eduardslu"),
+        new(["lv"], "Edgars Andersons", weblate: "Edgarsons"),
+        new(["lv"], "09pulse", weblate: "09pulse"),
+        new(["lv"], "Coool", github: "Coool"),
+        new(["mk"], "ikocevski7", github: "ikocevski7"),
+        new(["mk"], "Rijolo", weblate: "rijolo4790"),
+        new(["nb_rNO"], "Even Bull-Tornøe", github: "bt0rne"),
+        new(["nb_rNO"], "Visnes", github: "Visnes"),
+        new(["nb_rNO"], "Simen", weblate: "sien"),
+        new(["nl"], "BabyBenefactor", github: "BabyBenefactor"),
+        new(["nl"], "Jurre Tas", mail: "jurretas@gmail.com"),
+        new(["nl"], "trend", github: "trend-1"),
+        new(["nl"], "programpro2005", github: "programpro2005"),
+        new(["nl"], "OliNau", github: "OliNau"),
+        new(["nl"], "CouldBeMathijs", github: "JustPassingBy06"),
+        new(["nl"], "that translator", weblate: "Translate"),
+        new(["nl"], "Stef Smeets", github: "stefsmeets"),
+        new(["nl"], "Roan-V", github: "Roan-V"),
+        new(["nl"], "kyrawertho", github: "kyrawertho"),
+        new(["nl"], "Brecht", github: "brecht6"),
+        new(["nl"], "Stephan Paternotte", github: "Stephan-P"),
+        new(["oc"], "Quentin PAGÈS", weblate: "Quenti"),
+        new(["pl"], "Kamil", mail: "invisiblehype@gmail.com"),
+        new(["pl"], "nid", github: "nidmb"),
+        new(["pl"], "Eryk Michalak", github: "gnu-ewm"),
+        new(["pl"], "HackZy01", github: "HackZy01"),
+        new(["pl"], "GGORG", github: "GGORG0"),
+        new(["pl"], "maksskorka", github: "maksskorka"),
+        new(["pl"], "bitzy", weblate: "bitzy"),
+        new(["pl"], "Daniel Misiarek", weblate: "daniel8f54446d1f224098"),
+        new(["pl"], "r5jyhte", weblate: "trewtdj"),
+        new(["pl"], "diskacz", github: "diskacz"),
+        new(["pt"], "Silvério Santos", github: "SantosSi"),
+        new(["pt"], "TiagoAryan", github: "TiagoAryan"),
+        new(["pt"], "Pedro", github: "pdafv"),
+        new(["pt"], "Manuela Silva", github: "mansil"),
+        new(["pt"], "doncanjas", weblate: "doncanjas"),
+        new(["pt"], "tiagossa1", weblate: "tiagossa1"),
+        new(["pt", "de", "es"], "Murcielago", weblate: "MRCLG"),
+        new(["pt", "pt_rBR"], "Kirakaze", github: "Kirazake"),
+        new(["pt_rBR"], "Fabio Raitz", mail: "fabioraitz@outlook.com"),
+        new(["pt_rBR"], "Washington Luiz Candido dos Santos Neto", weblate: "Netocon"),
+        new(["pt_rBR"], "mf", weblate: "marfS2"),
+        new(["pt_rBR"], "jucasagr", github: "jucasagr"),
+        new(["pt_rBR"], "Lucas Fernandes Vitor", weblate: "luc4sfv"),
+        new(["pt_rBR"], "tetify", github: "tetify"),
+        new(["pt_rBR"], "DanGLES3", github: "DanGLES3"),
+        new(["pt_rBR"], "OlliesGudh", github: "OlliesGudh"),
+        new(["pt_rBR"], "burns", github: "alvaroburns"),
+        new(["pt_rBR"], "Lucas", github: "lucasmz-dev"),
+        new(["ro"], "Igor Sorocean", github: "ygorigor"),
+        new(["ro"], "alexandru l", mail: "sandu.lulu@gmail.com"),
+        new(["ro"], "sas", weblate: "sas33"),
+        new(["ro"], "Alexandru51", github: "Alexandru51"),
+        new(["ro"], "Glassto", github: "Glassto"),
+        new(["ro"], "Renko", github: "Renko"),
+        new(["ro"], "David", weblate: "David7e16baa08f0b4658"),
+        new(["ro"], "Nicolae Fericitu", github: "NicolaeFericitu"),
+        new(["ru"], "Roman Adadurov", mail: "orelars53@gmail.com"),
+        new(["ru"], "Denio", mail: "deniosens@yandex.ru"),
+        new(["ru"], "Егор Ермаков", weblate: "creepen"),
+        new(["ru"], "TenchMaviatorius2759", github: "TenchMaviatorius2759"),
+        new(["ru"], "mak7im01", github: "mak7im01"),
+        new(["ru"], "Tim", weblate: "dlee"),
+        new(["ru"], "Yurt Page", github: "yurtpage"),
+        new(["sk"], "Kuko", weblate: "kuko7"),
+        new(["sk", "cs"], "Viliam Geffert", github: "vgeffer"),
+        new(["sk"], "aasami", weblate: "aasami"),
+        new(["sk", "cs"], "Milan", weblate: "Milan"),
+        new(["sl_rSI"], "Gregor", mail: "glakner@gmail.com"),
+        new(["sl_rSI"], "Kristijan Tkalec", github: "lapor-kris"),
+        new(["sl_rSI"], "Marko", weblate: "horvat.marko1993"),
+        new(["sl_rSI"], "BorKajin", github: "BorKajin"),
+        new(["sr"], "NEXI", github: "nexiRS"),
+        new(["sr"], "Milan Andrejić", mail: "amikia@hotmail.com"),
+        new(["sv"], "P.O", weblate: "mxvWhxCebxjnmLQxcIr"),
+        new(["sv"], "Peter Ericson", github: "noscirep"),
+        new(["sv"], "Luna Jernberg", github: "bittin"),
+        new(["sv"], "Victor Zamanian", github: "victorz"),
+        new(["sv"], "Innocentius0", github: "Innocentius0"),
+        new(["sv"], "EfraimTheDoggo", github: "EfraimTheDoggo"),
+        new(["sv"], "Mona Lisa", weblate: "MonaLisa"),
+        new(["ta"], "தமிழ் நேரம்", github: "TamilNeram"),
+        new(["ta"], "Naveen", weblate: "naveen"),
+        new(["ta"], "Yogeshwar Bala", github: "Blend3rman"),
+        new(["ta"], "hhharsha36", github: "hhharsha36"),
+        new(["th"], "Wari", github: "wwwwwwari"),
+        new(["th"], "ACHN SYPS", github: "achn-syps"),
+        new(["th", "ja"], "ikkue", github: "ikkue"),
+        new(["tr"], "Mehmet Saygin Yilmaz", mail: "memcos@gmail.com"),
+        new(["tr"], "Ali D.", mail: "siyaha@gmail.com"),
+        new(["tr"], "metezd", weblate: "metezd"),
+        new(["tr"], "Furkan Karcıoğlu", github: "frknkrc44"),
+        new(["tr"], "abfreeman", weblate: "abfreeman"),
+        new(["tr"], "Oğuz Ersen", github: "oersen"),
+        new(["tr"], "Önder Nuray", github: "ondern"),
+        new(["tr"], "AbdullahManaz", github: "AbdullahManaz"),
+        new(["tr"], "ODK", weblate: "odk0160"),
+        new(["tr"], "polarwood", weblate: "polarwood"),
+        new(["tr"], "Salih Efe Ergür", github: "salihefee"),
+        new(["uk"], "Cod3d.", github: "Cod3dDOT"),
+        new(["uk"], "Skrripy", weblate: "Skrripy"),
+        new(["uk"], "Fqwe1", weblate: "Fqwe1"),
+        new(["uk"], "Сергій", github: "Serega124"),
+        new(["uk"], "Максим Горпиніч", weblate: "Maksim2005UKR"),
+        new(["uk"], "Do you know my name?", weblate: "Anonymous2676"),
+        new(["uk", "be", "ru"], "vertekplus", github: "vertekplus"),
+        new(["ur"], "haseebwt", weblate: "haseebwt"),
+        new(["vi"], "minb", weblate: "minbe"),
+        new(["vi"], "Fairy", weblate: "Fairy"),
+        new(["vi"], "ngocanhtve", github: "ngocanhtve"),
+        new(["vi"], "minh3339", github: "minh3339"),
+        new(["vi"], "Hoang-Ender", github: "Hoang-Ender"),
+        new(["vi"], "pham the minh", github: "wikiepeidia"),
+        new(["zh_rCN", "zh_rHK", "zh_rTW", "en"], "WangDaYeeeeee", github: "WangDaYeeeeee"),
+        new(["zh_rCN"], "Coelacanthus", github: "CoelacanthusHex"),
+        new(["zh_rCN"], "御坂13766号", github: "misaka-13766"),
+        new(["zh_rCN"], "losky2987", github: "losky2987"),
+        new(["zh_rCN"], "thdcloud", github: "thdcloud"),
+        new(["zh_rCN", "zh_rTW"], "thaumiel9", github: "thaumiel9"),
+        new(["zh_rCN"], "tomac4t", github: "tomac4t"),
+        new(["zh_rHK", "zh_rTW"], "abc0922001", github: "abc0922001"),
+        new(["zh_rCN"], "大王叫我来巡山", weblate: "hamburger2048"),
+        new(["zh_rCN"], "hugoalh", github: "hugoalh"),
+        new(["zh_rCN"], "cloudfish", github: "cloudfish"),
+        new(["zh_rCN"], "WorldNulptr", github: "WorldNulptr"),
+        new(["zh_rCN"], "狼四星", github: "Fostar-Awoo"),
+        new(["zh_rHK", "zh_rTW", "is"], "chunshek", github: "chunshek"),
+        new(["zh_rCN", "zh_rHK", "zh_rTW"], "Frz", github: "FrzMtrsprt"),
+        new(["ja", "zh_rCN", "zh_rHK", "zh_rTW"], "天ツ風", github: "Yibuki"),
+        new(["zh_rHK", "zh_rTW", "be", "bg", "bs", "de", "el", "en", "eu", "it", "ja", "mk", "pl", "ru", "uk", "vi"], "kilimov25", github: "kilimov25"),
+    ];
+}

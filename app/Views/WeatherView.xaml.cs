@@ -41,6 +41,43 @@ public partial class WeatherView : UserControl
             FindCardsPanel(WeatherScroll)?.AttachHeader(WeatherHeader);
         };
         Unloaded += (_, _) => _clock.Stop();
+        DataContextChanged += OnDataContextChanged;
+    }
+
+    private ResourceDictionary? _palette;
+
+    private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+    {
+        if (e.OldValue is WeatherViewModel previous)
+        {
+            previous.PropertyChanged -= OnViewModelPropertyChanged;
+        }
+
+        if (e.NewValue is WeatherViewModel current)
+        {
+            current.PropertyChanged += OnViewModelPropertyChanged;
+            ApplyPalette(current.IsLightTheme);
+        }
+    }
+
+    private void OnViewModelPropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(WeatherViewModel.IsLightTheme) && sender is WeatherViewModel viewModel)
+        {
+            ApplyPalette(viewModel.IsLightTheme);
+        }
+    }
+
+    // The screen's own palette overrides the app's, so a location can be light while the rest of the app is dark.
+    private void ApplyPalette(bool light)
+    {
+        if (_palette is not null)
+        {
+            Resources.MergedDictionaries.Remove(_palette);
+        }
+
+        _palette = Appearance.ThemeManager.GetViewColors(light);
+        Resources.MergedDictionaries.Add(_palette);
     }
 
     private static WeatherCardsPanel? FindCardsPanel(DependencyObject parent)

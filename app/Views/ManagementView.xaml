@@ -54,18 +54,41 @@
         <!-- The saved locations. -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
                       Visibility="{Binding HasLocations, Converter={StaticResource BooleanToVisibility}}">
-            <ItemsControl x:Name="LocationList" Margin="16,12,16,96" MaxWidth="720" ItemsSource="{Binding Items}">
+            <StackPanel MaxWidth="720">
+            <!-- The offer to check for app updates, which clicking accepts and the close button declines. -->
+            <Border Margin="16,12,16,0" Padding="16" CornerRadius="28" Cursor="Hand" Background="{DynamicResource ElevatedSurfaceBrush}"
+                    Visibility="{Binding ShowAppUpdatePrompt, Converter={StaticResource BooleanToVisibility}}">
+                <Border.InputBindings>
+                    <MouseBinding Gesture="LeftClick" Command="{Binding EnableAppUpdateCheckCommand}" />
+                </Border.InputBindings>
+                <DockPanel>
+                    <ContentControl DockPanel.Dock="Left" Margin="0,0,16,0" VerticalAlignment="Center" Style="{StaticResource Icon960}"
+                                    Foreground="{DynamicResource OnSurfaceVariantBrush}" Tag="{StaticResource IconNotifications}" />
+                    <Button DockPanel.Dock="Right" VerticalAlignment="Center" Style="{StaticResource IconButton}"
+                            Command="{Binding DismissAppUpdatePromptCommand}"
+                            ToolTip="{l:Translate action_close}" AutomationProperties.Name="{l:Translate action_close}">
+                        <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconClose}" />
+                    </Button>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource TitleMediumText}" FontWeight="Normal" TextWrapping="Wrap"
+                                   Text="{l:Translate dialog_app_update_check_title}" />
+                        <TextBlock Margin="0,8,0,0" Style="{StaticResource BodyMediumText}" TextWrapping="Wrap"
+                                   Text="{l:Translate dialog_app_update_check_content}" />
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+            <ItemsControl x:Name="LocationList" Margin="16,12,16,96" ItemsSource="{Binding Items}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <!-- Sliding the card reveals delete at the start and source settings at the end. -->
                         <Grid Margin="0,0,0,8" ClipToBounds="True">
-                            <Border CornerRadius="{DynamicResource LocationCornerRadius}" Background="{StaticResource ErrorContainerBrush}" Visibility="Collapsed">
+                            <Border CornerRadius="{DynamicResource LocationCornerRadius}" Background="{DynamicResource ErrorContainerBrush}" Visibility="Collapsed">
                                 <ContentControl HorizontalAlignment="Left" Margin="24,0" Style="{StaticResource Icon24}"
-                                                Foreground="{StaticResource OnErrorContainerBrush}" Tag="{StaticResource IconDelete}" />
+                                                Foreground="{DynamicResource OnErrorContainerBrush}" Tag="{StaticResource IconDelete}" />
                             </Border>
-                            <Border CornerRadius="{DynamicResource LocationCornerRadius}" Background="{StaticResource SecondaryContainerBrush}" Visibility="Collapsed">
+                            <Border CornerRadius="{DynamicResource LocationCornerRadius}" Background="{DynamicResource SecondaryContainerBrush}" Visibility="Collapsed">
                                 <ContentControl HorizontalAlignment="Right" Margin="24,0" Style="{StaticResource Icon24}"
-                                                Foreground="{StaticResource OnSecondaryContainerBrush}" Tag="{StaticResource IconSettings}" />
+                                                Foreground="{DynamicResource OnSecondaryContainerBrush}" Tag="{StaticResource IconSettings}" />
                             </Border>
 
                             <Border x:Name="Card" CornerRadius="{DynamicResource LocationCornerRadius}" Cursor="Hand"
@@ -81,7 +104,7 @@
                                 </Border.InputBindings>
                                 <Border.Style>
                                     <Style TargetType="Border">
-                                        <Setter Property="Background" Value="{StaticResource SurfaceContainerLowBrush}" />
+                                        <Setter Property="Background" Value="{DynamicResource ElevatedSurfaceBrush}" />
                                         <Setter Property="Focusable" Value="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" />
                                         <Setter Property="AutomationProperties.HelpText" Value="{l:Translate location_swipe_to_delete}" />
                                         <Style.Triggers>
@@ -90,14 +113,14 @@
                                                 <Setter Property="AutomationProperties.HelpText" Value="{l:Translate desktop_location_actions}" />
                                             </DataTrigger>
                                             <Trigger Property="IsKeyboardFocused" Value="True">
-                                                <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}" />
+                                                <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
                                                 <Setter Property="BorderThickness" Value="1" />
                                             </Trigger>
                                             <DataTrigger Binding="{Binding HasAlerts}" Value="True">
-                                                <Setter Property="Background" Value="{StaticResource AlertBackgroundBrush}" />
+                                                <Setter Property="Background" Value="{DynamicResource AlertBackgroundBrush}" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                <Setter Property="Background" Value="{StaticResource PrimaryContainerBrush}" />
+                                                <Setter Property="Background" Value="{DynamicResource PrimaryContainerBrush}" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -110,27 +133,30 @@
                                         <ContentControl Tag="{StaticResource IconDrag}">
                                             <ContentControl.Style>
                                                 <Style TargetType="ContentControl" BasedOn="{StaticResource Icon24}">
-                                                    <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}" />
+                                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding HasAlerts}" Value="True">
-                                                            <Setter Property="Foreground" Value="{StaticResource AlertTextBrush}" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource AlertTextBrush}" />
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                            <Setter Property="Foreground" Value="{StaticResource OnPrimaryContainerBrush}" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource OnPrimaryContainerBrush}" />
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </ContentControl.Style>
                                         </ContentControl>
                                     </Border>
+                                    <Image DockPanel.Dock="Left" Width="42" Height="42" Margin="0,0,8,0" VerticalAlignment="Center"
+                                           Source="{Binding WeatherIconPath}"
+                                           Visibility="{Binding HasWeatherIcon, Converter={StaticResource BooleanToVisibility}}" />
                                     <StackPanel Margin="0,16,16,16" VerticalAlignment="Center">
                                         <TextBlock FontSize="16" FontWeight="Medium" TextTrimming="CharacterEllipsis" Text="{Binding Title}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
-                                                    <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnSurfaceBrush}" />
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                                            <Setter Property="Foreground" Value="{StaticResource OnPrimaryContainerBrush}" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource OnPrimaryContainerBrush}" />
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -139,10 +165,10 @@
                                         <TextBlock FontSize="14" TextTrimming="CharacterEllipsis" Text="{Binding Body}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource OptionalText}">
-                                                    <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}" />
+                                                    <Setter Property="Foreground" Value="{DynamicResource OnSurfaceVariantBrush}" />
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding HasAlerts}" Value="True">
-                                                            <Setter Property="Foreground" Value="{StaticResource AlertTextBrush}" />
+                                                            <Setter Property="Foreground" Value="{DynamicResource AlertTextBrush}" />
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -155,13 +181,14 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+            </StackPanel>
         </ScrollViewer>
 
         <Button Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{StaticResource NormalMargin}"
                 Style="{StaticResource FloatingActionButton}" Command="{Binding AddLocationCommand}"
                 ToolTip="{l:Translate action_add_new_location}" AutomationProperties.Name="{l:Translate action_add_new_location}"
                 Visibility="{Binding HasLocations, Converter={StaticResource BooleanToVisibility}}">
-            <ContentControl Style="{StaticResource Icon24}" Foreground="{StaticResource OnTertiaryBrush}" Tag="{StaticResource IconAdd}" />
+            <ContentControl Style="{StaticResource Icon24}" Foreground="{DynamicResource OnTertiaryBrush}" Tag="{StaticResource IconAdd}" />
         </Button>
 
         <!-- Without locations, the screen only offers to add one. -->

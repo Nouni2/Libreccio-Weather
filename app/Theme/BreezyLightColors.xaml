@@ -1,0 +1,55 @@
+<!--
+  This file is part of Libreccio Weather.
+
+  Libreccio Weather is free software: you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the Free
+  Software Foundation, version 3 of the License.
+
+  Libreccio Weather is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  more details.
+
+  You should have received a copy of the GNU General Public License along
+  with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
+-->
+<!-- The light palette of the main screen, the location list and the order editors, with the same keys as
+     BreezyDarkColors.xaml. Surface containers are Material 3's light baseline. ElevatedSurfaceBrush is the surface tinted
+     with the primary color at 2 dp elevation. -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="SurfaceBrush" Color="#FDFBFF" />
+    <SolidColorBrush x:Key="SurfaceContainerBrush" Color="#F3EDF7" />
+    <SolidColorBrush x:Key="MainCardBackgroundBrush" Color="#FDFBFF" />
+    <SolidColorBrush x:Key="MainCardArcRootBrush" Color="#FDFCFF" />
+    <SolidColorBrush x:Key="MainCardTitleBrush" Color="#1B1B1D" />
+    <SolidColorBrush x:Key="MainCardTextBrush" Color="#1B1B1D" />
+    <SolidColorBrush x:Key="BodyTextBrush" Color="#666666" />
+    <SolidColorBrush x:Key="SurfaceContainerHighBrush" Color="#ECE6F0" />
+    <SolidColorBrush x:Key="OnSurfaceBrush" Color="#1B1B1D" />
+    <SolidColorBrush x:Key="OnSurfaceVariantBrush" Color="#49454F" />
+    <SolidColorBrush x:Key="PrimaryBrush" Color="#205DAF" />
+    <SolidColorBrush x:Key="OutlineBrush" Color="#10000000" />
+    <SolidColorBrush x:Key="ElevatedSurfaceBrush" Color="#EEF0F9" />
+    <SolidColorBrush x:Key="SurfaceContainerLowBrush" Color="#F7F2FA" />
+    <SolidColorBrush x:Key="OnPrimaryBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="PrimaryContainerBrush" Color="#D6E3FF" />
+    <SolidColorBrush x:Key="OnPrimaryContainerBrush" Color="#001B3F" />
+    <SolidColorBrush x:Key="SecondaryContainerBrush" Color="#B1EBFF" />
+    <SolidColorBrush x:Key="OnSecondaryContainerBrush" Color="#001F28" />
+    <SolidColorBrush x:Key="TertiaryBrush" Color="#775A00" />
+    <SolidColorBrush x:Key="OnTertiaryBrush" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="TertiaryContainerBrush" Color="#FFDF8E" />
+    <SolidColorBrush x:Key="OnTertiaryContainerBrush" Color="#251A00" />
+    <SolidColorBrush x:Key="WidgetBackgroundBrush" Color="#DCE2F9" />
+    <SolidColorBrush x:Key="ErrorBrush" Color="#B3261E" />
+    <SolidColorBrush x:Key="ErrorContainerBrush" Color="#F9DEDC" />
+    <SolidColorBrush x:Key="OnErrorContainerBrush" Color="#410E0B" />
+    <SolidColorBrush x:Key="InverseSurfaceBrush" Color="#2F3033" />
+    <SolidColorBrush x:Key="InverseOnSurfaceBrush" Color="#F2F0F4" />
+    <SolidColorBrush x:Key="InversePrimaryBrush" Color="#A8C7FF" />
+    <SolidColorBrush x:Key="ScrimBrush" Color="#99000000" />
+    <SolidColorBrush x:Key="HoverLayerBrush" Color="#141B1B1D" />
+    <SolidColorBrush x:Key="AlertBackgroundBrush" Color="#FFB4AB" />
+    <SolidColorBrush x:Key="AlertTextBrush" Color="#BA1A1A" />
+</ResourceDictionary>

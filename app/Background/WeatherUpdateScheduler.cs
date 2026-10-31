@@ -102,6 +102,11 @@ public sealed class WeatherUpdateScheduler : IDisposable
         }
     }
 
+    /// <summary>
+    /// Raised on a worker thread after each run of the job, whatever its result.
+    /// </summary>
+    public event EventHandler? JobFinished;
+
     private async Task RunAsync()
     {
         lock (_lock)
@@ -122,7 +127,7 @@ public sealed class WeatherUpdateScheduler : IDisposable
             }
         }
 
-        // Battery saver stands for Android's low battery state: Windows or the user decides when it applies.
+        // Battery saver marks the battery as low: Windows or the user decides when it applies.
         // Without the conditions the job waits. A change of network or power state schedules it again, and it is also
         // checked again after the retry delay, in case Windows reports no change when Battery saver turns off.
         if (!NetworkStatus.IsOnline() || (_settings.IgnoreUpdatesWhenBatteryLow && BatterySaver.IsOn()))
@@ -147,6 +152,8 @@ public sealed class WeatherUpdateScheduler : IDisposable
         {
             result = WeatherUpdateJobResult.Failure;
         }
+
+        JobFinished?.Invoke(this, EventArgs.Empty);
 
         if (result is WeatherUpdateJobResult.Retry or WeatherUpdateJobResult.AlreadyRunning or WeatherUpdateJobResult.Failure)
         {

@@ -19,7 +19,7 @@
              xmlns:l="clr-namespace:LibreccioWeather.Localization"
              xmlns:d="clr-namespace:LibreccioWeather.ViewModels.Details"
              xmlns:c="clr-namespace:LibreccioWeather.Controls.Details"
-             Background="{StaticResource SurfaceBrush}">
+             Background="{DynamicResource SurfaceBrush}">
     <UserControl.InputBindings>
         <KeyBinding Key="Escape" Command="{Binding CloseMenuCommand}" />
     </UserControl.InputBindings>
@@ -32,7 +32,7 @@
             <Setter Property="FontWeight" Value="Medium" />
             <Setter Property="LineHeight" Value="16" />
             <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
-            <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource OnSurfaceBrush}" />
             <Setter Property="TextTrimming" Value="CharacterEllipsis" />
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
@@ -42,12 +42,12 @@
             <Setter Property="LineHeight" Value="20" />
             <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
             <Setter Property="Height" Value="20" />
-            <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource OnSurfaceBrush}" />
             <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         </Style>
         <Style x:Key="BodyLarge" TargetType="TextBlock">
             <Setter Property="FontSize" Value="16" />
-            <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource OnSurfaceBrush}" />
             <Setter Property="TextWrapping" Value="Wrap" />
         </Style>
         <Style x:Key="DisplaySmall" TargetType="c:DetailsRunsText">
@@ -55,13 +55,13 @@
             <Setter Property="LineHeight" Value="44" />
             <Setter Property="LineStackingStrategy" Value="BlockLineHeight" />
             <Setter Property="Height" Value="44" />
-            <Setter Property="Foreground" Value="{StaticResource OnSurfaceBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource OnSurfaceBrush}" />
             <Setter Property="TextTrimming" Value="CharacterEllipsis" />
         </Style>
 
         <!-- The card behind texts, tables and grids. -->
         <Style x:Key="CardListItem" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource SurfaceContainerLowBrush}" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceContainerLowBrush}" />
             <Setter Property="CornerRadius" Value="28" />
         </Style>
 
@@ -69,7 +69,7 @@
         <DataTemplate DataType="{x:Type d:DetailsLabel}">
             <StackPanel Height="16" Orientation="Horizontal" Background="Transparent" MouseLeftButtonUp="OnHelpClick" ToolTip="{Binding Help}">
                 <TextBlock Style="{StaticResource LabelMedium}" Text="{Binding Text}" />
-                <c:DetailsIcon Key="IconHelp" Width="16" Height="16" Margin="8,0,0,0" Foreground="{StaticResource OnSurfaceBrush}">
+                <c:DetailsIcon Key="IconHelp" Width="16" Height="16" Margin="8,0,0,0" Foreground="{DynamicResource OnSurfaceBrush}">
                     <c:DetailsIcon.Style>
                         <Style TargetType="c:DetailsIcon">
                             <Style.Triggers>
@@ -96,7 +96,7 @@
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type d:DetailsBodySmall}">
-            <TextBlock FontSize="12" TextWrapping="Wrap" Foreground="{StaticResource OnSurfaceBrush}" Text="{Binding Text}" />
+            <TextBlock FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource OnSurfaceBrush}" Text="{Binding Text}" />
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type d:DetailsMessage}">
@@ -105,8 +105,8 @@
 
         <DataTemplate DataType="{x:Type d:DetailsSectionHeader}">
             <StackPanel Margin="16,0,0,8">
-                <c:DetailsRunsText FontSize="22" Foreground="{StaticResource OnSurfaceBrush}" TextWrapping="Wrap" Runs="{Binding Title}" />
-                <c:DetailsRunsText FontSize="12" Foreground="{StaticResource OnSurfaceVariantBrush}" TextWrapping="Wrap" Runs="{Binding Subtitle}">
+                <c:DetailsRunsText FontSize="22" Foreground="{DynamicResource OnSurfaceBrush}" TextWrapping="Wrap" Runs="{Binding Title}" />
+                <c:DetailsRunsText FontSize="12" Foreground="{DynamicResource OnSurfaceVariantBrush}" TextWrapping="Wrap" Runs="{Binding Subtitle}">
                     <c:DetailsRunsText.Style>
                         <Style TargetType="c:DetailsRunsText">
                             <Style.Triggers>
@@ -147,9 +147,9 @@
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" AutomationProperties.Name="">
-                    <c:DetailsIcon Key="IconAbout" VerticalAlignment="Center" Foreground="{StaticResource OnSurfaceBrush}" />
+                    <c:DetailsIcon Key="IconAbout" VerticalAlignment="Center" Foreground="{DynamicResource OnSurfaceBrush}" />
                     <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" FontSize="12" TextWrapping="Wrap"
-                               Foreground="{StaticResource OnSurfaceBrush}" Text="{Binding Text}" />
+                               Foreground="{DynamicResource OnSurfaceBrush}" Text="{Binding Text}" />
                 </StackPanel>
             </Grid>
         </DataTemplate>
@@ -210,7 +210,7 @@
                                                 <Setter Property="Visibility" Value="Collapsed" />
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding SubtextIsVariant}" Value="True">
-                                                <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}" />
+                                                <Setter Property="Foreground" Value="{DynamicResource OnSurfaceVariantBrush}" />
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -273,7 +273,7 @@
                 <Image Width="42" Height="42" Margin="0,0,8,0" Source="{Binding WeatherIcon}" />
                 <TextBlock VerticalAlignment="Center" MaxHeight="48" FontSize="16" FontWeight="Bold" LineHeight="24"
                            LineStackingStrategy="BlockLineHeight" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
-                           Foreground="{StaticResource OnSurfaceBrush}" Text="{Binding WeatherText}" />
+                           Foreground="{DynamicResource OnSurfaceBrush}" Text="{Binding WeatherText}" />
             </StackPanel>
         </DataTemplate>
 
@@ -284,7 +284,7 @@
         <DataTemplate DataType="{x:Type d:DetailsItem}">
             <StackPanel Orientation="Horizontal" Background="Transparent" MouseLeftButtonUp="OnHelpClick"
                         ToolTip="{Binding Help}" AutomationProperties.Name="{Binding AutomationName}">
-                <c:DetailsIcon Key="{Binding IconKey}" Margin="0,0,8,0" VerticalAlignment="Center" Foreground="{StaticResource OnSurfaceBrush}">
+                <c:DetailsIcon Key="{Binding IconKey}" Margin="0,0,8,0" VerticalAlignment="Center" Foreground="{DynamicResource OnSurfaceBrush}">
                     <c:DetailsIcon.Style>
                         <Style TargetType="c:DetailsIcon">
                             <Style.Triggers>
@@ -297,9 +297,9 @@
                 </c:DetailsIcon>
                 <StackPanel VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock FontSize="16" FontWeight="Bold" Foreground="{StaticResource OnSurfaceBrush}" Text="{Binding Headline}" />
+                        <TextBlock FontSize="16" FontWeight="Bold" Foreground="{DynamicResource OnSurfaceBrush}" Text="{Binding Headline}" />
                         <c:DetailsIcon Key="IconHelp" Width="16" Height="16" Margin="8,0,0,0" VerticalAlignment="Center"
-                                       Foreground="{StaticResource OnSurfaceBrush}">
+                                       Foreground="{DynamicResource OnSurfaceBrush}">
                             <c:DetailsIcon.Style>
                                 <Style TargetType="c:DetailsIcon">
                                     <Style.Triggers>
@@ -311,7 +311,7 @@
                             </c:DetailsIcon.Style>
                         </c:DetailsIcon>
                     </StackPanel>
-                    <TextBlock FontSize="16" Foreground="{StaticResource OnSurfaceBrush}" Text="{Binding Supporting}">
+                    <TextBlock FontSize="16" Foreground="{DynamicResource OnSurfaceBrush}" Text="{Binding Supporting}">
                         <TextBlock.Style>
                             <Style TargetType="TextBlock">
                                 <Style.Triggers>
@@ -327,7 +327,7 @@
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type d:DetailsLargeValue}">
-            <c:DetailsRunsText FontSize="36" Foreground="{StaticResource OnSurfaceBrush}" Runs="{Binding Value}"
+            <c:DetailsRunsText FontSize="36" Foreground="{DynamicResource OnSurfaceBrush}" Runs="{Binding Value}"
                                AutomationProperties.Name="{Binding AutomationName}" />
         </DataTemplate>
 
@@ -393,12 +393,12 @@
                             </Button.Template>
                             <Button.Style>
                                 <Style TargetType="Button">
-                                    <Setter Property="Background" Value="{StaticResource SurfaceContainerBrush}" />
-                                    <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}" />
+                                    <Setter Property="Background" Value="{DynamicResource SurfaceContainerBrush}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource OnSurfaceVariantBrush}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsChecked}" Value="True">
-                                            <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
-                                            <Setter Property="Foreground" Value="{StaticResource OnPrimaryBrush}" />
+                                            <Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
+                                            <Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" />
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -432,7 +432,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Margin="8" AutomationProperties.Name="{Binding AutomationName}">
-                                <c:DetailsRunsText FontSize="16" FontWeight="Bold" Foreground="{StaticResource OnSurfaceBrush}" Runs="{Binding Title}" />
+                                <c:DetailsRunsText FontSize="16" FontWeight="Bold" Foreground="{DynamicResource OnSurfaceBrush}" Runs="{Binding Title}" />
                                 <Grid Height="10" Loaded="OnProgressLoaded" SizeChanged="OnProgressSizeChanged">
                                     <Border CornerRadius="5">
                                         <Border.Background>
@@ -445,7 +445,7 @@
                                         </Border.Background>
                                     </Border>
                                 </Grid>
-                                <TextBlock HorizontalAlignment="Right" FontSize="14" Foreground="{StaticResource OnSurfaceBrush}" Text="{Binding Content}" />
+                                <TextBlock HorizontalAlignment="Right" FontSize="14" Foreground="{DynamicResource OnSurfaceBrush}" Text="{Binding Content}" />
                             </StackPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -474,9 +474,9 @@
                                 </Path>
                                 <StackPanel>
                                     <TextBlock FontSize="16" FontWeight="Medium" TextTrimming="CharacterEllipsis"
-                                               Foreground="{StaticResource OnSurfaceBrush}" Text="{Binding Title}" />
+                                               Foreground="{DynamicResource OnSurfaceBrush}" Text="{Binding Title}" />
                                     <TextBlock FontSize="14" TextTrimming="CharacterEllipsis"
-                                               Foreground="{StaticResource OnSurfaceVariantBrush}" Text="{Binding Subtitle}" />
+                                               Foreground="{DynamicResource OnSurfaceVariantBrush}" Text="{Binding Subtitle}" />
                                 </StackPanel>
                             </StackPanel>
                         </DataTemplate>
@@ -550,7 +550,7 @@
                 </ListBox.ItemsPanel>
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="ListBoxItem">
-                        <Setter Property="Foreground" Value="{StaticResource OnSurfaceVariantBrush}" />
+                        <Setter Property="Foreground" Value="{DynamicResource OnSurfaceVariantBrush}" />
                         <Setter Property="MinWidth" Value="90" />
                         <Setter Property="Cursor" Value="Hand" />
                         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -562,7 +562,7 @@
                                         <ContentPresenter x:Name="Presenter" Margin="16,12" HorizontalAlignment="Center" />
                                         <Border x:Name="Indicator" Height="3" VerticalAlignment="Bottom" HorizontalAlignment="Center"
                                                 MinWidth="24" Width="{Binding ActualWidth, ElementName=Presenter}" CornerRadius="3,3,0,0"
-                                                Background="{StaticResource PrimaryBrush}" Visibility="Collapsed" />
+                                                Background="{DynamicResource PrimaryBrush}" Visibility="Collapsed" />
                                     </Grid>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsSelected" Value="True">
@@ -574,7 +574,7 @@
                         </Setter>
                         <Style.Triggers>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}" />
+                                <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
                             </Trigger>
                         </Style.Triggers>
                     </Style>
@@ -612,7 +612,7 @@
                         <DataTemplate>
                             <Button Margin="0,4,0,0" HorizontalAlignment="Right" Height="56" Padding="16,0,24,0" Cursor="Hand"
                                     Command="{Binding Command}" AutomationProperties.Name="{Binding Name}"
-                                    Background="{StaticResource PrimaryContainerBrush}" Foreground="{StaticResource OnPrimaryContainerBrush}">
+                                    Background="{DynamicResource PrimaryContainerBrush}" Foreground="{DynamicResource OnPrimaryContainerBrush}">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border Background="{TemplateBinding Background}" CornerRadius="28" Padding="{TemplateBinding Padding}">
@@ -622,9 +622,9 @@
                                 </Button.Template>
                                 <StackPanel Orientation="Horizontal">
                                     <c:DetailsIcon Key="{Binding IconKey}" Margin="0,0,8,0" VerticalAlignment="Center"
-                                                   Foreground="{StaticResource OnPrimaryContainerBrush}" />
+                                                   Foreground="{DynamicResource OnPrimaryContainerBrush}" />
                                     <TextBlock VerticalAlignment="Center" FontSize="16" FontWeight="Medium"
-                                               Foreground="{StaticResource OnPrimaryContainerBrush}" Text="{Binding Name}" />
+                                               Foreground="{DynamicResource OnPrimaryContainerBrush}" Text="{Binding Name}" />
                                 </StackPanel>
                             </Button>
                         </DataTemplate>
@@ -636,12 +636,12 @@
                     AutomationProperties.ItemStatus="{Binding MenuState}">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Container" Background="{StaticResource PrimaryContainerBrush}" CornerRadius="16">
+                        <Border x:Name="Container" Background="{DynamicResource PrimaryContainerBrush}" CornerRadius="16">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <DataTrigger Binding="{Binding IsMenuOpen}" Value="True">
-                                <Setter TargetName="Container" Property="Background" Value="{StaticResource PrimaryBrush}" />
+                                <Setter TargetName="Container" Property="Background" Value="{DynamicResource PrimaryBrush}" />
                                 <Setter TargetName="Container" Property="CornerRadius" Value="28" />
                             </DataTrigger>
                         </ControlTemplate.Triggers>
@@ -650,10 +650,10 @@
                 <c:DetailsIcon Key="{Binding MenuIconKey}">
                     <c:DetailsIcon.Style>
                         <Style TargetType="c:DetailsIcon">
-                            <Setter Property="Foreground" Value="{StaticResource OnPrimaryContainerBrush}" />
+                            <Setter Property="Foreground" Value="{DynamicResource OnPrimaryContainerBrush}" />
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsMenuOpen}" Value="True">
-                                    <Setter Property="Foreground" Value="{StaticResource OnPrimaryBrush}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" />
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>

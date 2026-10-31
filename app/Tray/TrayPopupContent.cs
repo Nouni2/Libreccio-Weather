@@ -98,7 +98,16 @@ public sealed record TrayPopupContent(
 
         string? refreshText = style == NotificationStyle.Native && weather?.Base.RefreshTime is { } refreshTime && location is not null
             ? Strings.Get("notification_refreshed_at") + " " + DateFormatting.GetFormattedTime(refreshTime, location.TimeZone) : null;
-        return new TrayPopupContent(location?.GetPlace() ?? Strings.Get("desktop_app_name"), weather?.Current?.WeatherText,
+        // The place is followed by today's date in the alternate calendar, when one is chosen.
+        string popupTitle = location?.GetPlace() ?? Strings.Get("desktop_app_name");
+        if (location is not null && CalendarHelper.GetAlternateCalendarSetting(settings.AlternateCalendar) is not null)
+        {
+            popupTitle += Strings.GetUnit("locale_separator")
+                + CalendarHelper.GetFormattedMediumDayAndMonthInAdditionalCalendar(
+                    DateTimeOffset.UtcNow, location.TimeZone, settings.AlternateCalendar);
+        }
+
+        return new TrayPopupContent(popupTitle, weather?.Current?.WeatherText,
             style == NotificationStyle.Native && settings.IsWidgetNotificationTemperatureIconEnabled
                 ? null : style == NotificationStyle.Native && temperature is { } value
                     ? UnitFormatting.Format(value, unit) : FormatTemperature(temperature, unit),

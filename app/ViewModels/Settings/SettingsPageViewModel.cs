@@ -26,13 +26,25 @@ public sealed class SettingsPageViewModel : ObservableObject
 {
     private readonly Func<SettingsPageViewModel> _rebuild;
 
-    public SettingsPageViewModel(string title, IReadOnlyList<object> items, Action onBack, Func<SettingsPageViewModel> rebuild)
+    /// <param name="onAbout">Opens the About screen from the top bar, or null on screens without that button.</param>
+    public SettingsPageViewModel(
+        string title,
+        IReadOnlyList<object> items,
+        Action onBack,
+        Func<SettingsPageViewModel> rebuild,
+        Action? onAbout = null)
     {
         Title = title;
         Items = items;
         BackCommand = new RelayCommand(onBack);
         _rebuild = rebuild;
+        HasAboutButton = onAbout is not null;
+        AboutCommand = new RelayCommand(() => onAbout?.Invoke());
     }
+
+    public bool HasAboutButton { get; }
+
+    public IRelayCommand AboutCommand { get; }
 
     public string Title { get; }
 

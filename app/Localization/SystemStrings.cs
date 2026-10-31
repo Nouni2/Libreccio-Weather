@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 namespace LibreccioWeather.Localization;
 
 /// <summary>
-/// Button text that Breezy Weather takes from Android itself, taken here from Windows in the Windows display language.
+/// Button text taken from Windows itself, in the Windows display language, so it matches the system's own dialogs.
 /// </summary>
 internal static class SystemStrings
 {

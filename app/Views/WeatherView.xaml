@@ -20,7 +20,8 @@
              xmlns:weather="clr-namespace:LibreccioWeather.Views.Weather"
              xmlns:cards="clr-namespace:LibreccioWeather.Controls.WeatherCards"
              xmlns:forecast="clr-namespace:LibreccioWeather.ViewModels.Forecast"
-             xmlns:conditions="clr-namespace:LibreccioWeather.ViewModels.WeatherCards">
+             xmlns:conditions="clr-namespace:LibreccioWeather.ViewModels.WeatherCards"
+             Background="{DynamicResource SurfaceBrush}">
     <UserControl.Resources>
         <DataTemplate DataType="{x:Type forecast:ForecastCardViewModel}">
             <weather:ForecastCardView />
@@ -64,6 +65,10 @@
                     <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconSettings}" Width="20" Height="20" />
                 </Button>
             </StackPanel>
+            <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}" Command="{Binding EditLocationCommand}"
+                    ToolTip="{l:Translate action_edit_location}" AutomationProperties.Name="{l:Translate action_edit_location}">
+                <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconEdit}" />
+            </Button>
             <Button DockPanel.Dock="Left" Command="{Binding OpenLocationListCommand}"
                     ToolTip="{l:Translate action_location_list}" AutomationProperties.Name="{l:Translate action_location_list}">
                 <Button.Style>
@@ -83,7 +88,7 @@
         </DockPanel>
 
         <ProgressBar Grid.Row="1" Height="4" IsIndeterminate="True" BorderThickness="0"
-                     Background="Transparent" Foreground="{StaticResource PrimaryBrush}"
+                     Background="Transparent" Foreground="{DynamicResource PrimaryBrush}"
                      Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibility}}" />
 
         <ScrollViewer x:Name="WeatherScroll" Grid.Row="2" VerticalScrollBarVisibility="Auto"
@@ -103,9 +108,9 @@
                             </Style>
                         </StackPanel.Style>
                         <ContentControl Style="{StaticResource Icon24}" Width="20" Height="20"
-                                        Foreground="{StaticResource InverseSurfaceBrush}" Tag="{StaticResource IconTime}" />
+                                        Foreground="{DynamicResource InverseSurfaceBrush}" Tag="{StaticResource IconTime}" />
                         <TextBlock Margin="6,0,0,0" VerticalAlignment="Center" FontSize="14" TextTrimming="CharacterEllipsis"
-                                   Foreground="{StaticResource InverseSurfaceBrush}" Text="{Binding RefreshTimeText}" />
+                                   Foreground="{DynamicResource InverseSurfaceBrush}" Text="{Binding RefreshTimeText}" />
                     </StackPanel>
 
                     <TextBlock HorizontalAlignment="Center" Margin="0,8,0,0" Style="{StaticResource TitleLargeText}"
@@ -118,9 +123,9 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="1" Margin="0,-10,0,0" FontSize="140" FontWeight="Bold"
-                                   Foreground="{StaticResource OnSurfaceBrush}" Text="{Binding TemperatureText}" />
+                                   Foreground="{DynamicResource OnSurfaceBrush}" Text="{Binding TemperatureText}" />
                         <TextBlock Grid.Column="2" Margin="0,5,0,0" FontSize="50" FontWeight="Bold"
-                                   Foreground="{StaticResource OnSurfaceBrush}" Text="{Binding TemperatureUnitText}">
+                                   Foreground="{DynamicResource OnSurfaceBrush}" Text="{Binding TemperatureUnitText}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Style.Triggers>

@@ -99,7 +99,7 @@ public sealed class ClickablePreference : CardPreference
         {
             Icon = (Geometry)Application.Current.FindResource(iconKey);
 
-            // Upstream icons come in two viewport sizes, which the view scales to the same size.
+            // Icons come in two viewport sizes, which the view scales to the same size.
             IconViewport = Icon.Bounds.Right > 24 || Icon.Bounds.Bottom > 24 ? 960 : 24;
         }
     }
@@ -173,11 +173,121 @@ public sealed class ListPreference : CardPreference
         }, _main.CloseDialog));
     }
 
-    // An unknown value shows the first name, as upstream does for values no longer offered.
+    // An unknown value, such as one no longer offered, shows the first name.
     private void UpdateSummary()
     {
         int index = _values.ToList().IndexOf(_selectedKey);
         Summary = _names[index < 0 ? 0 : index];
+    }
+}
+
+/// <summary>
+/// A line of text edited in a dialog. The summary is worked out from the text, such as the default value when it is
+/// empty.
+/// </summary>
+public sealed class EditTextPreference : CardPreference
+{
+    private readonly MainViewModel _main;
+    private readonly Func<string, string?> _summary;
+    private readonly string? _placeholder;
+    private readonly System.Text.RegularExpressions.Regex? _regex;
+    private readonly string? _regexError;
+    private readonly Action<string> _onValueChanged;
+    private string _content;
+
+    public EditTextPreference(
+        MainViewModel main,
+        string title,
+        Func<string, string?> summary,
+        string? content,
+        string? placeholder,
+        System.Text.RegularExpressions.Regex? regex,
+        string? regexError,
+        Action<string> onValueChanged,
+        bool isFirst = false,
+        bool isLast = false)
+        : base(title, isFirst, isLast, isEnabled: true)
+    {
+        _main = main;
+        _summary = summary;
+        _content = content ?? "";
+        _placeholder = placeholder;
+        _regex = regex;
+        _regexError = regexError;
+        _onValueChanged = onValueChanged;
+        OpenCommand = new RelayCommand(Open);
+        Summary = summary(_content);
+    }
+
+    public IRelayCommand OpenCommand { get; }
+
+    private void Open()
+    {
+        _main.ShowDialog(new EditTextDialogViewModel(Title, _content, _placeholder, _regex, _regexError, value =>
+        {
+            _main.CloseDialog();
+            _content = value;
+            Summary = _summary(value);
+            _onValueChanged(value);
+        }, _main.CloseDialog));
+    }
+}
+
+/// <summary>
+/// A time of day stored as "HH:mm" and chosen in a dialog. The summary is the time on Windows' clock format.
+/// </summary>
+public sealed class TimePickerPreference : CardPreference
+{
+    private readonly MainViewModel _main;
+    private readonly Action<string> _onValueChanged;
+    private string _currentTime;
+
+    public TimePickerPreference(
+        MainViewModel main,
+        string title,
+        string currentTime,
+        Action<string> onValueChanged,
+        bool isEnabled = true,
+        bool isFirst = false,
+        bool isLast = false)
+        : base(title, isFirst, isLast, isEnabled)
+    {
+        _main = main;
+        _currentTime = currentTime;
+        _onValueChanged = onValueChanged;
+        OpenCommand = new RelayCommand(Open);
+        UpdateSummary();
+    }
+
+    public IRelayCommand OpenCommand { get; }
+
+    private void Open()
+    {
+        (int hour, int minute) = Parse(_currentTime) ?? (0, 0);
+        _main.ShowDialog(new TimePickerDialogViewModel(hour, minute, (newHour, newMinute) =>
+        {
+            _main.CloseDialog();
+            _currentTime = newHour.ToString("00", CultureInfo.InvariantCulture) + ":"
+                + newMinute.ToString("00", CultureInfo.InvariantCulture);
+            UpdateSummary();
+            _onValueChanged(_currentTime);
+        }, _main.CloseDialog));
+    }
+
+    // A time that cannot be read shows no summary.
+    private void UpdateSummary()
+    {
+        Summary = Parse(_currentTime) is { } time
+            ? Core.Localization.DateFormatting.GetFormattedTime(
+                new DateTimeOffset(1970, 1, 1, time.Hour, time.Minute, 0, TimeSpan.Zero), TimeZoneInfo.Utc)
+            : null;
+    }
+
+    private static (int Hour, int Minute)? Parse(string time)
+    {
+        return DateTime.TryParseExact(time, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsed)
+            ? (parsed.Hour, parsed.Minute)
+            : null;
     }
 }
 
@@ -215,7 +325,7 @@ public sealed partial class SwitchPreference : CardPreference
     [ObservableProperty]
     private bool _isChecked;
 
-    // Clicking anywhere on the card flips the switch, as on Android.
+    // Clicking anywhere on the card flips the switch.
     [RelayCommand]
     private void Toggle()
     {

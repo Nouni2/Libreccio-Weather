@@ -18,12 +18,13 @@ using System.Globalization;
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Settings.Options;
+using LibreccioWeather.Core.Sources.OpenMeteo;
 using LibreccioWeather.Core.Units;
 
 namespace LibreccioWeather.ViewModels.Settings;
 
 /// <summary>
-/// The settings screens, in Breezy Weather's order. Categories not ported yet are shown but cannot be opened.
+/// The settings screens. Categories without a screen are shown but cannot be opened.
 /// </summary>
 public static class SettingsPages
 {
@@ -49,9 +50,19 @@ public static class SettingsPages
                 "IconPalette",
                 isFirst: true),
             SeparatorPreference.Small,
-            NotPorted("settings_main", "settings_main_summary", "IconHome", isLast: true),
+            new ClickablePreference(
+                Strings.Get("settings_main"),
+                Strings.Get("settings_main_summary"),
+                () => main.NavigateTo(MainScreen(main)),
+                "IconHome",
+                isLast: true),
             SeparatorPreference.Large,
-            NotPorted("settings_notifications", "settings_notifications_summary", "IconNotifications", isFirst: true),
+            new ClickablePreference(
+                Strings.Get("settings_notifications"),
+                Strings.Get("settings_notifications_summary"),
+                () => main.NavigateTo(Notifications(main)),
+                "IconNotifications",
+                isFirst: true),
             SeparatorPreference.Small,
             new ClickablePreference(
                 Strings.Get("settings_modules"),
@@ -62,11 +73,16 @@ public static class SettingsPages
             SeparatorPreference.Large,
             NotPorted("settings_location", "settings_location_summary", "IconLocation", isFirst: true),
             SeparatorPreference.Small,
-            NotPorted("settings_weather_sources", "settings_weather_sources_summary", "IconFactory", isLast: true),
+            new ClickablePreference(
+                Strings.Get("settings_weather_sources"),
+                Strings.Get("settings_weather_sources_summary"),
+                () => main.NavigateTo(WeatherSources(main)),
+                "IconFactory",
+                isLast: true),
             SeparatorPreference.Large,
             NotPorted("settings_debug", "settings_debug_summary", "IconBugReport", isFirst: true, isLast: true),
         ];
-        return new SettingsPageViewModel(Strings.Get("action_settings"), items, main.GoBack, () => Root(main));
+        return new SettingsPageViewModel(Strings.Get("action_settings"), items, main.GoBack, () => Root(main), () => main.NavigateTo(About(main)));
     }
 
     public static SettingsPageViewModel BackgroundUpdates(MainViewModel main)
@@ -146,7 +162,7 @@ public static class SettingsPages
                 isLast: true),
         ];
         return new SettingsPageViewModel(
-            Strings.Get("settings_background_updates"), items, main.GoBack, () => BackgroundUpdates(main));
+            Strings.Get("settings_background_updates"), items, main.GoBack, () => BackgroundUpdates(main), () => main.NavigateTo(About(main)));
     }
 
     public static SettingsPageViewModel Appearance(MainViewModel main)
@@ -158,6 +174,44 @@ public static class SettingsPages
             .ToList();
         languages.Insert(0, ("", Strings.Get("settings_follow_system")));
         string selected = languages.Any(language => language.Code == main.Settings.Language) ? main.Settings.Language! : "";
+
+        SettingsManager settings = main.Settings;
+
+        // Locations follow day and night whatever this setting says while the app is always light.
+        ListPreference darkModeLocations = new(
+            main,
+            Strings.Get("settings_appearance_dark_mode_locations_title"),
+            Strings.GetArray("dark_mode_location_values"),
+            Strings.GetArray("dark_modes_location"),
+            DarkModeLocationId(settings, settings.DarkMode),
+            value => settings.DayNightModeForLocations = value == "day_night")
+        {
+            IsEnabled = settings.DarkMode != DarkMode.Light,
+        };
+
+        // "Follow system" names the mode Windows is in.
+        IReadOnlyList<string> darkModeNames = Strings.GetArray("dark_modes")
+            .Select((name, index) => index == 0
+                ? Strings.Format(
+                    "parenthesis",
+                    Strings.Get("settings_follow_system"),
+                    Strings.Get(global::LibreccioWeather.Appearance.ThemeManager.IsSystemInDarkMode() ? "settings_color_dark" : "settings_color_light"))
+                : name)
+            .ToList();
+        ListPreference darkMode = new(
+            main,
+            Strings.Get("settings_appearance_dark_mode_title"),
+            Strings.GetArray("dark_mode_values"),
+            darkModeNames,
+            settings.DarkMode.Id,
+            value =>
+            {
+                DarkMode newDarkMode = DarkMode.GetInstance(value);
+                settings.DarkMode = newDarkMode;
+                darkModeLocations.IsEnabled = newDarkMode != DarkMode.Light;
+                darkModeLocations.Select(DarkModeLocationId(settings, newDarkMode));
+            },
+            isFirst: true);
 
         List<object> items =
         [
@@ -174,7 +228,22 @@ public static class SettingsPages
             new ClickablePreference(
                 Strings.Get("settings_units"),
                 Strings.Get("settings_units_summary"),
-                () => main.NavigateTo(Units(main)),
+                () => main.NavigateTo(Units(main))),
+            SeparatorPreference.Small,
+            CalendarPreference(main),
+            SeparatorPreference.Large,
+            new SectionHeaderPreference(Strings.Get("settings_appearance_section_theme")),
+            darkMode,
+            SeparatorPreference.Small,
+            darkModeLocations,
+            SeparatorPreference.Small,
+            new ListPreference(
+                main,
+                Strings.Get("settings_appearance_icon_pack_title"),
+                [""],
+                [Strings.Get("desktop_app_name")],
+                "",
+                _ => { },
                 isLast: true),
             SeparatorPreference.Large,
             new SectionHeaderPreference(Strings.Get("desktop_interface_section")),
@@ -194,7 +263,271 @@ public static class SettingsPages
                 value => main.Settings.IsScreenRefreshRateEnabled = value,
                 isLast: true),
         ];
-        return new SettingsPageViewModel(Strings.Get("settings_appearance"), items, main.GoBack, () => Appearance(main));
+        return new SettingsPageViewModel(Strings.Get("settings_appearance"), items, main.GoBack, () => Appearance(main), () => main.NavigateTo(About(main)));
+    }
+
+    public static SettingsPageViewModel About(MainViewModel main)
+    {
+        return ViewModels.About.AboutPages.About(main);
+    }
+
+    public static SettingsPageViewModel MainScreen(MainViewModel main)
+    {
+        SettingsManager settings = main.Settings;
+        string on = Strings.Get("settings_enabled");
+        string off = Strings.Get("settings_disabled");
+
+        ClickablePreference? cards = null;
+        ClickablePreference? dailyTrends = null;
+        ClickablePreference? hourlyTrends = null;
+
+        // The summaries follow the lists saved by the editors when they are left.
+        void UpdateSummaries()
+        {
+            cards!.Summary = CardDisplay.GetSummary(settings.CardDisplayList);
+            dailyTrends!.Summary = DailyTrendDisplay.GetSummary(settings.DailyTrendDisplayList);
+            hourlyTrends!.Summary = HourlyTrendDisplay.GetSummary(settings.HourlyTrendDisplayList);
+        }
+
+        cards = new ClickablePreference(
+            Strings.Get("settings_main_cards_title"),
+            CardDisplay.GetSummary(settings.CardDisplayList),
+            () => main.NavigateTo(DisplayManageViewModel.CardDisplayManage(main, UpdateSummaries)),
+            isFirst: true);
+        dailyTrends = new ClickablePreference(
+            Strings.Get("settings_main_daily_trends_title"),
+            DailyTrendDisplay.GetSummary(settings.DailyTrendDisplayList),
+            () => main.NavigateTo(DisplayManageViewModel.DailyTrendDisplayManage(main, UpdateSummaries)));
+        hourlyTrends = new ClickablePreference(
+            Strings.Get("settings_main_hourly_trends_title"),
+            HourlyTrendDisplay.GetSummary(settings.HourlyTrendDisplayList),
+            () => main.NavigateTo(DisplayManageViewModel.HourlyTrendDisplayManage(main, UpdateSummaries)),
+            isLast: true);
+
+        void OfferRestart()
+        {
+            main.ShowSnackbar(
+                Strings.Get("settings_changes_apply_after_restart"),
+                Strings.Get("action_restart"),
+                main.RecreateAllScreens);
+        }
+
+        // With Windows' "Animation effects" off, the animation switches are shown off and unavailable.
+        bool animationsEnabled = System.Windows.SystemParameters.ClientAreaAnimation;
+        string unavailable = Strings.Get("settings_unavailable_no_animations");
+
+        List<object> items =
+        [
+            new SectionHeaderPreference(Strings.Get("settings_main_section_displayed_data")),
+            cards,
+            SeparatorPreference.Small,
+            dailyTrends,
+            SeparatorPreference.Small,
+            hourlyTrends,
+            SeparatorPreference.Large,
+            new SectionHeaderPreference(Strings.Get("settings_main_section_options")),
+            new SwitchPreference(
+                Strings.Get("settings_main_background_title"), on, off,
+                settings.MainScreenBackgroundEnabled,
+                value => settings.MainScreenBackgroundEnabled = value,
+                isFirst: true),
+            new SwitchPreference(
+                Strings.Get("settings_main_threshold_lines_on_charts"), on, off,
+                settings.IsTrendHorizontalLinesEnabled,
+                value =>
+                {
+                    settings.IsTrendHorizontalLinesEnabled = value;
+                    OfferRestart();
+                },
+                isLast: true),
+            SeparatorPreference.Large,
+            new SectionHeaderPreference(Strings.Get("settings_main_section_animations")),
+            new ListPreference(
+                main,
+                Strings.Get("settings_main_background_animation_title"),
+                Strings.GetArray("background_animation_values"),
+                Strings.GetArray("background_animation"),
+                settings.BackgroundAnimationMode.Id,
+                value =>
+                {
+                    settings.BackgroundAnimationMode = BackgroundAnimationMode.GetInstance(value);
+                    OfferRestart();
+                },
+                isFirst: true),
+            SeparatorPreference.Small,
+            new SwitchPreference(
+                Strings.Get("settings_main_cards_fade_in_switch"),
+                animationsEnabled ? on : unavailable,
+                animationsEnabled ? off : unavailable,
+                settings.IsCardsFadeInEnabled && animationsEnabled,
+                value => settings.IsCardsFadeInEnabled = value,
+                isEnabled: animationsEnabled),
+            SeparatorPreference.Small,
+            new SwitchPreference(
+                Strings.Get("settings_main_cards_other_element_animations_switch"),
+                animationsEnabled ? on : unavailable,
+                animationsEnabled ? off : unavailable,
+                settings.IsElementsAnimationEnabled && animationsEnabled,
+                value => settings.IsElementsAnimationEnabled = value,
+                isEnabled: animationsEnabled,
+                isLast: true),
+        ];
+        return new SettingsPageViewModel(Strings.Get("settings_main"), items, main.GoBack, () => MainScreen(main), () => main.NavigateTo(About(main)));
+    }
+
+    public static SettingsPageViewModel Notifications(MainViewModel main)
+    {
+        SettingsManager settings = main.Settings;
+        string on = Strings.Get("settings_enabled");
+        string off = Strings.Get("settings_disabled");
+
+        // Alerts and precipitation are found by background updates, so they need them.
+        bool backgroundUpdates = settings.UpdateInterval != UpdateInterval.Never;
+        string offOrUnavailable = backgroundUpdates ? off : Strings.Get("settings_unavailable_no_background_updates");
+
+        SwitchPreference prereleases = new(
+            Strings.Get("app_updates_prereleases"), on, off,
+            settings.AppUpdateCheckPrereleases ?? Updates.AppVersion.IsPrerelease,
+            value => settings.AppUpdateCheckPrereleases = value,
+            isEnabled: settings.IsAppUpdateCheckEnabled,
+            isLast: true);
+
+        TimePickerPreference todayTime = new(
+            main, Strings.Get("settings_notifications_forecast_time_today_title"),
+            settings.TodayForecastTime, value => settings.TodayForecastTime = value,
+            isEnabled: settings.IsTodayForecastEnabled);
+        TimePickerPreference tomorrowTime = new(
+            main, Strings.Get("settings_notifications_forecast_time_tomorrow_title"),
+            settings.TomorrowForecastTime, value => settings.TomorrowForecastTime = value,
+            isEnabled: settings.IsTomorrowForecastEnabled,
+            isLast: true);
+
+        List<object> items =
+        [
+            new SectionHeaderPreference(Strings.Get("notification_channel_app_updates")),
+            new SwitchPreference(
+                Strings.Get("settings_notifications_app_updates_check"), on, off,
+                settings.IsAppUpdateCheckEnabled,
+                value =>
+                {
+                    settings.IsAppUpdateCheckEnabled = value;
+                    prereleases.IsEnabled = value;
+                },
+                isFirst: true),
+            SeparatorPreference.Small,
+            prereleases,
+            SeparatorPreference.Large,
+            new SectionHeaderPreference(Strings.Get("settings_notifications_section_general")),
+            new SwitchPreference(
+                Strings.Get("settings_notifications_alerts_title"), on, offOrUnavailable,
+                settings.IsAlertPushEnabled && backgroundUpdates,
+                value => settings.IsAlertPushEnabled = value,
+                isEnabled: backgroundUpdates,
+                isFirst: true),
+            SeparatorPreference.Small,
+            new SwitchPreference(
+                Strings.Get("settings_notifications_precipitations_title"), on, offOrUnavailable,
+                settings.IsPrecipitationPushEnabled && backgroundUpdates,
+                value => settings.IsPrecipitationPushEnabled = value,
+                isEnabled: backgroundUpdates,
+                isLast: true),
+            SeparatorPreference.Large,
+            new SectionHeaderPreference(Strings.Get("settings_notifications_section_forecast")),
+            new SwitchPreference(
+                Strings.Get("settings_notifications_forecast_today_title"), on, off,
+                settings.IsTodayForecastEnabled,
+                value =>
+                {
+                    settings.IsTodayForecastEnabled = value;
+                    todayTime.IsEnabled = value;
+                },
+                isFirst: true),
+            SeparatorPreference.Small,
+            todayTime,
+            SeparatorPreference.Small,
+            new SwitchPreference(
+                Strings.Get("settings_notifications_forecast_tomorrow_title"), on, off,
+                settings.IsTomorrowForecastEnabled,
+                value =>
+                {
+                    settings.IsTomorrowForecastEnabled = value;
+                    tomorrowTime.IsEnabled = value;
+                }),
+            SeparatorPreference.Small,
+            tomorrowTime,
+        ];
+        return new SettingsPageViewModel(Strings.Get("settings_notifications"), items, main.GoBack, () => Notifications(main), () => main.NavigateTo(About(main)));
+    }
+
+    // A server address: https, a host name and an optional path, ending with "/".
+    private static readonly System.Text.RegularExpressions.Regex UrlRegex = new(
+        "^https://(www[.])?[-a-zA-Z0-9@:%._+~#=]{1,256}[.][a-zA-Z0-9()]{1,6}([-a-zA-Z0-9()!@:%_+.~#?&//=]*)/$");
+
+    public static SettingsPageViewModel WeatherSources(MainViewModel main)
+    {
+        SettingsManager settings = main.Settings;
+        OpenMeteoService openMeteo = main.OpenMeteo;
+
+        // Open-Meteo is the only worldwide forecast source; any other stored choice reads as automatic.
+        List<(string Id, string Name)> worldwideSources = [(OpenMeteoService.Id, OpenMeteoService.Name)];
+        string defaultSource = worldwideSources.Any(source => source.Id == settings.DefaultForecastSource)
+            ? settings.DefaultForecastSource
+            : "auto";
+
+        string invalid = Strings.Get("settings_source_instance_invalid");
+        List<object> items =
+        [
+            new SectionHeaderPreference(Strings.Get("settings_weather_sources_section_general")),
+            new ListPreference(
+                main,
+                Strings.Get("settings_weather_sources_default_source"),
+                ["auto", .. worldwideSources.Select(source => source.Id)],
+                [Strings.Get("settings_automatic"), .. worldwideSources.Select(source => source.Name)],
+                defaultSource,
+                value => settings.DefaultForecastSource = value,
+                isFirst: true,
+                isLast: true),
+            SeparatorPreference.Large,
+            new SectionHeaderPreference(OpenMeteoService.Name),
+            InstancePreference(
+                main, "settings_weather_source_open_meteo_instance_forecast", openMeteo.ForecastInstance,
+                OpenMeteoService.ForecastBaseUrl, invalid, value => openMeteo.ForecastInstance = value, isFirst: true),
+            SeparatorPreference.Small,
+            InstancePreference(
+                main, "settings_weather_source_open_meteo_instance_air_quality", openMeteo.AirQualityInstance,
+                OpenMeteoService.AirQualityBaseUrl, invalid, value => openMeteo.AirQualityInstance = value),
+            SeparatorPreference.Small,
+            InstancePreference(
+                main, "settings_weather_source_open_meteo_instance_geocoding", openMeteo.GeocodingInstance,
+                OpenMeteoService.GeocodingBaseUrl, invalid, value => openMeteo.GeocodingInstance = value, isLast: true),
+        ];
+        return new SettingsPageViewModel(
+            Strings.Get("settings_weather_sources"), items, main.GoBack, () => WeatherSources(main), () => main.NavigateTo(About(main)));
+    }
+
+    // The field is empty while the default server is used; the default address then shows as the summary and the
+    // hint, and saving the default or an empty field goes back to it.
+    private static EditTextPreference InstancePreference(
+        MainViewModel main,
+        string titleKey,
+        string? instance,
+        string defaultUrl,
+        string regexError,
+        Action<string?> setInstance,
+        bool isFirst = false,
+        bool isLast = false)
+    {
+        return new EditTextPreference(
+            main,
+            Strings.Get(titleKey),
+            content => content.Length == 0 ? defaultUrl : content,
+            instance != defaultUrl ? instance : null,
+            defaultUrl,
+            UrlRegex,
+            regexError,
+            value => setInstance(value == defaultUrl || value.Length == 0 ? null : value),
+            isFirst,
+            isLast);
     }
 
     public static SettingsPageViewModel Modules(MainViewModel main)
@@ -292,7 +625,7 @@ public static class SettingsPages
             accessibility,
             delay,
         ];
-        return new SettingsPageViewModel(Strings.Get("settings_modules"), items, main.GoBack, () => Modules(main));
+        return new SettingsPageViewModel(Strings.Get("settings_modules"), items, main.GoBack, () => Modules(main), () => main.NavigateTo(About(main)));
     }
 
     public static SettingsPageViewModel Units(MainViewModel main)
@@ -348,7 +681,27 @@ public static class SettingsPages
                 id => settings.PressureUnit = PressureUnit.GetUnit(id),
                 isLast: true),
         ];
-        return new SettingsPageViewModel(Strings.Get("settings_units"), items, main.GoBack, () => Units(main));
+        return new SettingsPageViewModel(Strings.Get("settings_units"), items, main.GoBack, () => Units(main), () => main.NavigateTo(About(main)));
+    }
+
+    // A stored calendar that is no longer offered selects the regional preference.
+    private static ListPreference CalendarPreference(MainViewModel main)
+    {
+        IReadOnlyList<CalendarHelper.AlternateCalendar> calendars = CalendarHelper.GetCalendars();
+        string current = main.Settings.AlternateCalendar;
+        return new ListPreference(
+            main,
+            Strings.Get("settings_appearance_calendar_title"),
+            calendars.Select(calendar => calendar.Id).ToList(),
+            calendars.Select(calendar => calendar.DisplayName).ToList(),
+            calendars.FirstOrDefault(calendar => calendar.Id == current)?.Id ?? "",
+            value => main.Settings.AlternateCalendar = value,
+            isLast: true);
+    }
+
+    private static string DarkModeLocationId(SettingsManager settings, DarkMode darkMode)
+    {
+        return darkMode == DarkMode.Light || settings.DayNightModeForLocations ? "day_night" : "dark";
     }
 
     // "auto" follows the region, and its name says which unit that gives, such as "Regional preference (°C)".
@@ -373,8 +726,8 @@ public static class SettingsPages
         return new ListPreference(main, Strings.Get(titleKey), values, names, selected?.Id ?? AutoUnit, setUnit, isFirst, isLast);
     }
 
-    // Breezy Weather names units with Android's CLDR data, such as "kilometers per hour". That data is not available,
-    // so the names come from the translated unit strings, as in Breezy Weather when its "use measure format" is off.
+    // Units are named in full, such as "kilometers per hour": with CLDR's names through ICU, or with the translated
+    // unit strings without it.
     private static string Name(WeatherUnit unit)
     {
         return UnitFormatting.GetDisplayName(unit, UnitWidth.Long);

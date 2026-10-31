@@ -22,8 +22,8 @@ public sealed class DetailsChartAxesTests
 {
     private const long Hour = 3_600_000L;
 
-    // With no room for a single label, the hours between labels are infinite, which Kotlin saturates to the largest
-    // integer, so no label is shown. An unchecked cast would give a negative spacing and show every hour.
+    // With no room for a single label, the hours between labels are infinite, which saturates to the largest integer,
+    // so no label is shown. An unchecked cast would give a negative spacing and show every hour.
     [Fact]
     public void GetTopLabelValues_NoRoomForALabel_ShowsNone()
     {

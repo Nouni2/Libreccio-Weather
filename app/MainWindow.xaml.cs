@@ -26,6 +26,7 @@ namespace LibreccioWeather;
 public partial class MainWindow : Window
 {
     private ResourceDictionary? _desktopTheme;
+    private ResourceDictionary? _lightColors;
     private IInputElement? _focusBeforeDialog;
 
     public MainWindow()
@@ -111,7 +112,8 @@ public partial class MainWindow : Window
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (sender is MainViewModel main
-            && e.PropertyName is nameof(MainViewModel.IsDesktopInterfaceEnabled) or nameof(MainViewModel.InterfaceCulture))
+            && e.PropertyName is nameof(MainViewModel.IsDesktopInterfaceEnabled) or nameof(MainViewModel.InterfaceCulture)
+                or nameof(MainViewModel.IsAppDark))
         {
             ApplyInterface(main);
         }
@@ -133,6 +135,18 @@ public partial class MainWindow : Window
         {
             applicationResources.MergedDictionaries.Remove(_desktopTheme);
             _desktopTheme = null;
+        }
+
+        // The light palette replaces the dark one of the application's resources while the app is light.
+        if (!main.IsAppDark && _lightColors is null)
+        {
+            _lightColors = Appearance.ThemeManager.GetLightColors();
+            applicationResources.MergedDictionaries.Add(_lightColors);
+        }
+        else if (main.IsAppDark && _lightColors is not null)
+        {
+            applicationResources.MergedDictionaries.Remove(_lightColors);
+            _lightColors = null;
         }
 
         Title = Strings.Get("desktop_app_name");

@@ -53,7 +53,7 @@ public class NumberFormattingTests
         Assert.Equal("-7.3", NumberFormatting.Format(-7.3, 1, English, showSign: true));
     }
 
-    // Kotlin's roundToInt() rounds halves towards positive infinity, where Math.Round would give -3.
+    // Halves round towards positive infinity, where Math.Round would give -3.
     [Theory]
     [InlineData(-2.5, "-2")]
     [InlineData(2.5, "3")]
