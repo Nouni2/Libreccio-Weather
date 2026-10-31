@@ -18,11 +18,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:l="clr-namespace:LibreccioWeather.Localization"
              xmlns:c="clr-namespace:LibreccioWeather.Controls"
-             xmlns:s="clr-namespace:LibreccioWeather.ViewModels.Settings">
+             xmlns:s="clr-namespace:LibreccioWeather.ViewModels.Settings"
+             xmlns:about="clr-namespace:LibreccioWeather.ViewModels.About">
     <UserControl.Resources>
         <!-- The card behind every preference. It lights up under the pointer when it can be used. -->
         <Style x:Key="PreferenceCard" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource SurfaceContainerLowBrush}" />
+            <Setter Property="Background" Value="{DynamicResource ElevatedSurfaceBrush}" />
             <Setter Property="CornerRadius" Value="{Binding Corners}" />
             <Setter Property="Padding" Value="16" />
             <Setter Property="Cursor" Value="Hand" />
@@ -36,7 +37,7 @@
                     <Setter Property="Padding" Value="12" />
                 </DataTrigger>
                 <Trigger Property="IsKeyboardFocused" Value="True">
-                    <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
                     <Setter Property="BorderThickness" Value="1" />
                 </Trigger>
                 <MultiDataTrigger>
@@ -44,7 +45,7 @@
                         <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True" />
                         <Condition Binding="{Binding IsEnabled}" Value="True" />
                     </MultiDataTrigger.Conditions>
-                    <Setter Property="Background" Value="{StaticResource SurfaceContainerBrush}" />
+                    <Setter Property="Background" Value="{DynamicResource SurfaceContainerBrush}" />
                 </MultiDataTrigger>
                 <DataTrigger Binding="{Binding IsEnabled}" Value="False">
                     <Setter Property="Opacity" Value="0.38" />
@@ -63,7 +64,7 @@
 
         <DataTemplate DataType="{x:Type s:SectionHeaderPreference}">
             <TextBlock Margin="{StaticResource NormalMargin}" FontSize="14" FontWeight="SemiBold"
-                       Foreground="{StaticResource PrimaryBrush}" Text="{Binding Title}"
+                       Foreground="{DynamicResource PrimaryBrush}" Text="{Binding Title}"
                        Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}" />
         </DataTemplate>
 
@@ -90,7 +91,7 @@
                             </Style>
                         </Viewbox.Style>
                         <Canvas Width="{Binding IconViewport}" Height="{Binding IconViewport}">
-                            <Path Data="{Binding Icon}" Fill="{StaticResource OnSurfaceBrush}" />
+                            <Path Data="{Binding Icon}" Fill="{DynamicResource OnSurfaceBrush}" />
                         </Canvas>
                     </Viewbox>
                     <ContentControl Focusable="False" Content="{Binding}" ContentTemplate="{StaticResource PreferenceText}" />
@@ -99,6 +100,44 @@
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type s:ListPreference}">
+            <Border Style="{StaticResource PreferenceCard}">
+                <Border.InputBindings>
+                    <MouseBinding Gesture="LeftClick" Command="{Binding OpenCommand}" />
+                    <KeyBinding Key="Enter" Command="{Binding OpenCommand}" />
+                    <KeyBinding Key="Space" Command="{Binding OpenCommand}" />
+                </Border.InputBindings>
+                <ContentControl Focusable="False" Content="{Binding}" ContentTemplate="{StaticResource PreferenceText}" />
+            </Border>
+        </DataTemplate>
+
+        <!-- The app's icon, name and version at the top of the About screen. -->
+        <DataTemplate DataType="{x:Type about:AboutHeader}">
+            <StackPanel Margin="24" HorizontalAlignment="Center">
+                <Image Width="72" Height="72" Source="pack://application:,,,/assets/icons/icon.ico" />
+                <TextBlock Margin="0,8,0,0" HorizontalAlignment="Center" Style="{StaticResource HeadlineSmallText}"
+                           Foreground="{DynamicResource OnSurfaceBrush}" Text="{Binding Name}" />
+                <TextBlock HorizontalAlignment="Center" FontSize="12" FontWeight="Medium"
+                           Foreground="{DynamicResource OnSurfaceVariantBrush}" Text="{Binding Version}" />
+            </StackPanel>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type about:AboutSectionTitle}">
+            <TextBlock Margin="16" FontSize="12" FontWeight="Medium" Foreground="{DynamicResource OnSurfaceVariantBrush}"
+                       Text="{Binding Title}" />
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type s:EditTextPreference}">
+            <Border Style="{StaticResource PreferenceCard}">
+                <Border.InputBindings>
+                    <MouseBinding Gesture="LeftClick" Command="{Binding OpenCommand}" />
+                    <KeyBinding Key="Enter" Command="{Binding OpenCommand}" />
+                    <KeyBinding Key="Space" Command="{Binding OpenCommand}" />
+                </Border.InputBindings>
+                <ContentControl Focusable="False" Content="{Binding}" ContentTemplate="{StaticResource PreferenceText}" />
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type s:TimePickerPreference}">
             <Border Style="{StaticResource PreferenceCard}">
                 <Border.InputBindings>
                     <MouseBinding Gesture="LeftClick" Command="{Binding OpenCommand}" />
@@ -167,6 +206,11 @@
             <Button DockPanel.Dock="Left" Style="{StaticResource IconButton}" Command="{Binding BackCommand}"
                     ToolTip="{l:Translate action_back}" AutomationProperties.Name="{l:Translate action_back}">
                 <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconArrowBack}" />
+            </Button>
+            <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}" Command="{Binding AboutCommand}"
+                    Visibility="{Binding HasAboutButton, Converter={StaticResource BooleanToVisibility}}"
+                    ToolTip="{l:Translate action_about}" AutomationProperties.Name="{l:Translate action_about}">
+                <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconAbout}" />
             </Button>
             <TextBlock Margin="12,0,0,0" Style="{StaticResource TopAppBarTitle}" Text="{Binding Title}" />
         </DockPanel>

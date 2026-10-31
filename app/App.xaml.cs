@@ -26,9 +26,11 @@ using LibreccioWeather.Core.Processes;
 using LibreccioWeather.Core.Refresh;
 using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Sources.OpenMeteo;
+using LibreccioWeather.Core.Updates;
 using LibreccioWeather.Display;
 using LibreccioWeather.Icons;
 using LibreccioWeather.Tray;
+using LibreccioWeather.Updates;
 using LibreccioWeather.ViewModels;
 
 namespace LibreccioWeather;
@@ -76,13 +78,16 @@ public partial class App : System.Windows.Application
         WeatherDatabase database = new(WeatherDatabase.DefaultPath);
         database.EnsureCreated();
 
-        OpenMeteoService openMeteo = new(HttpClient);
+        OpenMeteoService openMeteo = new(HttpClient, new ConfigStore(SettingsManager.GetSourcePath(OpenMeteoService.Id)));
         WeatherRepository weather = new(database);
         LocationRepository locations = new(database);
         WeatherRefresher refresher = new(openMeteo, weather, settings);
         WeatherUpdateJob updateJob = new(refresher, locations, weather, settings);
         MainViewModel viewModel = new(
             openMeteo, refresher, locations, weather, updateJob, settings, RegionInfo.CurrentRegion.TwoLetterISORegionName);
+        AppUpdateChecker updateChecker = new(
+            settings, new GetApplicationRelease(settings, new ReleaseService(HttpClient)), Dispatcher) { Main = viewModel };
+        viewModel.UpdateChecker = updateChecker;
         MainWindow window = new() { DataContext = viewModel };
         _windowIcon = new SeasonalWindowIcon(window);
         viewModel.ShownLocationChanged += (_, location) => _windowIcon.ShowLocation(location);
@@ -99,11 +104,18 @@ public partial class App : System.Windows.Application
 
         // Started after the first screen has loaded, so a due update does not compete with its refresh.
         _updateScheduler = new WeatherUpdateScheduler(updateJob, settings);
+        _updateScheduler.JobFinished += (_, _) => _ = updateChecker.CheckIfEnabledAsync();
         _updateScheduler.Start();
     }
 
     protected override void OnExit(ExitEventArgs e)
     {
+        // An order editor left open saves its list, as it does when its screen is left.
+        if (MainWindow?.DataContext is MainViewModel { CurrentPage: ViewModels.Settings.DisplayManageViewModel editor })
+        {
+            editor.Stop();
+        }
+
         _windowReady = false;
         _trayIcon?.Dispose();
         _updateScheduler?.Dispose();

@@ -20,6 +20,7 @@ using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Locations;
 using LibreccioWeather.Core.Models;
 using LibreccioWeather.Core.Models.Wrappers;
+using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Units;
 
 namespace LibreccioWeather.Core.Sources.OpenMeteo;
@@ -34,9 +35,9 @@ public sealed class OpenMeteoService
     public const string PrivacyPolicyUrl = "https://open-meteo.com/en/terms#privacy";
     public const string LocationSearchAttribution = "Open-Meteo (CC BY 4.0) • GeoNames";
 
-    private const string ForecastBaseUrl = "https://api.open-meteo.com/";
-    private const string AirQualityBaseUrl = "https://air-quality-api.open-meteo.com/";
-    private const string GeocodingBaseUrl = "https://geocoding-api.open-meteo.com/";
+    public const string ForecastBaseUrl = "https://api.open-meteo.com/";
+    public const string AirQualityBaseUrl = "https://air-quality-api.open-meteo.com/";
+    public const string GeocodingBaseUrl = "https://geocoding-api.open-meteo.com/";
 
     private const string WeatherAttribution = "Open-Meteo (CC BY 4.0)";
     private const string AirQualityAttribution = "Open-Meteo (CC BY 4.0) • CAMS ENSEMBLE data provider";
@@ -78,10 +79,46 @@ public sealed class OpenMeteoService
         ["alder_pollen", "birch_pollen", "grass_pollen", "mugwort_pollen", "olive_pollen", "ragweed_pollen"];
 
     private readonly HttpClient _httpClient;
+    private readonly ConfigStore? _config;
 
-    public OpenMeteoService(HttpClient httpClient)
+    /// <param name="config">This source's own settings, which hold the addresses of other Open-Meteo servers.</param>
+    public OpenMeteoService(HttpClient httpClient, ConfigStore? config = null)
     {
         _httpClient = httpClient;
+        _config = config;
+    }
+
+    /// <summary>
+    /// The forecast server, Open-Meteo's own unless another is set. Setting null goes back to Open-Meteo's own.
+    /// </summary>
+    public string? ForecastInstance
+    {
+        get => _config?.GetString("forecast_instance", null) ?? ForecastBaseUrl;
+        set => SetInstance("forecast_instance", value);
+    }
+
+    public string? AirQualityInstance
+    {
+        get => _config?.GetString("air_quality_instance", null) ?? AirQualityBaseUrl;
+        set => SetInstance("air_quality_instance", value);
+    }
+
+    public string? GeocodingInstance
+    {
+        get => _config?.GetString("geocoding_instance", null) ?? GeocodingBaseUrl;
+        set => SetInstance("geocoding_instance", value);
+    }
+
+    private void SetInstance(string key, string? value)
+    {
+        if (value is not null)
+        {
+            _config?.PutString(key, value);
+        }
+        else
+        {
+            _config?.Remove(key);
+        }
     }
 
     /// <summary>
@@ -167,7 +204,7 @@ public sealed class OpenMeteoService
         string query,
         CancellationToken cancellationToken = default)
     {
-        string url = GeocodingBaseUrl + "v1/search?format=json"
+        string url = GeocodingInstance + "v1/search?format=json"
             + "&name=" + Uri.EscapeDataString(query)
             + "&count=20"
             + "&language=" + Uri.EscapeDataString(LanguageCode(Strings.Culture));
@@ -196,7 +233,7 @@ public sealed class OpenMeteoService
         Dictionary<SourceFeature, Exception> failedFeatures,
         CancellationToken cancellationToken)
     {
-        string url = ForecastBaseUrl + "v1/forecast?timezone=auto&timeformat=unixtime"
+        string url = ForecastInstance + "v1/forecast?timezone=auto&timeformat=unixtime"
             + "&latitude=" + location.Latitude.ToString(CultureInfo.InvariantCulture)
             + "&longitude=" + location.Longitude.ToString(CultureInfo.InvariantCulture)
             + "&models=" + string.Join(",", GetWeatherModels(location).Select(model => model.Id))
@@ -256,7 +293,7 @@ public sealed class OpenMeteoService
         CancellationToken cancellationToken)
     {
         IEnumerable<string> fields = (airQuality ? AirQualityFields : []).Concat(pollen ? PollenFields : []);
-        string url = AirQualityBaseUrl + "v1/air-quality?timezone=auto&timeformat=unixtime"
+        string url = AirQualityInstance + "v1/air-quality?timezone=auto&timeformat=unixtime"
             + "&latitude=" + location.Latitude.ToString(CultureInfo.InvariantCulture)
             + "&longitude=" + location.Longitude.ToString(CultureInfo.InvariantCulture)
             + "&hourly=" + string.Join(",", fields)

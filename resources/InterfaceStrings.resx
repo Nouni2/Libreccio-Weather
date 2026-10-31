@@ -22,7 +22,7 @@
     <data name="app_already_running" xml:space="preserve"><value>An instance of Libreccio Weather is already running.</value><comment>Dialog shown in the running application when another launch is attempted. Libreccio Weather is the application name and stays untranslated.</comment></data>
     <data name="location_save_failed" xml:space="preserve"><value>Could not save locations.</value><comment>Snackbar shown when adding, restoring or reordering locations cannot be saved.</comment></data>
     <data name="desktop_interface_section" xml:space="preserve"><value>Interface</value><comment>Settings > Appearance: title of the section holding the desktop interface switch.</comment></data>
-    <data name="desktop_interface_title" xml:space="preserve"><value>Desktop interface</value><comment>Settings > Appearance: switch that adapts the interface for mouse and keyboard.</comment></data>
+    <data name="desktop_interface_title" xml:space="preserve"><value>Desktop interface (experimental)</value><comment>Settings > Appearance: switch that adapts the interface for mouse and keyboard. The interface is still experimental, which the title says.</comment></data>
     <data name="desktop_interface_on" xml:space="preserve"><value>Smaller corners and mouse and keyboard navigation.</value><comment>Settings > Appearance: summary under the desktop interface switch while it is on.</comment></data>
     <data name="desktop_interface_off" xml:space="preserve"><value>Adapt the existing interface for desktop use. Changes apply immediately.</value><comment>Settings > Appearance: summary under the desktop interface switch while it is off.</comment></data>
     <data name="desktop_open" xml:space="preserve"><value>Open</value><comment>Verb. Opens a location from its right-click menu in the location list, opens the main window from the tray menu and the tray popup.</comment></data>
@@ -42,4 +42,7 @@
     <data name="tray_double_click" xml:space="preserve"><value>Double-click the tray icon to open the app</value><comment>Settings > External modules: switch making a double-click on the tray icon open the main window.</comment></data>
     <data name="tray_double_click_delay" xml:space="preserve"><value>Double-click delay</value><comment>Settings > External modules > Accessibility: the longest time between two clicks that still counts as a double-click.</comment></data>
     <data name="tray_milliseconds" xml:space="preserve"><value>ms</value><comment>Unit shown after the double-click delay field: the CLDR short symbol for milliseconds in the language.</comment></data>
+    <data name="app_updates_prereleases" xml:space="preserve"><value>Include pre-releases</value><comment>Settings > Notifications > App updates: switch making update checks also report pre-release versions, such as alpha and beta versions, not only full releases.</comment></data>
+    <data name="about_version_release" xml:space="preserve"><value>Release {0}</value><comment>About screen: under the app name, {0} is the version, such as 0.1.0-alpha1. Kept in English in every language.</comment></data>
+    <data name="about_version_debug" xml:space="preserve"><value>Debug {0}</value><comment>About screen: under the app name in development builds, {0} is the commit the build comes from. Kept in English in every language.</comment></data>
 </root>

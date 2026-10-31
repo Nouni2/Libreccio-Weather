@@ -49,6 +49,12 @@ public sealed partial class ManagementViewModel : ObservableObject
     private bool _canGoBack;
 
     /// <summary>
+    /// The card offering to check for app updates, shown until it is clicked or closed once.
+    /// </summary>
+    [ObservableProperty]
+    private bool _showAppUpdatePrompt;
+
+    /// <summary>
     /// Builds the cards again from the main view model's list.
     /// </summary>
     public void Refresh()
@@ -61,6 +67,22 @@ public sealed partial class ManagementViewModel : ObservableObject
 
         HasLocations = Items.Count > 0;
         CanGoBack = !_isPane && _main.CanGoBack;
+        ShowAppUpdatePrompt = !_main.Settings.IsAppUpdateCheckPromptAlreadyAsked;
+    }
+
+    [RelayCommand]
+    private void EnableAppUpdateCheck()
+    {
+        _main.Settings.IsAppUpdateCheckPromptAlreadyAsked = true;
+        ShowAppUpdatePrompt = false;
+        _main.Settings.IsAppUpdateCheckEnabled = true;
+    }
+
+    [RelayCommand]
+    private void DismissAppUpdatePrompt()
+    {
+        _main.Settings.IsAppUpdateCheckPromptAlreadyAsked = true;
+        ShowAppUpdatePrompt = false;
     }
 
     [RelayCommand]
@@ -168,6 +190,48 @@ public sealed partial class ManagementViewModel : ObservableObject
         }
 
         await _main.MoveLocationAsync(from, to);
+        Refresh();
+    }
+
+    /// <summary>
+    /// Opens the sources of the location of a card slid towards the start. A changed forecast source that would
+    /// duplicate another location is refused.
+    /// </summary>
+    public void ChooseSources(LocationItemViewModel item)
+    {
+        if (_main.IsRefreshing)
+        {
+            _main.ShowSnackbar(Strings.Get("message_please_wait_refresh"));
+            return;
+        }
+
+        Location location = item.Location;
+        _main.ShowDialog(new global::LibreccioWeather.ViewModels.Locations.SecondarySourcesDialogViewModel(_main, location, newLocation =>
+        {
+            _main.CloseDialog();
+            if (newLocation is null)
+            {
+                return;
+            }
+
+            if (location.ForecastSource != newLocation.ForecastSource && _main.LocationExists(newLocation))
+            {
+                _main.ShowSnackbar(Strings.Get("location_message_already_exists"));
+            }
+            else
+            {
+                _ = SaveSourcesAsync(newLocation, location);
+            }
+        }, _main.LocationExists));
+    }
+
+    private async Task SaveSourcesAsync(Location newLocation, Location oldLocation)
+    {
+        if (await _main.UpdateLocationPreferencesAsync(newLocation, oldLocation))
+        {
+            _main.ShowSnackbar(Strings.Get("location_message_updated"));
+        }
+
         Refresh();
     }
 

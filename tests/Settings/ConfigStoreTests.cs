@@ -18,7 +18,7 @@ using LibreccioWeather.Core.Settings;
 
 namespace LibreccioWeather.Core.Tests.Settings;
 
-// The JSON file replaces Android's shared preferences, which have no equivalent in .NET.
+// Settings are stored in a JSON file, which these tests write to a temporary file.
 public sealed class ConfigStoreTests : IDisposable
 {
     private readonly string _path = Path.Combine(Path.GetTempPath(), $"libreccio-settings-{Guid.NewGuid():N}.json");

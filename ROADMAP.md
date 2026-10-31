@@ -67,7 +67,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Weather texts and forecast model identifiers
   - [x] Location search
   - [ ] Model names and per-location model settings
-  - [ ] Custom server addresses
+  - [x] Custom server addresses, set in the weather sources settings
 - [ ] Choosing a source for each feature (`SourceManager`)
 - [ ] Other weather sources
 
@@ -87,16 +87,19 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 
 - [ ] Main screen top bar (`HomeFragment`)
   - [x] Location list button and place name
-  - [ ] Edit and "open in another app" menu items
+  - [x] Edit location: weather sources, custom name, global settings and deleting the location
+  - [ ] "Open in another app"
 - [ ] Main screen header (`HeaderViewHolder`)
   - [x] Condition, temperature with its unit and feels-like temperature
   - [x] Temperatures of the next day and night halves, which depend on the time of day
   - [x] Time since the last refresh
-  - [ ] Weather background
+  - [x] Weather background
     - [x] Static weather gradients from the weather-view resources
-    - [ ] Animated sun, clouds, precipitation and stars
+    - [x] Animated sun, clouds, precipitation and stars
+      - [x] Sun, meteor shower, clouds, fog, haze, thunder, rain, sleet, thunderstorm, snow, hail and wind, fading out as the screen scrolls
+      - [x] Background animation setting: follow Windows' animation effects, always or never
   - [x] Header fade sharing the card-entry delay queue
-  - [ ] Temperature animation
+  - [x] Temperature counting up from the previous value, following the element animations setting
   - [ ] Descriptions read by screen readers
 - [x] Vertical scrolling of the header and forecast cards
 - [ ] Cards
@@ -155,23 +158,50 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Sliding a card towards the end to delete it, with undo, keeping at least one location
   - [x] Dragging a card by its handle to reorder the list
   - [x] Empty list with its add button
-  - [ ] Weather icons on the cards
+  - [x] Weather icons on the cards, by day or night from today's sunrise and sunset
   - [x] "Last updated" on cards whose weather is outdated
-  - [ ] Sliding a card towards the start to choose its weather sources
+  - [x] Sliding a card towards the start to choose its weather sources, feature by feature
   - [ ] Current location
   - [x] The list as a pane beside the main screen in wide windows, folded and unfolded by the list button
   - [x] Location cards and the in-memory location list updated after a manual weather refresh
 - [x] Loading saved weather before refreshing on startup
+- [x] Refusing a refresh of the same location within 10 seconds of the last one, with its message (`updateWithUpdatingChecking`)
 - [ ] Settings screens
   - [x] Settings home, with every category
   - [x] Background updates: refresh interval with the warning before turning it off, battery saver switch and last run
   - [x] Appearance: language, applied at once, and units
   - [x] Units: temperature, precipitation, speed, distance and pressure
   - [x] External modules: Notification widget, Persistent, Style, Temperature as status bar icon and Use feels like temperature
-  - [ ] Appearance: calendar, dark mode and the rest of the theme section
-  - [ ] Main screen, notifications, widgets, location, weather sources and debug settings
-  - [ ] About screen
-- [ ] Breezy Weather's colors and light theme, in place of the Material 3 baseline dark colors used now
+  - [x] Appearance: theme and calendar
+    - [x] Dark mode, day/night mode for locations and icon pack
+    - [x] Calendar: Chinese, Dangi, Hebrew, Indian, Islamic and Persian dates in the detail screen's day tabs and Mistray's title
+  - [x] Main screen
+    - [x] Cards, daily trends and hourly trends with their summaries
+    - [x] Main screen background and threshold lines switches, with the restart message
+    - [x] Background animation choice, card fade-in and element animations, unavailable while Windows' animation effects are off
+    - [x] Card, daily-trend and hourly-trend order editors: reordering, removing, adding back from chips and resetting to default
+  - [x] Notifications
+    - [x] App updates switch, with a switch for pre-releases
+    - [x] Alerts and precipitation switches, unavailable without background updates
+    - [x] Today's and tomorrow's forecast switches and times, chosen by typing the time
+  - [x] Weather sources
+    - [x] Default source, automatic or Open-Meteo
+    - [x] Open-Meteo's forecast, air quality and geocoding server addresses
+  - [ ] Location and debug settings
+  - [x] About screen
+    - [x] Libreccio Weather's name, icon and version, update check and source code link
+    - [x] Breezy Weather's contributors and translators of the selected language
+    - [x] Libreccio Weather's data and privacy statement, the weather sources' privacy policies and the list of dependencies
+    - [x] About button on every settings screen
+- [x] App updates from GitHub releases
+  - [x] Newest release or pre-release found once a day after refreshes and background updates when enabled
+  - [x] Semantic Versioning comparison of pre-releases
+  - [x] Offer to enable update checks on the location list
+- [x] Breezy Weather's colors and light theme
+  - [x] Material 3's palettes for settings and Breezy Weather's for the main screen, location cards and order editors, light and dark
+  - [x] Setting and location cards tinted by their elevation
+  - [x] App theme from the dark mode setting or Windows' app mode, applied at once
+  - [x] Main screen light during the day and dark at night, following the day/night setting for locations
 - [ ] Single instance
   - [x] One process per Windows user, enforced before settings and database access
   - [x] A second launch restores the existing window, including from the tray or a minimized state
@@ -237,6 +267,6 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] commons-suncalc's moonrise, moonset, phase and altitude references
 - [ ] Third-party notices for the ported parts that come from other projects
 - [ ] Libreccio Weather's logo
-- [ ] Releases
+- [x] Releases
   - [x] Compressed Windows x64 single-executable package, including the runtime and native libraries
-  - [ ] First public alpha release
+  - [x] First public alpha release

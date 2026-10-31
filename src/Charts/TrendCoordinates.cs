@@ -48,7 +48,7 @@ public static class TrendCoordinates
     }
 
     /// <summary>
-    /// Truncates towards zero, turns NaN into zero and stops at the integer bounds, as Kotlin's Float.toInt() does.
+    /// Truncates towards zero, turns NaN into zero and stops at the integer bounds, where a plain cast is undefined.
     /// </summary>
     internal static int ToInt(float coordinate)
     {

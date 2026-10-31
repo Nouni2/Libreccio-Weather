@@ -36,7 +36,7 @@ namespace LibreccioWeather.ViewModels;
 /// </summary>
 public sealed partial class MainViewModel : ObservableObject
 {
-    // Breezy Weather shows each message for three seconds.
+    // A message stays for three seconds, a short snackbar duration.
     private static readonly TimeSpan SnackbarDuration = TimeSpan.FromSeconds(3);
 
     // Windows at least this wide show the location list as a pane beside the main screen.
@@ -85,6 +85,12 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private SnackbarViewModel? _snackbar;
 
+    /// <summary>
+    /// Whether the app's screens use the dark palette. The main screen chooses its own for the location it shows.
+    /// </summary>
+    [ObservableProperty]
+    private bool _isAppDark;
+
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(
         nameof(DesktopHomeCommand), nameof(DesktopLocationsCommand), nameof(DesktopSearchCommand),
@@ -130,9 +136,21 @@ public sealed partial class MainViewModel : ObservableObject
             }
         };
 
+        IsAppDark = Appearance.ThemeManager.IsAppDark(settings);
+
+        // A change of Windows' app mode applies at once while the dark mode setting follows the system.
+        Microsoft.Win32.SystemEvents.UserPreferenceChanged += (_, args) =>
+        {
+            if (args.Category == Microsoft.Win32.UserPreferenceCategory.General)
+            {
+                uiContext?.Post(_ => FollowSystemTheme(), null);
+            }
+        };
+
         // Units and other settings change what the main screen shows, so it is built again with them.
         settings.SettingsChanged += (_, args) =>
         {
+            IsAppDark = Appearance.ThemeManager.IsAppDark(settings);
             if (args is SettingsChangedEventArgs
                 {
                     PropertyName: nameof(SettingsManager.IsWidgetNotificationEnabled)
@@ -172,6 +190,13 @@ public sealed partial class MainViewModel : ObservableObject
     public string? CurrentFormattedId => _currentFormattedId;
 
     public SettingsManager Settings => _settings;
+
+    public OpenMeteoService OpenMeteo => _openMeteo;
+
+    /// <summary>
+    /// Checks for new releases of the app; set once the app has started.
+    /// </summary>
+    public Updates.AppUpdateChecker? UpdateChecker { get; set; }
 
     public string RegionCode => _regionCode;
 
@@ -231,6 +256,15 @@ public sealed partial class MainViewModel : ObservableObject
 
         IsLocationPaneOpen = !IsLocationPaneOpen;
         return true;
+    }
+
+    // An order editor saves its list when it is left, whichever way the screen changes.
+    partial void OnCurrentPageChanged(ObservableObject? oldValue, ObservableObject? newValue)
+    {
+        if (oldValue is DisplayManageViewModel editor && !ReferenceEquals(oldValue, newValue))
+        {
+            editor.Stop();
+        }
     }
 
     partial void OnCurrentPageChanged(ObservableObject? value)
@@ -566,6 +600,41 @@ public sealed partial class MainViewModel : ObservableObject
             && item.ForecastSource == location.ForecastSource);
     }
 
+    /// <summary>
+    /// Saves a location whose preferences changed, such as its sources or its name. A new forecast source changes its
+    /// identifier, which the saved location and its weather follow; the main screen follows it when it showed it.
+    /// </summary>
+    public async Task<bool> UpdateLocationPreferencesAsync(Location newLocation, Location oldLocation)
+    {
+        int index = _locations.FindIndex(item => item.FormattedId == oldLocation.FormattedId);
+        if (index < 0)
+        {
+            return false;
+        }
+
+        if (!await _locationRepository.UpdateAsync(newLocation, oldLocation.FormattedId))
+        {
+            ShowSnackbar(Strings.Get("location_save_failed"));
+            return false;
+        }
+
+        _locations[index] = newLocation;
+        if (_currentFormattedId == oldLocation.FormattedId)
+        {
+            _currentFormattedId = newLocation.FormattedId;
+            ReplaceMainScreen();
+        }
+
+        if (CurrentPage is ManagementViewModel management)
+        {
+            management.Refresh();
+        }
+
+        NotifyLocationsChanged();
+        OnPropertyChanged(nameof(Locations));
+        return true;
+    }
+
     public async Task MoveLocationAsync(int from, int to)
     {
         if (from == to)
@@ -661,6 +730,21 @@ public sealed partial class MainViewModel : ObservableObject
         // The setting raises SettingsChanged, which builds the main screen again in the new language.
         _settings.Language = languageCode;
 
+        RebuildOpenScreens();
+        OnPropertyChanged(nameof(InterfaceCulture));
+    }
+
+    /// <summary>
+    /// Builds the main screen and every other open screen again, so settings read when a screen is built take effect.
+    /// </summary>
+    public void RecreateAllScreens()
+    {
+        RebuildMainScreen();
+        RebuildOpenScreens();
+    }
+
+    private void RebuildOpenScreens()
+    {
         List<ObservableObject> screens = [.. _backStack.Reverse().Select(Rebuilt)];
         _backStack.Clear();
         foreach (ObservableObject screen in screens)
@@ -672,8 +756,6 @@ public sealed partial class MainViewModel : ObservableObject
         {
             CurrentPage = Rebuilt(CurrentPage);
         }
-
-        OnPropertyChanged(nameof(InterfaceCulture));
     }
 
     private ObservableObject Rebuilt(ObservableObject screen)
@@ -744,7 +826,25 @@ public sealed partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(Locations));
     }
 
-    private void RebuildMainScreen()
+    private void FollowSystemTheme()
+    {
+        if (_settings.DarkMode != DarkMode.System)
+        {
+            return;
+        }
+
+        bool dark = Appearance.ThemeManager.IsAppDark(_settings);
+        if (dark != IsAppDark)
+        {
+            IsAppDark = dark;
+            RebuildMainScreen();
+        }
+    }
+
+    /// <summary>
+    /// Builds the main screen again with the current settings, for settings that do not raise SettingsChanged.
+    /// </summary>
+    public void RebuildMainScreen()
     {
         if (CurrentLocation() is null)
         {

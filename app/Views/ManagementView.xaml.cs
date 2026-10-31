@@ -26,12 +26,12 @@ using Point = System.Windows.Point;
 namespace LibreccioWeather.Views;
 
 /// <summary>
-/// Turns pointer movements on the location cards into the gestures of Breezy Weather's list: a press opens the card,
+/// Turns pointer movements on the location cards into the list's gestures: a press opens the card,
 /// sliding it past half its width towards the end deletes it, and dragging its handle moves it in the list.
 /// </summary>
 public partial class ManagementView : UserControl
 {
-    // Android's ItemTouchHelper counts a swipe once the card has moved half its width.
+    // A slide counts once the card has moved this fraction of its width.
     private const double SwipeThreshold = 0.5;
 
     private Point _swipeStart;
@@ -42,6 +42,9 @@ public partial class ManagementView : UserControl
     public ManagementView()
     {
         InitializeComponent();
+
+        // Only the location cards take the view palette; the top bar, update card and add button keep the app's.
+        Appearance.ThemeManager.ApplyViewColors(LocationList);
 
         // The list holds the capture during a drag, because moving a card can rebuild the card under the pointer.
         LocationList.MouseMove += OnListMouseMove;
@@ -108,9 +111,10 @@ public partial class ManagementView : UserControl
         {
             _ = viewModel.DeleteAsync(item);
         }
-
-        // Sliding towards the start opens the location's source settings in Breezy Weather, which are not ported,
-        // so the card only slides back.
+        else if (offset <= -card.ActualWidth * SwipeThreshold)
+        {
+            viewModel.ChooseSources(item);
+        }
     }
 
     private void OnCardLostCapture(object sender, MouseEventArgs e)

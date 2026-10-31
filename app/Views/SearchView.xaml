@@ -40,7 +40,7 @@
                 </TextBox>
                 <!-- Placed by code where the box puts its first character, so the hint and the caret line up. -->
                 <TextBlock x:Name="Placeholder" HorizontalAlignment="Left" VerticalAlignment="Center" IsHitTestVisible="False" FontSize="16"
-                           Foreground="{StaticResource OnSurfaceVariantBrush}"
+                           Foreground="{DynamicResource OnSurfaceVariantBrush}"
                            Text="{l:Translate location_search_placeholder}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock">
@@ -59,7 +59,7 @@
         <TextBlock Grid.Row="1" Margin="16,8,16,0" Style="{StaticResource BodySmallText}" Text="{Binding Attribution}" />
 
         <ProgressBar Grid.Row="2" Margin="0,8,0,0" Height="4" IsIndeterminate="True" BorderThickness="0"
-                     Background="Transparent" Foreground="{StaticResource PrimaryBrush}"
+                     Background="Transparent" Foreground="{DynamicResource PrimaryBrush}"
                      Visibility="{Binding IsSearching, Converter={StaticResource BooleanToVisibility}}" />
 
         <Grid Grid.Row="3" Margin="0,8,0,0">

@@ -28,7 +28,7 @@ public static class OptionNames
         return GetNameByValue(value, Strings.GetArray(nameArrayKey), Strings.GetArray(valueArrayKey));
     }
 
-    // Pairs stop at the shorter array, as Kotlin's zip does.
+    // Pairs stop at the shorter array, so a missing name or value leaves the rest unmatched.
     public static string? GetNameByValue(string value, IReadOnlyList<string> names, IReadOnlyList<string> values)
     {
         return values.Zip(names).FirstOrDefault(pair => pair.First == value).Second;

@@ -19,6 +19,8 @@
         xmlns:vm="clr-namespace:LibreccioWeather.ViewModels"
         xmlns:s="clr-namespace:LibreccioWeather.ViewModels.Settings"
         xmlns:details="clr-namespace:LibreccioWeather.ViewModels.Details"
+        xmlns:about="clr-namespace:LibreccioWeather.ViewModels.About"
+        xmlns:locations="clr-namespace:LibreccioWeather.ViewModels.Locations"
         xmlns:views="clr-namespace:LibreccioWeather.Views"
         xmlns:l="clr-namespace:LibreccioWeather.Localization"
         xmlns:c="clr-namespace:LibreccioWeather.Controls"
@@ -49,6 +51,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type s:SettingsPageViewModel}">
             <views:SettingsView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type s:DisplayManageViewModel}">
+            <views:DisplayManageView />
         </DataTemplate>
         <DataTemplate DataType="{x:Type details:DetailsViewModel}">
             <views:DetailsView />
@@ -92,6 +97,214 @@
                         </StackPanel>
                     </ScrollViewer>
                 </DockPanel>
+            </Border>
+        </DataTemplate>
+        <!-- Choices in titled groups; a choice can be shown without being available. -->
+        <DataTemplate DataType="{x:Type s:GroupedListDialogViewModel}">
+            <Border Style="{StaticResource DialogSurface}" Padding="0,24,0,8">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Margin="24,0,24,16" Style="{StaticResource HeadlineSmallText}" Text="{Binding Title}" />
+                    <Button DockPanel.Dock="Bottom" Margin="0,8,16,0" HorizontalAlignment="Right" Style="{StaticResource TextButton}"
+                            Command="{Binding CancelCommand}" Content="{Binding CancelText}" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Items}" Focusable="False">
+                            <ItemsControl.Resources>
+                                <DataTemplate DataType="{x:Type s:ListDialogGroupHeader}">
+                                    <TextBlock Margin="24,12,24,4" FontSize="14" FontWeight="Medium"
+                                               Foreground="{DynamicResource PrimaryBrush}" Text="{Binding Title}" />
+                                </DataTemplate>
+                                <DataTemplate DataType="{x:Type s:GroupedListDialogOption}">
+                                    <RadioButton Style="{StaticResource RadioOption}" Content="{Binding Name}" IsEnabled="{Binding IsEnabled}"
+                                                 IsChecked="{Binding IsSelected, Mode=OneWay}" Command="{Binding ChooseCommand}" />
+                                </DataTemplate>
+                            </ItemsControl.Resources>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- The edit location dialog: entries with an icon, then Delete and Close. -->
+        <DataTemplate DataType="{x:Type locations:EditLocationDialogViewModel}">
+            <Border Style="{StaticResource DialogSurface}" Padding="0,24,0,8">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Margin="24,0,24,16" Style="{StaticResource HeadlineSmallText}" Text="{Binding Title}" />
+                    <StackPanel DockPanel.Dock="Bottom" Margin="0,8,16,0" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <Button Style="{StaticResource TextButton}" Foreground="{DynamicResource ErrorBrush}" Command="{Binding DeleteCommand}"
+                                Content="{Binding DeleteText}" Visibility="{Binding CanDelete, Converter={StaticResource BooleanToVisibility}}" />
+                        <Button Margin="8,0,0,0" Style="{StaticResource TextButton}" Command="{Binding CloseCommand}" Content="{Binding CloseText}" />
+                    </StackPanel>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Entries}" Focusable="False">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="24,12" Background="Transparent" Cursor="Hand">
+                                        <Border.InputBindings>
+                                            <MouseBinding Gesture="LeftClick" Command="{Binding ClickCommand}" />
+                                        </Border.InputBindings>
+                                        <DockPanel>
+                                            <Viewbox DockPanel.Dock="Left" Width="24" Height="24" Margin="0,0,16,0" VerticalAlignment="Center">
+                                                <Canvas Width="{Binding IconViewport}" Height="{Binding IconViewport}">
+                                                    <Path Data="{Binding Icon}" Fill="{DynamicResource OnSurfaceVariantBrush}" />
+                                                </Canvas>
+                                            </Viewbox>
+                                            <StackPanel>
+                                                <TextBlock Style="{StaticResource TitleMediumText}" FontWeight="Normal" Text="{Binding Title}" />
+                                                <TextBlock Margin="0,4,0,0" Style="{StaticResource BodyMediumText}" TextWrapping="Wrap" Text="{Binding Summary}" />
+                                            </StackPanel>
+                                        </DockPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- One location's own preferences, saved when closed. -->
+        <DataTemplate DataType="{x:Type locations:PerLocationDialogViewModel}">
+            <Border Style="{StaticResource DialogSurface}" Padding="0,24,0,8">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Margin="24,0,24,16" Style="{StaticResource HeadlineSmallText}" Text="{Binding Title}" />
+                    <Button DockPanel.Dock="Bottom" Margin="0,8,16,0" HorizontalAlignment="Right" Style="{StaticResource TextButton}"
+                            Command="{Binding CloseCommand}" Content="{Binding CloseText}" />
+                    <StackPanel>
+                        <TextBlock Margin="24,0,24,8" FontSize="14" FontWeight="Medium" Foreground="{DynamicResource PrimaryBrush}"
+                                   Text="{Binding SectionTitle}" />
+                        <Border Padding="24,12" Background="Transparent" Cursor="Hand">
+                            <Border.InputBindings>
+                                <MouseBinding Gesture="LeftClick" Command="{Binding EditCustomNameCommand}" />
+                            </Border.InputBindings>
+                            <StackPanel>
+                                <TextBlock Style="{StaticResource TitleMediumText}" FontWeight="Normal" Text="{Binding CustomNameTitle}" />
+                                <TextBlock Margin="0,8,0,0" Style="{StaticResource BodyMediumText}" Text="{Binding CustomNameSummary}" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- A question to confirm or cancel. -->
+        <DataTemplate DataType="{x:Type locations:ConfirmDialogViewModel}">
+            <Border Style="{StaticResource DialogSurface}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Margin="0,0,0,16" Style="{StaticResource HeadlineSmallText}" Text="{Binding Title}" />
+                    <StackPanel DockPanel.Dock="Bottom" Margin="0,24,0,0" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <Button Style="{StaticResource TextButton}" Command="{Binding CancelCommand}" Content="{Binding CancelText}" />
+                        <Button Margin="8,0,0,0" Style="{StaticResource TextButton}" Command="{Binding ConfirmCommand}" Content="{Binding ConfirmText}" />
+                    </StackPanel>
+                    <TextBlock Style="{StaticResource BodyMediumText}" TextWrapping="Wrap" Text="{Binding Message}" />
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- The source of each feature of a location, saved together. -->
+        <DataTemplate DataType="{x:Type locations:SecondarySourcesDialogViewModel}">
+            <Border Style="{StaticResource DialogSurface}" Padding="0,24,0,8">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Margin="24,0,24,16" Style="{StaticResource HeadlineSmallText}" Text="{Binding Title}" />
+                    <StackPanel DockPanel.Dock="Bottom" Margin="0,8,16,0" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <Button Style="{StaticResource TextButton}" Command="{Binding CancelCommand}" Content="{Binding CancelText}" />
+                        <Button Margin="8,0,0,0" Style="{StaticResource TextButton}" Command="{Binding SaveCommand}" Content="{Binding SaveText}" />
+                    </StackPanel>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <Border Margin="8,0,8,8" Padding="16" CornerRadius="28" Background="{DynamicResource SecondaryContainerBrush}"
+                                    Visibility="{Binding ShowsCurrentPositionDisclaimer, Converter={StaticResource BooleanToVisibility}}">
+                                <TextBlock Style="{StaticResource BodyMediumText}" TextWrapping="Wrap"
+                                           Foreground="{DynamicResource OnSecondaryContainerBrush}" Text="{Binding CurrentPositionDisclaimer}" />
+                            </Border>
+                            <ItemsControl ItemsSource="{Binding Rows}" Focusable="False">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel>
+                                            <Border Padding="24,12" Background="Transparent" Cursor="Hand">
+                                                <Border.InputBindings>
+                                                    <MouseBinding Gesture="LeftClick" Command="{Binding OpenCommand}" />
+                                                </Border.InputBindings>
+                                                <StackPanel>
+                                                    <TextBlock Style="{StaticResource TitleMediumText}" FontWeight="Normal" Text="{Binding Title}" />
+                                                    <TextBlock Margin="0,4,0,0" Style="{StaticResource BodyMediumText}" Text="{Binding Summary}" />
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                            <TextBlock Margin="24,0" FontSize="12" Foreground="{DynamicResource ErrorBrush}" Text="{Binding DuplicateText}"
+                                       Visibility="{Binding IsLocationDuplicate, Converter={StaticResource BooleanToVisibility}}" />
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- A line of text, with the pattern's error below it while the text does not match. -->
+        <DataTemplate DataType="{x:Type s:EditTextDialogViewModel}">
+            <Border Style="{StaticResource DialogSurface}">
+                <StackPanel>
+                    <TextBlock Margin="0,0,0,16" Style="{StaticResource HeadlineSmallText}" Text="{Binding Title}" />
+                    <Grid>
+                        <TextBox x:Name="EditTextInput" FontSize="16" Padding="12,14"
+                                 Text="{Binding Input, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Margin="16,0" VerticalAlignment="Center" IsHitTestVisible="False" FontSize="16"
+                                   Foreground="{DynamicResource OnSurfaceVariantBrush}" Text="{Binding Placeholder}"
+                                   Visibility="{Binding HasPlaceholder, Converter={StaticResource BooleanToVisibility}}" />
+                    </Grid>
+                    <TextBlock Margin="16,4,16,0" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource ErrorBrush}"
+                               Text="{Binding ErrorText}" Visibility="{Binding IsError, Converter={StaticResource BooleanToVisibility}}" />
+                    <StackPanel Margin="0,24,0,0" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <Button Style="{StaticResource TextButton}" Command="{Binding CancelCommand}" Content="{Binding CancelText}" />
+                        <Button Margin="8,0,0,0" Style="{StaticResource TextButton}" IsDefault="True"
+                                Command="{Binding DoneCommand}" Content="{Binding DoneText}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- The confirmation before a link opens outside the app. -->
+        <DataTemplate DataType="{x:Type about:LinkDialogViewModel}">
+            <Border Style="{StaticResource DialogSurface}">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Bottom" Margin="0,24,0,0" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <Button Style="{StaticResource TextButton}" Command="{Binding CancelCommand}" Content="{Binding CancelText}" />
+                        <Button Margin="8,0,0,0" Style="{StaticResource TextButton}" IsDefault="True"
+                                Command="{Binding ConfirmCommand}" Content="{Binding ConfirmText}" />
+                    </StackPanel>
+                    <TextBlock Style="{StaticResource BodyMediumText}" TextWrapping="Wrap" Text="{Binding Message}" />
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- A time typed as its hour and minute, with AM and PM on a 12-hour clock. -->
+        <DataTemplate DataType="{x:Type s:TimePickerDialogViewModel}">
+            <Border Style="{StaticResource DialogSurface}">
+                <StackPanel>
+                    <TextBlock Margin="0,0,0,20" Style="{StaticResource BodyMediumText}" Text="{Binding Title}" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBox Width="96" Height="72" FontSize="45" TextAlignment="Center" VerticalContentAlignment="Center"
+                                 MaxLength="2" Text="{Binding HourText, UpdateSourceTrigger=PropertyChanged}" />
+                        <TextBlock Margin="4,0" VerticalAlignment="Center" FontSize="57" Text=":"
+                                   Foreground="{DynamicResource OnSurfaceBrush}" />
+                        <TextBox Width="96" Height="72" FontSize="45" TextAlignment="Center" VerticalContentAlignment="Center"
+                                 MaxLength="2" Text="{Binding MinuteText, UpdateSourceTrigger=PropertyChanged}" />
+                        <StackPanel Margin="12,0,0,0" Width="52" VerticalAlignment="Center"
+                                    Visibility="{Binding Is12Hour, Converter={StaticResource BooleanToVisibility}}">
+                            <RadioButton Style="{StaticResource RadioOption}" Content="{Binding AmText}"
+                                         IsChecked="{Binding IsAm, Mode=OneWay}"
+                                         Command="{Binding SelectAmCommand}" />
+                            <RadioButton Style="{StaticResource RadioOption}" Content="{Binding PmText}"
+                                         IsChecked="{Binding IsPm, Mode=OneWay}" Command="{Binding SelectPmCommand}" />
+                        </StackPanel>
+                    </StackPanel>
+                    <StackPanel Margin="0,24,0,0" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <Button Style="{StaticResource TextButton}" Command="{Binding CancelCommand}" Content="{Binding CancelText}" />
+                        <Button Margin="8,0,0,0" Style="{StaticResource TextButton}" IsDefault="True"
+                                Command="{Binding ConfirmCommand}" Content="{Binding ConfirmText}" />
+                    </StackPanel>
+                </StackPanel>
             </Border>
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:AlreadyRunningDialogViewModel}">
@@ -152,7 +365,7 @@
             </DockPanel>
         </Border>
 
-        <!-- The open dialog. A click outside it cancels it, as tapping outside an Android dialog does. -->
+        <!-- The open dialog. A click outside it cancels it. -->
         <Grid x:Name="DialogHost" DataContext="{Binding Dialog}" Focusable="True" KeyboardNavigation.TabNavigation="Cycle">
             <Grid.InputBindings>
                 <KeyBinding Key="Escape" Command="{Binding CancelCommand}" />

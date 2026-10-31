@@ -1,0 +1,59 @@
+<!--
+  This file is part of Libreccio Weather.
+
+  Libreccio Weather is free software: you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the Free
+  Software Foundation, version 3 of the License.
+
+  Libreccio Weather is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  more details.
+
+  You should have received a copy of the GNU General Public License along
+  with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
+-->
+<!-- The dark palette of the main screen, the location list and the order editors. BreezyLightColors.xaml has the same keys.
+     Surface containers are Material 3's dark baseline. ElevatedSurfaceBrush is the surface tinted with the primary color
+     at 2 dp elevation, as location cards are drawn. -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    mc:Ignorable="po">
+    <SolidColorBrush x:Key="SurfaceBrush" po:Freeze="True" Color="#1B1B1D" />
+    <SolidColorBrush x:Key="SurfaceContainerBrush" po:Freeze="True" Color="#211F26" />
+    <SolidColorBrush x:Key="MainCardBackgroundBrush" po:Freeze="True" Color="#1B1B1D" />
+    <SolidColorBrush x:Key="MainCardArcRootBrush" po:Freeze="True" Color="#1C1B1F" />
+    <SolidColorBrush x:Key="MainCardTitleBrush" po:Freeze="True" Color="#E3E2E6" />
+    <SolidColorBrush x:Key="MainCardTextBrush" po:Freeze="True" Color="#E3E2E6" />
+    <SolidColorBrush x:Key="BodyTextBrush" po:Freeze="True" Color="#999999" />
+    <SolidColorBrush x:Key="SurfaceContainerHighBrush" po:Freeze="True" Color="#2B2930" />
+    <SolidColorBrush x:Key="OnSurfaceBrush" po:Freeze="True" Color="#E3E2E6" />
+    <SolidColorBrush x:Key="OnSurfaceVariantBrush" po:Freeze="True" Color="#CAC4D0" />
+    <SolidColorBrush x:Key="PrimaryBrush" po:Freeze="True" Color="#A8C7FF" />
+    <SolidColorBrush x:Key="OutlineBrush" po:Freeze="True" Color="#10FFFFFF" />
+    <SolidColorBrush x:Key="ElevatedSurfaceBrush" po:Freeze="True" Color="#24262C" />
+    <SolidColorBrush x:Key="SurfaceContainerLowBrush" po:Freeze="True" Color="#1D1B20" />
+    <SolidColorBrush x:Key="OnPrimaryBrush" po:Freeze="True" Color="#002F67" />
+    <SolidColorBrush x:Key="PrimaryContainerBrush" po:Freeze="True" Color="#004591" />
+    <SolidColorBrush x:Key="OnPrimaryContainerBrush" po:Freeze="True" Color="#D6E3FF" />
+    <SolidColorBrush x:Key="SecondaryContainerBrush" po:Freeze="True" Color="#004E60" />
+    <SolidColorBrush x:Key="OnSecondaryContainerBrush" po:Freeze="True" Color="#B1EBFF" />
+    <SolidColorBrush x:Key="TertiaryBrush" po:Freeze="True" Color="#EEC148" />
+    <SolidColorBrush x:Key="OnTertiaryBrush" po:Freeze="True" Color="#3F2E00" />
+    <SolidColorBrush x:Key="TertiaryContainerBrush" po:Freeze="True" Color="#5A4300" />
+    <SolidColorBrush x:Key="OnTertiaryContainerBrush" po:Freeze="True" Color="#FFDF8E" />
+    <SolidColorBrush x:Key="WidgetBackgroundBrush" po:Freeze="True" Color="#404659" />
+    <SolidColorBrush x:Key="ErrorBrush" po:Freeze="True" Color="#F2B8B5" />
+    <SolidColorBrush x:Key="ErrorContainerBrush" po:Freeze="True" Color="#8C1D18" />
+    <SolidColorBrush x:Key="OnErrorContainerBrush" po:Freeze="True" Color="#F9DEDC" />
+    <SolidColorBrush x:Key="InverseSurfaceBrush" po:Freeze="True" Color="#E3E2E6" />
+    <SolidColorBrush x:Key="InverseOnSurfaceBrush" po:Freeze="True" Color="#1B1B1D" />
+    <SolidColorBrush x:Key="InversePrimaryBrush" po:Freeze="True" Color="#205DAF" />
+    <SolidColorBrush x:Key="ScrimBrush" po:Freeze="True" Color="#99000000" />
+    <!-- Hover state layer: the on-surface color at 8 % opacity. -->
+    <SolidColorBrush x:Key="HoverLayerBrush" po:Freeze="True" Color="#14E3E2E6" />
+    <SolidColorBrush x:Key="AlertBackgroundBrush" po:Freeze="True" Color="#410002" />
+    <SolidColorBrush x:Key="AlertTextBrush" po:Freeze="True" Color="#FF897D" />
+</ResourceDictionary>

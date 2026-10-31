@@ -34,6 +34,8 @@ namespace LibreccioWeather.ViewModels;
 
 public sealed partial class WeatherViewModel : ObservableObject
 {
+    private const long DelayBeforeNextManualRefresh = 10_000;
+
     private readonly WeatherRefresher _refresher;
     private readonly MainViewModel _main;
     private readonly TemperatureUnit _temperatureUnit;
@@ -86,6 +88,7 @@ public sealed partial class WeatherViewModel : ObservableObject
         _speedUnit = main.Settings.GetSpeedUnit(main.RegionCode);
         _location = location;
         TemperatureUnitText = UnitFormatting.GetNominativeUnit(_temperatureUnit);
+        UpdateTheme();
         if (location.Weather is { } weather)
         {
             Show(weather);
@@ -143,6 +146,22 @@ public sealed partial class WeatherViewModel : ObservableObject
         _main.OpenDetails(_location, _location.Weather?.TodayIndex, screen);
     }
 
+    /// <summary>
+    /// Opens the edit location dialog, unless a refresh is running.
+    /// </summary>
+    [RelayCommand]
+    private void EditLocation()
+    {
+        if (IsLoading)
+        {
+            _main.ShowSnackbar(Strings.Get("message_please_wait_refresh"));
+        }
+        else
+        {
+            _main.ShowDialog(new Locations.EditLocationDialogViewModel(_main, _location));
+        }
+    }
+
     [RelayCommand]
     private void OpenAstroDetails()
     {
@@ -180,7 +199,20 @@ public sealed partial class WeatherViewModel : ObservableObject
             return;
         }
 
+        // The same location is not requested again within a few seconds of the last request for it.
+        Core.Settings.SettingsManager settings = _main.Settings;
+        if (settings.WeatherManualUpdateLastLocationId == _location.FormattedId
+            && settings.WeatherManualUpdateLastTimestamp + DelayBeforeNextManualRefresh
+                > DateTimeOffset.UtcNow.ToUnixTimeMilliseconds())
+        {
+            _main.ShowSnackbar(Strings.Get("weather_message_too_frequent_refreshes"));
+            return;
+        }
+
         IsLoading = true;
+        settings.WeatherManualUpdateLastTimestamp = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        settings.WeatherManualUpdateLastLocationId = _location.FormattedId;
+        _ = _main.UpdateChecker?.CheckIfEnabledAsync();
         try
         {
             WeatherResult result = await _refresher.GetWeatherAsync(_location);
@@ -214,6 +246,56 @@ public sealed partial class WeatherViewModel : ObservableObject
             : null;
     }
 
+    private int _temperatureTo;
+
+    /// <summary>
+    /// The number the header's temperature counts from.
+    /// </summary>
+    [ObservableProperty]
+    private string _temperatureStartText = "0";
+
+    /// <summary>
+    /// Whether the header's temperature counts up to its value, with the element animations setting.
+    /// </summary>
+    public bool IsTemperatureAnimated => _main.Settings.IsElementsAnimationEnabled;
+
+    /// <summary>
+    /// Whether this location's screen uses the light palette, by the dark mode settings and whether the sun is up there.
+    /// </summary>
+    [ObservableProperty]
+    private bool _isLightTheme;
+
+    /// <summary>
+    /// The weather animated behind the screen, or null when the main screen background is off.
+    /// </summary>
+    [ObservableProperty]
+    private WeatherCode? _animationCondition;
+
+    [ObservableProperty]
+    private bool _animationDaylight = true;
+
+    [ObservableProperty]
+    private bool _animationDarkMode;
+
+    /// <summary>
+    /// Whether the background moves. Following the system, it moves unless Windows' animation effects are off.
+    /// </summary>
+    public bool AnimateBackground => _main.Settings.BackgroundAnimationMode.Id switch
+    {
+        "enabled" => true,
+        "disabled" => false,
+        _ => System.Windows.SystemParameters.ClientAreaAnimation,
+    };
+
+    private void UpdateTheme()
+    {
+        bool daylight = RiseProgress.IsDaylight(_location, DateTimeOffset.UtcNow);
+        IsLightTheme = ThemeManager.IsLightTheme(_main.Settings, daylight);
+        AnimationCondition = _main.Settings.MainScreenBackgroundEnabled ? _location.Weather?.Current?.WeatherCode : null;
+        AnimationDaylight = daylight;
+        AnimationDarkMode = _main.IsAppDark;
+    }
+
     private void Show(Weather weather)
     {
         UpdateRefreshTime();
@@ -221,6 +303,14 @@ public sealed partial class WeatherViewModel : ObservableObject
         WeatherText = current?.WeatherText is { Length: > 0 } text ? text : null;
 
         Core.Units.Temperature? temperature = current?.Temperature?.Value;
+        // The header counts from the temperature shown before, or from 0 on a new screen, to the new one.
+        if (temperature is { } shown)
+        {
+            int previous = _temperatureTo;
+            _temperatureTo = UnitFormatting.RoundToInt(shown.ToDouble(_temperatureUnit));
+            TemperatureStartText = NumberFormatting.Format(previous, 0, Strings.Culture);
+        }
+
         TemperatureText = temperature is { } value ? UnitFormatting.FormatRounded(value, _temperatureUnit) : null;
 
         // The feels-like temperature is only shown when it rounds to a different value.
@@ -233,6 +323,7 @@ public sealed partial class WeatherViewModel : ObservableObject
             : null;
 
         TemperatureRangeText = GetTemperatureRangeSummary(weather);
+        UpdateTheme();
         // Hourly flags include the solar altitude when available and retain the source's flag otherwise.
         bool daylight = weather.NextHourlyForecast.FirstOrDefault()?.IsDaylight ?? true;
         BackgroundBrush = _main.Settings.MainScreenBackgroundEnabled

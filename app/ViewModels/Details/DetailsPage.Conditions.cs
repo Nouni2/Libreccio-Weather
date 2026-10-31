@@ -89,7 +89,7 @@ internal static partial class DetailsPage
             }
             else if ((degreeDay.Cooling?.Value ?? 0) > 0)
             {
-                // The spoken value is the heating degree day, as on Android.
+                // The spoken value is deliberately the heating degree day, also for the cooling item.
                 blocks.Add(DegreeDayItem("temperature_degree_day_cooling", "IconModeCool", degreeDay.Cooling!.Value, degreeDay.Heating, unit));
             }
         }

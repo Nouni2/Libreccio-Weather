@@ -34,9 +34,14 @@ public static class DateFormatting
         return Capitalize(TimeZoneInfo.ConvertTime(date, timeZone).ToString(full ? "dddd" : "ddd", Strings.Culture));
     }
 
+    /// <summary>
+    /// Whether Windows shows times on a 12-hour clock.
+    /// </summary>
+    public static bool Is12Hour => !CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.Contains('H');
+
     public static string GetHour(DateTimeOffset date, TimeZoneInfo timeZone)
     {
-        bool twelveHour = !CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.Contains('H');
+        bool twelveHour = Is12Hour;
         if (twelveHour && Icu.SupportsRelativeTimes
             && Icu.FormatDate(date, "ah", timeZone, Strings.Culture) is { } formatted)
         {
@@ -48,7 +53,7 @@ public static class DateFormatting
 
     public static string GetFormattedTime(DateTimeOffset date, TimeZoneInfo timeZone)
     {
-        bool twelveHour = !CultureInfo.CurrentCulture.DateTimeFormat.ShortTimePattern.Contains('H');
+        bool twelveHour = Is12Hour;
         if (twelveHour && Icu.SupportsRelativeTimes
             && Icu.FormatDate(date, "ahmm", timeZone, Strings.Culture) is { } formatted)
         {

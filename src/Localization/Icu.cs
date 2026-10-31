@@ -20,8 +20,8 @@ using System.Runtime.InteropServices;
 namespace LibreccioWeather.Core.Localization;
 
 /// <summary>
-/// Unicode CLDR formatting through the ICU library that Windows ships as icu.dll from Windows 10 version 1903, the
-/// same library Android formats units, durations and relative times with. Each feature checks that the functions it
+/// Unicode CLDR formatting of units, durations, relative times and dates through the ICU library that Windows ships
+/// as icu.dll from Windows 10 version 1903. Each feature checks that the functions it
 /// needs exist, as older Windows versions have an older ICU or none; callers then use the translated strings instead.
 /// </summary>
 internal static class Icu
@@ -174,15 +174,26 @@ internal static class Icu
         }
     }
 
+    public static bool SupportsKeywordNames { get; } = HasExports("uloc_getDisplayKeywordValue");
+
     /// <summary>
     /// A date formatted with the best pattern for a skeleton, such as "MMMMd" for "October 12", in a time zone.
     /// </summary>
     public static string? FormatDate(DateTimeOffset date, string skeleton, TimeZoneInfo timeZone, CultureInfo culture)
     {
+        return FormatDate(date, skeleton, pattern: null, timeZone, LocaleId(culture));
+    }
+
+    /// <summary>
+    /// A date in a calendar other than the Gregorian one, such as the Hebrew calendar, given as an ICU locale with
+    /// keywords such as "fr@calendar=hebrew". The pattern is used as it is when given, and the skeleton's best pattern
+    /// for that calendar otherwise.
+    /// </summary>
+    public static string? FormatDate(DateTimeOffset date, string skeleton, string? pattern, TimeZoneInfo timeZone, string locale)
+    {
         lock (Gate)
         {
-            string locale = LocaleId(culture);
-            if (!DatePatterns.TryGetValue((skeleton, locale), out string? pattern))
+            if (pattern is null && !DatePatterns.TryGetValue((skeleton, locale), out pattern))
             {
                 pattern = BestPattern(skeleton, locale);
                 DatePatterns[(skeleton, locale)] = pattern;
@@ -210,6 +221,32 @@ internal static class Icu
             return ReadString((char[] buffer, ref int error) =>
                 udat_format(formatter, milliseconds, buffer, buffer.Length, IntPtr.Zero, ref error));
         }
+    }
+
+    /// <summary>
+    /// The name of a locale keyword's value in a language, such as "Hebrew Calendar" for the calendar "hebrew" in
+    /// English. ICU gives the value itself back when it has no name for it.
+    /// </summary>
+    public static string? GetDisplayKeywordValue(string locale, string keyword, string displayLocale)
+    {
+        if (!SupportsKeywordNames)
+        {
+            return null;
+        }
+
+        lock (Gate)
+        {
+            return ReadString((char[] buffer, ref int error) =>
+                uloc_getDisplayKeywordValue(locale, keyword, displayLocale, buffer, buffer.Length, ref error));
+        }
+    }
+
+    /// <summary>
+    /// The ICU name of a culture, such as fr_FR.
+    /// </summary>
+    public static string GetLocaleId(CultureInfo culture)
+    {
+        return LocaleId(culture);
     }
 
     // Called with the lock held.
@@ -399,4 +436,13 @@ internal static class Icu
 
     [DllImport(Library)]
     private static extern void udat_close(IntPtr formatter);
+
+    [DllImport(Library, CharSet = CharSet.Unicode, BestFitMapping = false, ThrowOnUnmappableChar = true)]
+    private static extern int uloc_getDisplayKeywordValue(
+        [MarshalAs(UnmanagedType.LPStr)] string locale,
+        [MarshalAs(UnmanagedType.LPStr)] string keyword,
+        [MarshalAs(UnmanagedType.LPStr)] string displayLocale,
+        [Out] char[] dest,
+        int destCapacity,
+        ref int status);
 }

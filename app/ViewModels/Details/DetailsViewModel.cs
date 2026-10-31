@@ -208,7 +208,8 @@ public sealed partial class DetailsViewModel : ObservableObject
         return new DetailsDayTab(
             weekday,
             DateFormatting.GetFormattedDayOfTheMonth(daily.Date, timeZone),
-            DateFormatting.GetFormattedAbbreviatedMonth(daily.Date, timeZone),
+            CalendarHelper.GetFormattedMediumDayAndMonthInAdditionalCalendar(daily.Date, timeZone, _main.Settings.AlternateCalendar)
+                ?? DateFormatting.GetFormattedAbbreviatedMonth(daily.Date, timeZone),
             fullWeekday + " " + DateFormatting.GetFormattedFullDayAndMonth(daily.Date, timeZone));
     }
 

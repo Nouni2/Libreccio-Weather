@@ -35,7 +35,7 @@
             </DockPanel>
         </DataTemplate>
     </Window.Resources>
-    <Border Background="{StaticResource SurfaceContainerBrush}" BorderBrush="{StaticResource OutlineBrush}"
+    <Border Background="{DynamicResource SurfaceContainerBrush}" BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="1" CornerRadius="{DynamicResource ForecastCardCornerRadius}" Padding="16">
         <StackPanel>
             <DockPanel>

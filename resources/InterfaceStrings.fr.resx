@@ -22,7 +22,7 @@
     <data name="app_already_running" xml:space="preserve"><value>Une instance de Libreccio Weather est déjà en cours d’exécution.</value></data>
     <data name="location_save_failed" xml:space="preserve"><value>Impossible d’enregistrer les lieux.</value></data>
     <data name="desktop_interface_section" xml:space="preserve"><value>Interface</value></data>
-    <data name="desktop_interface_title" xml:space="preserve"><value>Interface de bureau</value></data>
+    <data name="desktop_interface_title" xml:space="preserve"><value>Interface de bureau (expérimentale)</value></data>
     <data name="desktop_interface_on" xml:space="preserve"><value>Angles moins arrondis et navigation à la souris et au clavier.</value></data>
     <data name="desktop_interface_off" xml:space="preserve"><value>Adapter l’interface existante au bureau. Le changement est immédiat.</value></data>
     <data name="desktop_open" xml:space="preserve"><value>Ouvrir</value></data>
@@ -42,4 +42,7 @@
     <data name="tray_double_click" xml:space="preserve"><value>Double-cliquer sur l'icône pour ouvrir l'application</value></data>
     <data name="tray_double_click_delay" xml:space="preserve"><value>Délai du double-clic</value></data>
     <data name="tray_milliseconds" xml:space="preserve"><value>ms</value></data>
+    <data name="app_updates_prereleases" xml:space="preserve"><value>Inclure les préversions</value></data>
+    <data name="about_version_release" xml:space="preserve"><value>Release {0}</value></data>
+    <data name="about_version_debug" xml:space="preserve"><value>Debug {0}</value></data>
 </root>

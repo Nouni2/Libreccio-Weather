@@ -16,7 +16,9 @@
 
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Locations;
+using LibreccioWeather.Core.Models;
 using LibreccioWeather.Core.Settings;
+using LibreccioWeather.Icons;
 
 namespace LibreccioWeather.ViewModels;
 
@@ -35,6 +37,9 @@ public sealed class LocationItemViewModel
         Title = (location.IsCurrentPosition ? "⊙ " : "") + location.GetPlace();
         AlertCount = location.Weather?.CurrentAlertList.Count ?? 0;
         Body = GetBody(settings);
+        WeatherIconPath = location.Weather?.Current?.WeatherCode is { } weatherCode
+            ? WeatherIcons.GetPath(weatherCode, RiseProgress.IsDaylight(location, DateTimeOffset.UtcNow))
+            : null;
     }
 
     public Location Location { get; }
@@ -48,6 +53,13 @@ public sealed class LocationItemViewModel
     public bool HasAlerts => AlertCount > 0;
 
     public string Body { get; }
+
+    /// <summary>
+    /// The current weather's icon, by day or night at the location, or null without current weather.
+    /// </summary>
+    public string? WeatherIconPath { get; }
+
+    public bool HasWeatherIcon => WeatherIconPath is not null;
 
     // Outdated weather says when it was last updated. Without ICU there is no relative time to say it with, so the
     // card then shows what it would for fresh weather.

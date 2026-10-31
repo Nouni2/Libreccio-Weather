@@ -317,7 +317,7 @@ public static class UnitFormatting
         return (int)Math.Clamp(UnitRounding.RoundToLong(value), int.MinValue, int.MaxValue);
     }
 
-    // Keys follow the upstream names, such as temperature_c_nominative_short.
+    // Keys combine the quantity, the unit and the width, such as temperature_c_nominative_short.
     private static string Nominative(string quantity, WeatherUnit unit, UnitWidth width)
     {
         string suffix = width switch

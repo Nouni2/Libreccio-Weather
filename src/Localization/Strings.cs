@@ -20,7 +20,7 @@ using System.Resources;
 namespace LibreccioWeather.Core.Localization;
 
 /// <summary>
-/// Translated text, looked up by the same keys as Breezy Weather's Android strings.
+/// Translated text, looked up by key in the generated resource files.
 /// A key missing from the selected language falls back to English.
 /// </summary>
 public static class Strings

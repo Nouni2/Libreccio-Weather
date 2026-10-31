@@ -17,8 +17,8 @@
 namespace LibreccioWeather.Core.Localization;
 
 /// <summary>
-/// How long ago a moment was, such as "5 min. ago", "Yesterday" or "October 12", following Android's relative time
-/// rules with a resolution of one minute and the abbreviated style, in the computer's time zone.
+/// How long ago a moment was, such as "5 min. ago", "Yesterday" or "October 12", with a resolution of one minute and
+/// the abbreviated style, in the computer's time zone.
 /// </summary>
 public static class RelativeTimeFormatting
 {
