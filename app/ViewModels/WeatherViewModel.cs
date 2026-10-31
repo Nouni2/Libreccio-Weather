@@ -246,15 +246,54 @@ public sealed partial class WeatherViewModel : ObservableObject
             : null;
     }
 
+    private int _temperatureTo;
+
+    /// <summary>
+    /// The number the header's temperature counts from.
+    /// </summary>
+    [ObservableProperty]
+    private string _temperatureStartText = "0";
+
+    /// <summary>
+    /// Whether the header's temperature counts up to its value, with the element animations setting.
+    /// </summary>
+    public bool IsTemperatureAnimated => _main.Settings.IsElementsAnimationEnabled;
+
     /// <summary>
     /// Whether this location's screen uses the light palette, by the dark mode settings and whether the sun is up there.
     /// </summary>
     [ObservableProperty]
     private bool _isLightTheme;
 
+    /// <summary>
+    /// The weather animated behind the screen, or null when the main screen background is off.
+    /// </summary>
+    [ObservableProperty]
+    private WeatherCode? _animationCondition;
+
+    [ObservableProperty]
+    private bool _animationDaylight = true;
+
+    [ObservableProperty]
+    private bool _animationDarkMode;
+
+    /// <summary>
+    /// Whether the background moves. Following the system, it moves unless Windows' animation effects are off.
+    /// </summary>
+    public bool AnimateBackground => _main.Settings.BackgroundAnimationMode.Id switch
+    {
+        "enabled" => true,
+        "disabled" => false,
+        _ => System.Windows.SystemParameters.ClientAreaAnimation,
+    };
+
     private void UpdateTheme()
     {
-        IsLightTheme = ThemeManager.IsLightTheme(_main.Settings, RiseProgress.IsDaylight(_location, DateTimeOffset.UtcNow));
+        bool daylight = RiseProgress.IsDaylight(_location, DateTimeOffset.UtcNow);
+        IsLightTheme = ThemeManager.IsLightTheme(_main.Settings, daylight);
+        AnimationCondition = _main.Settings.MainScreenBackgroundEnabled ? _location.Weather?.Current?.WeatherCode : null;
+        AnimationDaylight = daylight;
+        AnimationDarkMode = _main.IsAppDark;
     }
 
     private void Show(Weather weather)
@@ -264,6 +303,14 @@ public sealed partial class WeatherViewModel : ObservableObject
         WeatherText = current?.WeatherText is { Length: > 0 } text ? text : null;
 
         Core.Units.Temperature? temperature = current?.Temperature?.Value;
+        // The header counts from the temperature shown before, or from 0 on a new screen, to the new one.
+        if (temperature is { } shown)
+        {
+            int previous = _temperatureTo;
+            _temperatureTo = UnitFormatting.RoundToInt(shown.ToDouble(_temperatureUnit));
+            TemperatureStartText = NumberFormatting.Format(previous, 0, Strings.Culture);
+        }
+
         TemperatureText = temperature is { } value ? UnitFormatting.FormatRounded(value, _temperatureUnit) : null;
 
         // The feels-like temperature is only shown when it rounds to a different value.

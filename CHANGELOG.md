@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.2.0-alpha1] - 2026-10-31
+## [0.2.0-alpha1] - 2026-11-01
 
 ### Added
 
@@ -13,6 +13,8 @@
 - Optional checks for new releases on GitHub, with or without pre-releases, turned on in Settings → Notifications or from the location list.
 - About screen with the version, the source code, privacy policies, dependencies and Breezy Weather's contributors and translators.
 - Weather icons on the location cards.
+- Animated weather behind the main screen: sun, stars and meteors, clouds, fog, haze, rain, sleet, thunderstorms, snow, hail and wind, following the background animation setting.
+- The main screen's temperature counts up to its new value.
 
 ### Changed
 

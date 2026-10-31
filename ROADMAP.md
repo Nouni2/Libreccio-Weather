@@ -96,8 +96,10 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [ ] Weather background
     - [x] Static weather gradients from the weather-view resources
     - [ ] Animated sun, clouds, precipitation and stars
+      - [ ] Sun, meteor shower, clouds, fog, haze, thunder, rain, sleet, thunderstorm, snow, hail and wind, fading out as the screen scrolls
+      - [ ] Background animation setting: follow Windows' animation effects, always or never
   - [x] Header fade sharing the card-entry delay queue
-  - [ ] Temperature animation
+  - [ ] Temperature counting up from the previous value, following the element animations setting
   - [ ] Descriptions read by screen readers
 - [x] Vertical scrolling of the header and forecast cards
 - [ ] Cards

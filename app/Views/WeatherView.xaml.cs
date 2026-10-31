@@ -38,13 +38,36 @@ public partial class WeatherView : UserControl
         {
             (DataContext as WeatherViewModel)?.UpdateRefreshTime();
             _clock.Start();
-            FindCardsPanel(WeatherScroll)?.AttachHeader(WeatherHeader);
+            if (FindCardsPanel(WeatherScroll) is { } panel)
+            {
+                if (panel != _cardsPanel)
+                {
+                    _cardsPanel = panel;
+                    panel.HeaderEnteredScreen += (_, _) => TemperatureNumber.Start();
+                }
+
+                panel.AttachHeader(WeatherHeader);
+            }
         };
         Unloaded += (_, _) => _clock.Stop();
         DataContextChanged += OnDataContextChanged;
+        WeatherScroll.ScrollChanged += (_, _) => UpdateAnimationScroll();
     }
 
+    // The animated weather is gone once the screen has scrolled by 500 physical pixels, a distance that keeps it
+    // from blinking as the first cards scroll up.
+    private const double AnimationFadeDistance = 500;
+
+    private void UpdateAnimationScroll()
+    {
+        double fadeDistance = AnimationFadeDistance / VisualTreeHelper.GetDpi(this).DpiScaleY;
+        WeatherAnimation.ScrollRate = Math.Min(1.0, WeatherScroll.VerticalOffset / fadeDistance);
+    }
+
+    private WeatherCardsPanel? _cardsPanel;
+
     private ResourceDictionary? _palette;
+    private bool? _paletteIsLight;
 
     private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
     {
@@ -69,8 +92,15 @@ public partial class WeatherView : UserControl
     }
 
     // The screen's own palette overrides the app's, so a location can be light while the rest of the app is dark.
+    // Swapping it makes every color of the screen resolve again, so it is only swapped when it changes.
     private void ApplyPalette(bool light)
     {
+        if (_paletteIsLight == light)
+        {
+            return;
+        }
+
+        _paletteIsLight = light;
         if (_palette is not null)
         {
             Resources.MergedDictionaries.Remove(_palette);

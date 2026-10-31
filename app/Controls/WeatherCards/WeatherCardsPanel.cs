@@ -308,9 +308,19 @@ public sealed class WeatherCardsPanel : Panel
         target.BeginAnimation(property, animation);
     }
 
+    /// <summary>
+    /// Raised when the header has entered the screen, after its entry delay when cards are animated.
+    /// </summary>
+    internal event EventHandler? HeaderEnteredScreen;
+
     private void EnterScreen(UIElement child)
     {
         _enteredCards.Add(child);
+        if (child == _header)
+        {
+            HeaderEnteredScreen?.Invoke(this, EventArgs.Empty);
+        }
+
         StartElementAnimations(child);
     }
 

@@ -16,39 +16,42 @@
 <!-- The light palette of the app's screens: Material 3's light baseline scheme, with the same keys as DarkColors.xaml.
      ElevatedSurfaceBrush is the surface tinted with the primary color at 2 dp elevation, 6.94 %. -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <SolidColorBrush x:Key="SurfaceBrush" Color="#FEF7FF" />
-    <SolidColorBrush x:Key="SurfaceContainerBrush" Color="#F3EDF7" />
-    <SolidColorBrush x:Key="MainCardBackgroundBrush" Color="#FDFBFF" />
-    <SolidColorBrush x:Key="MainCardArcRootBrush" Color="#FDFCFF" />
-    <SolidColorBrush x:Key="MainCardTitleBrush" Color="#1B1B1D" />
-    <SolidColorBrush x:Key="MainCardTextBrush" Color="#1B1B1D" />
-    <SolidColorBrush x:Key="BodyTextBrush" Color="#666666" />
-    <SolidColorBrush x:Key="SurfaceContainerHighBrush" Color="#ECE6F0" />
-    <SolidColorBrush x:Key="OnSurfaceBrush" Color="#1D1B20" />
-    <SolidColorBrush x:Key="OnSurfaceVariantBrush" Color="#49454F" />
-    <SolidColorBrush x:Key="PrimaryBrush" Color="#6750A4" />
-    <SolidColorBrush x:Key="OutlineBrush" Color="#79747E" />
-    <SolidColorBrush x:Key="ElevatedSurfaceBrush" Color="#F4EBF9" />
-    <SolidColorBrush x:Key="SurfaceContainerLowBrush" Color="#F7F2FA" />
-    <SolidColorBrush x:Key="OnPrimaryBrush" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="PrimaryContainerBrush" Color="#EADDFF" />
-    <SolidColorBrush x:Key="OnPrimaryContainerBrush" Color="#21005D" />
-    <SolidColorBrush x:Key="SecondaryContainerBrush" Color="#E8DEF8" />
-    <SolidColorBrush x:Key="OnSecondaryContainerBrush" Color="#1D192B" />
-    <SolidColorBrush x:Key="TertiaryBrush" Color="#7D5260" />
-    <SolidColorBrush x:Key="OnTertiaryBrush" Color="#FFFFFF" />
-    <SolidColorBrush x:Key="TertiaryContainerBrush" Color="#FFDF8E" />
-    <SolidColorBrush x:Key="OnTertiaryContainerBrush" Color="#251A00" />
-    <SolidColorBrush x:Key="WidgetBackgroundBrush" Color="#DCE2F9" />
-    <SolidColorBrush x:Key="ErrorBrush" Color="#B3261E" />
-    <SolidColorBrush x:Key="ErrorContainerBrush" Color="#F9DEDC" />
-    <SolidColorBrush x:Key="OnErrorContainerBrush" Color="#410E0B" />
-    <SolidColorBrush x:Key="InverseSurfaceBrush" Color="#322F35" />
-    <SolidColorBrush x:Key="InverseOnSurfaceBrush" Color="#F5EFF7" />
-    <SolidColorBrush x:Key="InversePrimaryBrush" Color="#D0BCFF" />
-    <SolidColorBrush x:Key="ScrimBrush" Color="#99000000" />
-    <SolidColorBrush x:Key="HoverLayerBrush" Color="#141D1B20" />
-    <SolidColorBrush x:Key="AlertBackgroundBrush" Color="#FFB4AB" />
-    <SolidColorBrush x:Key="AlertTextBrush" Color="#BA1A1A" />
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+                    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    mc:Ignorable="po">
+    <SolidColorBrush x:Key="SurfaceBrush" po:Freeze="True" Color="#FEF7FF" />
+    <SolidColorBrush x:Key="SurfaceContainerBrush" po:Freeze="True" Color="#F3EDF7" />
+    <SolidColorBrush x:Key="MainCardBackgroundBrush" po:Freeze="True" Color="#FDFBFF" />
+    <SolidColorBrush x:Key="MainCardArcRootBrush" po:Freeze="True" Color="#FDFCFF" />
+    <SolidColorBrush x:Key="MainCardTitleBrush" po:Freeze="True" Color="#1B1B1D" />
+    <SolidColorBrush x:Key="MainCardTextBrush" po:Freeze="True" Color="#1B1B1D" />
+    <SolidColorBrush x:Key="BodyTextBrush" po:Freeze="True" Color="#666666" />
+    <SolidColorBrush x:Key="SurfaceContainerHighBrush" po:Freeze="True" Color="#ECE6F0" />
+    <SolidColorBrush x:Key="OnSurfaceBrush" po:Freeze="True" Color="#1D1B20" />
+    <SolidColorBrush x:Key="OnSurfaceVariantBrush" po:Freeze="True" Color="#49454F" />
+    <SolidColorBrush x:Key="PrimaryBrush" po:Freeze="True" Color="#6750A4" />
+    <SolidColorBrush x:Key="OutlineBrush" po:Freeze="True" Color="#79747E" />
+    <SolidColorBrush x:Key="ElevatedSurfaceBrush" po:Freeze="True" Color="#F4EBF9" />
+    <SolidColorBrush x:Key="SurfaceContainerLowBrush" po:Freeze="True" Color="#F7F2FA" />
+    <SolidColorBrush x:Key="OnPrimaryBrush" po:Freeze="True" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="PrimaryContainerBrush" po:Freeze="True" Color="#EADDFF" />
+    <SolidColorBrush x:Key="OnPrimaryContainerBrush" po:Freeze="True" Color="#21005D" />
+    <SolidColorBrush x:Key="SecondaryContainerBrush" po:Freeze="True" Color="#E8DEF8" />
+    <SolidColorBrush x:Key="OnSecondaryContainerBrush" po:Freeze="True" Color="#1D192B" />
+    <SolidColorBrush x:Key="TertiaryBrush" po:Freeze="True" Color="#7D5260" />
+    <SolidColorBrush x:Key="OnTertiaryBrush" po:Freeze="True" Color="#FFFFFF" />
+    <SolidColorBrush x:Key="TertiaryContainerBrush" po:Freeze="True" Color="#FFDF8E" />
+    <SolidColorBrush x:Key="OnTertiaryContainerBrush" po:Freeze="True" Color="#251A00" />
+    <SolidColorBrush x:Key="WidgetBackgroundBrush" po:Freeze="True" Color="#DCE2F9" />
+    <SolidColorBrush x:Key="ErrorBrush" po:Freeze="True" Color="#B3261E" />
+    <SolidColorBrush x:Key="ErrorContainerBrush" po:Freeze="True" Color="#F9DEDC" />
+    <SolidColorBrush x:Key="OnErrorContainerBrush" po:Freeze="True" Color="#410E0B" />
+    <SolidColorBrush x:Key="InverseSurfaceBrush" po:Freeze="True" Color="#322F35" />
+    <SolidColorBrush x:Key="InverseOnSurfaceBrush" po:Freeze="True" Color="#F5EFF7" />
+    <SolidColorBrush x:Key="InversePrimaryBrush" po:Freeze="True" Color="#D0BCFF" />
+    <SolidColorBrush x:Key="ScrimBrush" po:Freeze="True" Color="#99000000" />
+    <SolidColorBrush x:Key="HoverLayerBrush" po:Freeze="True" Color="#141D1B20" />
+    <SolidColorBrush x:Key="AlertBackgroundBrush" po:Freeze="True" Color="#FFB4AB" />
+    <SolidColorBrush x:Key="AlertTextBrush" po:Freeze="True" Color="#BA1A1A" />
 </ResourceDictionary>
