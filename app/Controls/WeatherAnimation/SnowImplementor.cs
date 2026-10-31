@@ -34,7 +34,8 @@ public sealed class SnowImplementor : WeatherAnimationImplementor
     private readonly Snow[] _snows;
     private float _lastRotation3D;
 
-    public SnowImplementor(int[] canvasSizes, bool daylight)
+    /// <param name="pixelsPerUnit">Physical pixels per WPF unit, to which flake positions are truncated.</param>
+    public SnowImplementor(int[] canvasSizes, bool daylight, double pixelsPerUnit)
     {
         Color[] colors = daylight
             ? [Rgb(190, 225, 255), Rgb(211, 233, 255), Rgb(255, 255, 255)]
@@ -43,7 +44,8 @@ public sealed class SnowImplementor : WeatherAnimationImplementor
         _snows = new Snow[SnowCount];
         for (int i = 0; i < SnowCount; i++)
         {
-            _snows[i] = new Snow(canvasSizes[0], canvasSizes[1], colors[i * 3 / SnowCount], scales[i * 3 / SnowCount]);
+            _snows[i] = new Snow(
+                canvasSizes[0], canvasSizes[1], colors[i * 3 / SnowCount], scales[i * 3 / SnowCount], pixelsPerUnit);
         }
 
         _lastRotation3D = InitialRotation3D;
@@ -83,8 +85,11 @@ public sealed class SnowImplementor : WeatherAnimationImplementor
         private float _cy;
         private float _speedX;
 
-        public Snow(int viewWidth, int viewHeight, Color color, float scale)
+        private readonly double _pixelsPerUnit;
+
+        public Snow(int viewWidth, int viewHeight, Color color, float scale, double pixelsPerUnit)
         {
+            _pixelsPerUnit = pixelsPerUnit > 0 ? pixelsPerUnit : 1;
             _viewWidth = viewWidth;
             _viewHeight = viewHeight;
             Color = color;
@@ -131,8 +136,8 @@ public sealed class SnowImplementor : WeatherAnimationImplementor
 
         private void ComputeCenterPosition()
         {
-            CenterX = (int)(_cx - ((_canvasSize - _viewWidth) * 0.5));
-            CenterY = (int)(_cy - ((_canvasSize - _viewHeight) * 0.5));
+            CenterX = (float)((int)((_cx - ((_canvasSize - _viewWidth) * 0.5)) * _pixelsPerUnit) / _pixelsPerUnit);
+            CenterY = (float)((int)((_cy - ((_canvasSize - _viewHeight) * 0.5)) * _pixelsPerUnit) / _pixelsPerUnit);
         }
     }
 }

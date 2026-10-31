@@ -30,7 +30,13 @@ namespace LibreccioWeather.Controls.WeatherAnimation;
 /// </summary>
 public sealed class AnimationCanvas(DrawingContext context, double width, double height)
 {
+    // Frozen brushes by color, shared by every frame: a scene draws up to 160 shapes in a few colors and opacities.
+    private static readonly Dictionary<Color, SolidColorBrush> Brushes = [];
+
     private Matrix _matrix = Matrix.Identity;
+
+    // The transform pushed on the drawing context, which consecutive shapes under the same transform share.
+    private Matrix? _pushed;
 
     public void Translate(double dx, double dy)
     {
@@ -52,7 +58,16 @@ public sealed class AnimationCanvas(DrawingContext context, double width, double
     /// </summary>
     public void DrawColor(Color color)
     {
+        PopTransform();
         context.DrawRectangle(Brush(color), null, new Rect(0, 0, width, height));
+    }
+
+    /// <summary>
+    /// Ends the drawing, removing the transform still pushed on the drawing context.
+    /// </summary>
+    public void Finish()
+    {
+        PopTransform();
     }
 
     public void DrawRect(double left, double top, double right, double bottom, Color color)
@@ -102,15 +117,27 @@ public sealed class AnimationCanvas(DrawingContext context, double width, double
     {
         if (_matrix.IsIdentity)
         {
-            draw();
-            return;
+            PopTransform();
+        }
+        else if (_pushed != _matrix)
+        {
+            PopTransform();
+            MatrixTransform transform = new(_matrix);
+            transform.Freeze();
+            context.PushTransform(transform);
+            _pushed = _matrix;
         }
 
-        MatrixTransform transform = new(_matrix);
-        transform.Freeze();
-        context.PushTransform(transform);
         draw();
-        context.Pop();
+    }
+
+    private void PopTransform()
+    {
+        if (_pushed is not null)
+        {
+            context.Pop();
+            _pushed = null;
+        }
     }
 
     // A rectangle whose sides are given in any order, as its corners can be.
@@ -121,8 +148,13 @@ public sealed class AnimationCanvas(DrawingContext context, double width, double
 
     private static SolidColorBrush Brush(Color color)
     {
-        SolidColorBrush brush = new(color);
-        brush.Freeze();
+        if (!Brushes.TryGetValue(color, out SolidColorBrush? brush))
+        {
+            brush = new SolidColorBrush(color);
+            brush.Freeze();
+            Brushes[color] = brush;
+        }
+
         return brush;
     }
 }

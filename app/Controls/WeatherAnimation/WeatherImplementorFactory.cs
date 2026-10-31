@@ -24,12 +24,14 @@ namespace LibreccioWeather.Controls.WeatherAnimation;
 public static class WeatherImplementorFactory
 {
     /// <param name="darkMode">Whether the app is dark, which dims the sun and the clouds' colors.</param>
+    /// <param name="pixelsPerUnit">Physical pixels per WPF unit on the display showing the scene.</param>
     public static WeatherAnimationImplementor? GetWeatherImplementor(
         WeatherCode? weatherCode,
         bool daytime,
         int[] sizes,
         bool animate,
-        bool darkMode)
+        bool darkMode,
+        double pixelsPerUnit)
     {
         return weatherCode switch
         {
@@ -42,7 +44,7 @@ public static class WeatherImplementorFactory
             WeatherCode.Haze => new CloudImplementor(sizes, animate, CloudImplementor.TypeHaze, daytime, darkMode),
             WeatherCode.Rain => new RainImplementor(sizes, animate, RainImplementor.TypeRain, daytime),
             WeatherCode.Sleet => new RainImplementor(sizes, animate, RainImplementor.TypeSleet, daytime),
-            WeatherCode.Snow => new SnowImplementor(sizes, daytime),
+            WeatherCode.Snow => new SnowImplementor(sizes, daytime, pixelsPerUnit),
             WeatherCode.Hail => new HailImplementor(sizes, daytime),
             WeatherCode.Thunderstorm => new RainImplementor(sizes, animate, RainImplementor.TypeThunderstorm, daytime),
 

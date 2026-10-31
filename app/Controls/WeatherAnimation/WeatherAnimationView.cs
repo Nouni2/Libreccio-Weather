@@ -14,6 +14,7 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
 using LibreccioWeather.Core.Models;
@@ -53,9 +54,15 @@ public sealed class WeatherAnimationView : FrameworkElement
     private bool _looping;
     private TimeSpan _lastFrame = TimeSpan.MinValue;
 
+    // The frames are drawn into this drawing, which the element shows; redrawing it needs no layout pass.
+    private readonly DrawingGroup _drawing = new();
+
     public WeatherAnimationView()
     {
         IsHitTestVisible = false;
+
+        // The clouds' circles reach far past the edges, and would otherwise be drawn over the location pane.
+        ClipToBounds = true;
         Loaded += (_, _) => UpdateDrawable();
         Unloaded += (_, _) => SetDrawable(false);
         IsVisibleChanged += (_, _) => UpdateDrawable();
@@ -111,7 +118,7 @@ public sealed class WeatherAnimationView : FrameworkElement
             }
 
             // A still scene fades with the scroll too, so it is drawn again.
-            InvalidateVisual();
+            RenderFrame();
             UpdateLoop();
         }
     }
@@ -119,12 +126,28 @@ public sealed class WeatherAnimationView : FrameworkElement
     protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
     {
         base.OnRenderSizeChanged(sizeInfo);
-        _current?.Resize(Sizes());
-        _previous?.Resize(Sizes());
+        _current?.Resize(Sizes(), PixelsPerUnit());
+        _previous?.Resize(Sizes(), PixelsPerUnit());
+        RenderFrame();
     }
 
     protected override void OnRender(DrawingContext drawingContext)
     {
+        drawingContext.DrawDrawing(_drawing);
+    }
+
+    // Moving to a monitor with another scale keeps the size in WPF units but changes the pixel grid.
+    protected override void OnDpiChanged(DpiScale oldDpi, DpiScale newDpi)
+    {
+        base.OnDpiChanged(oldDpi, newDpi);
+        _current?.Resize(Sizes(), newDpi.DpiScaleX);
+        _previous?.Resize(Sizes(), newDpi.DpiScaleX);
+        RenderFrame();
+    }
+
+    private void RenderFrame()
+    {
+        using DrawingContext drawingContext = _drawing.Open();
         int[] sizes = Sizes();
         if (sizes[0] <= 0 || sizes[1] <= 0)
         {
@@ -155,9 +178,9 @@ public sealed class WeatherAnimationView : FrameworkElement
 
         _previous = _current;
         _current = new Painter(Condition, Daylight, DarkMode, Animate);
-        _current.Resize(Sizes());
+        _current.Resize(Sizes(), PixelsPerUnit());
         _switchProgress = _previous is null ? 1 : 0;
-        InvalidateVisual();
+        RenderFrame();
         UpdateLoop();
     }
 
@@ -211,6 +234,15 @@ public sealed class WeatherAnimationView : FrameworkElement
             return;
         }
 
+        // Nothing is seen while the window is minimized; the scene resumes from a zero interval.
+        if (Window.GetWindow(this)?.WindowState == WindowState.Minimized)
+        {
+            _lastFrame = TimeSpan.MinValue;
+            _current?.ResetInterval();
+            _previous?.ResetInterval();
+            return;
+        }
+
         if (e is RenderingEventArgs rendering)
         {
             if (rendering.RenderingTime == _lastFrame)
@@ -235,7 +267,12 @@ public sealed class WeatherAnimationView : FrameworkElement
             }
         }
 
-        InvalidateVisual();
+        RenderFrame();
+    }
+
+    private double PixelsPerUnit()
+    {
+        return VisualTreeHelper.GetDpi(this).DpiScaleX;
     }
 
     private int[] Sizes()
@@ -256,6 +293,7 @@ public sealed class WeatherAnimationView : FrameworkElement
     {
         private WeatherAnimationImplementor? _implementor;
         private int[] _sizes = [0, 0];
+        private double _pixelsPerUnit;
         private long _lastTime = -1;
         private bool _hasDrawn;
 
@@ -266,17 +304,18 @@ public sealed class WeatherAnimationView : FrameworkElement
             return weatherCode == otherCode && daylight == otherDaylight && darkMode == otherDarkMode && animate == otherAnimate;
         }
 
-        public void Resize(int[] sizes)
+        public void Resize(int[] sizes, double pixelsPerUnit)
         {
-            if (sizes[0] == _sizes[0] && sizes[1] == _sizes[1])
+            if (sizes[0] == _sizes[0] && sizes[1] == _sizes[1] && pixelsPerUnit == _pixelsPerUnit)
             {
                 return;
             }
 
             _sizes = sizes;
+            _pixelsPerUnit = pixelsPerUnit;
             _hasDrawn = false;
             _implementor = sizes[0] > 0 && sizes[1] > 0
-                ? WeatherImplementorFactory.GetWeatherImplementor(weatherCode, daylight, sizes, animate, darkMode)
+                ? WeatherImplementorFactory.GetWeatherImplementor(weatherCode, daylight, sizes, animate, darkMode, pixelsPerUnit)
                 : null;
         }
 
@@ -292,7 +331,9 @@ public sealed class WeatherAnimationView : FrameworkElement
                 return;
             }
 
-            long now = Environment.TickCount64;
+            // Milliseconds from a high-resolution clock: the system tick only advances every 15.6 ms, which would make
+            // motion uneven. Whole-millisecond timestamps, not intervals, keep the fractions from being lost.
+            long now = Stopwatch.GetTimestamp() * 1000 / Stopwatch.Frequency;
             long interval = _lastTime == -1 ? 0 : now - _lastTime;
             _lastTime = now;
             if (!animate)
@@ -309,7 +350,9 @@ public sealed class WeatherAnimationView : FrameworkElement
 
             _implementor.UpdateData(sizes, interval, 0f, 0f);
             drawingContext.PushOpacity(opacity);
-            _implementor.Draw(sizes, new AnimationCanvas(drawingContext, sizes[0], sizes[1]), scrollRate, 0f, 0f);
+            AnimationCanvas canvas = new(drawingContext, sizes[0], sizes[1]);
+            _implementor.Draw(sizes, canvas, scrollRate, 0f, 0f);
+            canvas.Finish();
             drawingContext.Pop();
         }
     }
