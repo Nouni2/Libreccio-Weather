@@ -260,7 +260,14 @@ public static class SettingsPages
                 Strings.Get("settings_enabled"),
                 Strings.Get("settings_disabled"),
                 main.Settings.IsScreenRefreshRateEnabled,
-                value => main.Settings.IsScreenRefreshRateEnabled = value,
+                value => main.Settings.IsScreenRefreshRateEnabled = value),
+            SeparatorPreference.Small,
+            new SwitchPreference(
+                Strings.Get("seasonal_window_icon"),
+                Strings.Get("settings_enabled"),
+                Strings.Get("settings_disabled"),
+                main.Settings.IsSeasonalWindowIconEnabled,
+                value => main.Settings.IsSeasonalWindowIconEnabled = value,
                 isLast: true),
         ];
         return new SettingsPageViewModel(Strings.Get("settings_appearance"), items, main.GoBack, () => Appearance(main), () => main.NavigateTo(About(main)));

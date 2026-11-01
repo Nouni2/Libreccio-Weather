@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.1-alpha1] - 2026-11-01
+
+### Added
+
+- A setting to use the seasonal app icon or the app's usual icon, in Settings → Appearance.
+
 ## [0.2.0-alpha1] - 2026-11-01
 
 ### Added

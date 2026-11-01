@@ -45,4 +45,5 @@
     <data name="app_updates_prereleases" xml:space="preserve"><value>Include pre-releases</value><comment>Settings > Notifications > App updates: switch making update checks also report pre-release versions, such as alpha and beta versions, not only full releases.</comment></data>
     <data name="about_version_release" xml:space="preserve"><value>Release {0}</value><comment>About screen: under the app name, {0} is the version, such as 0.1.0-alpha1. Kept in English in every language.</comment></data>
     <data name="about_version_debug" xml:space="preserve"><value>Debug {0}</value><comment>About screen: under the app name in development builds, {0} is the commit the build comes from. Kept in English in every language.</comment></data>
+    <data name="seasonal_window_icon" xml:space="preserve"><value>Seasonal app icon</value><comment>Settings > Appearance > Interface: switch giving the window the icon of the current season at the location on screen, instead of the app's usual icon.</comment></data>
 </root>

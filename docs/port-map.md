@@ -188,7 +188,7 @@ Deliberate differences in `LocationRepository.cs`: source parameters are replace
 | `ViewModels/Settings/NeverRefreshDialogViewModel.cs` | The dialog in `settings/compose/BackgroundUpdatesSettingsScreen.kt` |
 | `Localization/SystemStrings.cs` | No file. It takes the Cancel text from Windows, as Breezy Weather takes it from Android. |
 | `App.xaml.cs`, `Localization/TranslateExtension.cs` | No file. |
-| `Icons/SeasonalWindowIcon.cs` | No file. It gives the main window Libreccio Weather's icon for the current season, which Breezy Weather does not have. |
+| `Icons/SeasonalWindowIcon.cs` | No file. It gives the main window Libreccio Weather's icon for the current season, which Breezy Weather does not have. The Windows-only "Seasonal app icon" switch in Appearance → Interface, stored as `seasonal_window_icon` and on by default, keeps the app's usual icon when off. |
 
 Deliberate difference in `MainViewModel.cs`: adding, restoring and reordering locations publish the new in-memory list only after `LocationRepository.AddAllAsync` succeeds. A failed save keeps the existing list and selection, reports the failure and does not show the location-added message. Weather received while the save was pending is retained. Upstream updates memory before the write and ignores the repository's failure result. The save-failure snackbar has no matching upstream string; its English and French text is in `resources/InterfaceStrings.resx` and `InterfaceStrings.fr.resx`.
 

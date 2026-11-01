@@ -19,6 +19,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using LibreccioWeather.Core.Locations;
 using LibreccioWeather.Core.Seasons;
+using LibreccioWeather.Core.Settings;
 using Microsoft.Win32;
 
 namespace LibreccioWeather.Icons;
@@ -27,23 +28,28 @@ namespace LibreccioWeather.Icons;
 /// Gives a window the icon of the current season at the location on screen: its latitude and today's date in its
 /// time zone. Without a location, the computer's date and the northern hemisphere are used.
 /// The season is checked again at the next midnight, when the system clock changes and when Windows resumes.
+/// With the seasonal icon turned off in the settings, the window keeps the app's icon.
 /// </summary>
 public sealed class SeasonalWindowIcon : IDisposable
 {
     private readonly Window _window;
+    private readonly SettingsManager _settings;
     private readonly DispatcherTimer _midnightTimer;
     private readonly Dictionary<Season, BitmapFrame> _icons = [];
     private Location? _location;
+    private BitmapFrame? _appIcon;
 
-    public SeasonalWindowIcon(Window window)
+    public SeasonalWindowIcon(Window window, SettingsManager settings)
     {
         _window = window;
+        _settings = settings;
         _midnightTimer = new DispatcherTimer(DispatcherPriority.Normal, window.Dispatcher);
         _midnightTimer.Tick += (_, _) => Update();
 
         // These events are static, so they keep this object alive until Dispose detaches them.
         SystemEvents.TimeChanged += OnTimeChanged;
         SystemEvents.PowerModeChanged += OnPowerModeChanged;
+        settings.SettingsChanged += OnSettingsChanged;
         Update();
     }
 
@@ -60,11 +66,19 @@ public sealed class SeasonalWindowIcon : IDisposable
     {
         SystemEvents.TimeChanged -= OnTimeChanged;
         SystemEvents.PowerModeChanged -= OnPowerModeChanged;
+        _settings.SettingsChanged -= OnSettingsChanged;
         _midnightTimer.Stop();
     }
 
     private void Update()
     {
+        if (!_settings.IsSeasonalWindowIconEnabled)
+        {
+            _midnightTimer.Stop();
+            _window.Icon = GetAppIcon();
+            return;
+        }
+
         TimeZoneInfo timeZone = _location?.TimeZone ?? TimeZoneInfo.Local;
         DateTimeOffset now = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, timeZone);
         Season season = MeteorologicalSeasons.Get(DateOnly.FromDateTime(now.DateTime), _location?.Latitude ?? 0.0);
@@ -98,6 +112,20 @@ public sealed class SeasonalWindowIcon : IDisposable
         }
 
         return icon;
+    }
+
+    private BitmapFrame GetAppIcon()
+    {
+        _appIcon ??= BitmapFrame.Create(new Uri("pack://application:,,,/assets/icons/icon.ico", UriKind.Absolute));
+        return _appIcon;
+    }
+
+    private void OnSettingsChanged(object? sender, EventArgs e)
+    {
+        if (e is SettingsChangedEventArgs { PropertyName: nameof(SettingsManager.IsSeasonalWindowIconEnabled) })
+        {
+            _ = _window.Dispatcher.InvokeAsync(Update);
+        }
     }
 
     // System events can arrive on another thread, so the update runs on the window's thread.

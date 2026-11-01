@@ -320,6 +320,15 @@ public sealed class SettingsManager
         set => SetAndNotify(() => _config.PutBoolean("screen_refresh_rate", value));
     }
 
+    /// <summary>
+    /// Gives the main window the icon of the current season at the location on screen, rather than the app's icon.
+    /// </summary>
+    public bool IsSeasonalWindowIconEnabled
+    {
+        get => _config.GetBoolean("seasonal_window_icon", true);
+        set => SetAndNotify(() => _config.PutBoolean("seasonal_window_icon", value));
+    }
+
     // Changing the cards does not raise SettingsChanged; the main screen reads them again when it is shown.
     public List<CardDisplay> CardDisplayList
     {

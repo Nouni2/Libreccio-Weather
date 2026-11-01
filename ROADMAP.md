@@ -214,6 +214,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 - [x] Animations at the refresh rate of the monitor the window is on
 - [x] Setting to keep animations at 60 frames per second on slower computers
 - [x] Main window icon of the current season at the location on screen, reversed in the southern hemisphere
+- [ ] Setting to use the seasonal icon or the app's usual icon
 
 ### Experimental desktop interface
 

@@ -89,7 +89,7 @@ public partial class App : System.Windows.Application
             settings, new GetApplicationRelease(settings, new ReleaseService(HttpClient)), Dispatcher) { Main = viewModel };
         viewModel.UpdateChecker = updateChecker;
         MainWindow window = new() { DataContext = viewModel };
-        _windowIcon = new SeasonalWindowIcon(window);
+        _windowIcon = new SeasonalWindowIcon(window, settings);
         viewModel.ShownLocationChanged += (_, location) => _windowIcon.ShowLocation(location);
 
         // The window opens once the first location is known, so it never shows another season's icon first.

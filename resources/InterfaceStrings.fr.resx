@@ -45,4 +45,5 @@
     <data name="app_updates_prereleases" xml:space="preserve"><value>Inclure les préversions</value></data>
     <data name="about_version_release" xml:space="preserve"><value>Release {0}</value></data>
     <data name="about_version_debug" xml:space="preserve"><value>Debug {0}</value></data>
+    <data name="seasonal_window_icon" xml:space="preserve"><value>Icône saisonnière de l'application</value></data>
 </root>
