@@ -16,7 +16,6 @@
 
 using System.Text;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
 using CommunityToolkit.Mvvm.Input;
 using LibreccioWeather.Core.Charts;
 using LibreccioWeather.Core.Localization;
@@ -30,8 +29,6 @@ namespace LibreccioWeather.ViewModels.Details;
 
 internal static partial class DetailsPage
 {
-    private static readonly Dictionary<string, ImageSource> WeatherIconCache = [];
-
     private static void BuildConditions(DetailsContext context, List<object> blocks)
     {
         TemperatureUnit unit = context.Settings.GetTemperatureUnit(context.RegionCode);
@@ -250,7 +247,7 @@ internal static partial class DetailsPage
         {
             TopIconValues = mappedValues.Keys,
             TopIcon = x => mappedValues.Get(x) is { WeatherCode: { } code } hourly
-                ? GetWeatherIcon(WeatherIcons.GetPath(code, hourly.IsDaylight)) : null,
+                ? WeatherIcons.GetImage(WeatherIcons.GetPath(code, hourly.IsDaylight)) : null,
         };
     }
 
@@ -271,24 +268,6 @@ internal static partial class DetailsPage
             (C(-40), Rgb(162, 70, 145)),
             (C(-55), Rgb(202, 172, 195)),
             (C(-70), Rgb(115, 70, 105)));
-    }
-
-    private static ImageSource? GetWeatherIcon(string? path)
-    {
-        if (path is null)
-        {
-            return null;
-        }
-
-        if (!WeatherIconCache.TryGetValue(path, out ImageSource? image))
-        {
-            var bitmap = new BitmapImage(new Uri(path));
-            bitmap.Freeze();
-            image = bitmap;
-            WeatherIconCache[path] = image;
-        }
-
-        return image;
     }
 
     /// <summary>

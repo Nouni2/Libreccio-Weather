@@ -307,19 +307,6 @@
                 </StackPanel>
             </Border>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:AlreadyRunningDialogViewModel}">
-            <Border Style="{StaticResource DialogSurface}">
-                <DockPanel>
-                    <TextBlock DockPanel.Dock="Top" Margin="0,0,8,16" Style="{StaticResource HeadlineSmallText}"
-                               Text="{Binding Title}" />
-                    <Button DockPanel.Dock="Bottom" Margin="0,16,0,0" HorizontalAlignment="Right" IsDefault="True"
-                            Style="{StaticResource TextButton}" Command="{Binding CancelCommand}" Content="{Binding CloseText}" />
-                    <ScrollViewer Margin="0,0,8,0" VerticalScrollBarVisibility="Auto">
-                        <TextBlock Style="{StaticResource BodyMediumText}" Text="{Binding Message}" />
-                    </ScrollViewer>
-                </DockPanel>
-            </Border>
-        </DataTemplate>
     </Window.Resources>
 
     <Window.InputBindings>

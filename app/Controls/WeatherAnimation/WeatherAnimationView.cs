@@ -117,7 +117,7 @@ public sealed class WeatherAnimationView : FrameworkElement
                 _previous?.ResetInterval();
             }
 
-            // A still scene fades with the scroll too, so it is drawn again.
+            // A still scene fades with the scroll too, and it is not drawn on every frame, so it is drawn here.
             RenderFrame();
             UpdateLoop();
         }
@@ -202,9 +202,10 @@ public sealed class WeatherAnimationView : FrameworkElement
         UpdateLoop();
     }
 
-    // Frames are requested while a scene is visible, a still one included, as it is drawn on every frame too.
+    // Frames are requested while a crossfade runs or a moving scene is visible. A still scene draws the same frame
+    // every time, so it is drawn only when its weather, size, scale or scroll fade changes.
     private bool NeedsFrames => _drawable
-        && (_switchProgress < 1 || (_scrollRate < 1 && (_current?.HasScene ?? false)));
+        && (_switchProgress < 1 || (_scrollRate < 1 && (_current?.IsMoving ?? false)));
 
     private void UpdateLoop()
     {
@@ -297,7 +298,7 @@ public sealed class WeatherAnimationView : FrameworkElement
         private long _lastTime = -1;
         private bool _hasDrawn;
 
-        public bool HasScene => _implementor is not null;
+        public bool IsMoving => animate && _implementor is not null;
 
         public bool Matches(WeatherCode? otherCode, bool otherDaylight, bool otherDarkMode, bool otherAnimate)
         {

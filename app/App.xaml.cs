@@ -134,10 +134,6 @@ public partial class App : System.Windows.Application
 
         _activationPending = false;
         _trayIcon?.ShowWindow();
-        if (MainWindow?.DataContext is MainViewModel main)
-        {
-            main.ShowAlreadyRunningDialog();
-        }
     }
 
     protected override void OnSessionEnding(SessionEndingCancelEventArgs e)

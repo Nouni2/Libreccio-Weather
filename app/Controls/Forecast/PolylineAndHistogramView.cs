@@ -146,7 +146,9 @@ public sealed class PolylineAndHistogramView : ForecastChartView
                 context.LineTo(new Point(points[0].X, bottom), true, false);
             }
 
-            Color shade = ((SolidColorBrush)WithAlpha(color, 76)).Color;
+            // The palette sets the shade's opacity: fainter on a light palette, where the curve stands out more.
+            double alphaFactor = TryFindResource("TrendShadowAlphaFactor") is double factor ? factor : 0.3;
+            Color shade = ((SolidColorBrush)WithAlpha(color, (byte)(int)(255 * alphaFactor))).Color;
             var gradient = new LinearGradientBrush
             {
                 MappingMode = BrushMappingMode.Absolute,

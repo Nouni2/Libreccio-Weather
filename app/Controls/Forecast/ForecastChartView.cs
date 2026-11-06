@@ -80,8 +80,18 @@ public abstract class ForecastChartView : FrameworkElement
 
     private sealed class ShadowedLabels : DrawingVisual
     {
+        private DpiScale? _dpi;
+
         public void SetDpi(DpiScale dpi)
         {
+            // A new effect is only made when the scale changes, as a chart is drawn again on every data change.
+            if (_dpi is { } current && current.DpiScaleX == dpi.DpiScaleX && current.DpiScaleY == dpi.DpiScaleY)
+            {
+                return;
+            }
+
+            _dpi = dpi;
+
             // The shadow radius and offset are physical pixels, independent of display scaling.
             VisualEffect = new DropShadowEffect
             {

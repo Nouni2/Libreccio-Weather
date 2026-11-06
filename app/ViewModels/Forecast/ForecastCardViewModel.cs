@@ -23,6 +23,7 @@ using LibreccioWeather.Core.Models;
 using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Settings.Options;
 using LibreccioWeather.Core.Units;
+using LibreccioWeather.Display;
 using LibreccioWeather.Icons;
 using Color = System.Windows.Media.Color;
 
@@ -30,11 +31,14 @@ namespace LibreccioWeather.ViewModels.Forecast;
 
 public sealed partial class ForecastCardViewModel : ObservableObject
 {
+    // The width of a column at 100 % text size.
+    private const double TrendItemWidth = 67;
+
     private readonly Action<string?>? _setSelectedTab;
     private readonly Func<int, int?> _getDailyIndex;
+    private List<ForecastColumnSlot> _slots = [];
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(Columns))]
     private ForecastTrend? _selectedTrend;
 
     private ForecastCardViewModel(
@@ -66,14 +70,37 @@ public sealed partial class ForecastCardViewModel : ObservableObject
 
     public bool HasMultipleTrends => Trends.Count > 1;
 
-    public IReadOnlyList<ForecastColumn> Columns => SelectedTrend?.Columns ?? [];
+    /// <summary>
+    /// The column positions of the selected tab. Positions are kept across tabs with the same number of columns, so
+    /// switching tabs updates the columns' elements instead of creating them again.
+    /// </summary>
+    public IReadOnlyList<ForecastColumnSlot> Columns => _slots;
 
     public int InitialIndex { get; }
+
+    /// <summary>
+    /// The width of a column when the columns do not all fit in the card; wider cards share their width among them.
+    /// </summary>
+    public double MinColumnWidth { get; } = TrendItemWidth * TextScale.FontScaleToApply;
 
     public double ColumnHeight => IsDaily ? 318 : 206;
 
     partial void OnSelectedTrendChanged(ForecastTrend? value)
     {
+        IReadOnlyList<ForecastColumn> columns = value?.Columns ?? [];
+        if (columns.Count == _slots.Count)
+        {
+            for (int i = 0; i < columns.Count; i++)
+            {
+                _slots[i].Column = columns[i];
+            }
+        }
+        else
+        {
+            _slots = [.. columns.Select(column => new ForecastColumnSlot(column))];
+            OnPropertyChanged(nameof(Columns));
+        }
+
         if (value is not null)
         {
             _setSelectedTab?.Invoke(value.Name);
@@ -86,9 +113,9 @@ public sealed partial class ForecastCardViewModel : ObservableObject
     public event EventHandler<(int? DailyIndex, DetailScreen? Screen)>? DetailsRequested;
 
     [RelayCommand]
-    private void OpenDetails(ForecastColumn column)
+    private void OpenDetails(ForecastColumnSlot column)
     {
-        int position = Columns.ToList().FindIndex(item => ReferenceEquals(item, column));
+        int position = _slots.IndexOf(column);
         if (position >= 0)
         {
             DetailsRequested?.Invoke(this, (_getDailyIndex(position), SelectedTrend?.Screen));
@@ -378,6 +405,21 @@ public sealed record ForecastTrend(
 }
 
 public sealed record TrendKeyLine(float Value, string ContentLeft, string ContentRight, bool AboveLine);
+
+/// <summary>
+/// One column position of a forecast card, showing the column of the selected tab.
+/// </summary>
+public sealed partial class ForecastColumnSlot : ObservableObject
+{
+    // Set by the constructor through the property.
+    [ObservableProperty]
+    private ForecastColumn _column = null!;
+
+    public ForecastColumnSlot(ForecastColumn column)
+    {
+        Column = column;
+    }
+}
 
 public sealed record ForecastColumn(
     string Label, string? Date, string? DayIcon, string? NightIcon, string? Description, TrendChartData Chart,

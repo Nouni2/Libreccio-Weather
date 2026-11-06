@@ -14,12 +14,42 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using LibreccioWeather.Core.Models;
 
 namespace LibreccioWeather.Icons;
 
 public static class WeatherIcons
 {
+    // One decoded image per icon for the whole app: screens are rebuilt often, and each icon is a 256-pixel PNG.
+    private static readonly Dictionary<string, ImageSource> Images = [];
+    private static readonly object ImagesGate = new();
+
+    /// <summary>
+    /// The image of an icon path from <see cref="GetPath"/>, decoded once and shared.
+    /// </summary>
+    public static ImageSource? GetImage(string? path)
+    {
+        if (path is null)
+        {
+            return null;
+        }
+
+        lock (ImagesGate)
+        {
+            if (!Images.TryGetValue(path, out ImageSource? image))
+            {
+                var bitmap = new BitmapImage(new Uri(path));
+                bitmap.Freeze();
+                image = bitmap;
+                Images[path] = image;
+            }
+
+            return image;
+        }
+    }
+
     public static string? GetPath(WeatherCode? code, bool daylight)
     {
         string? name = code switch

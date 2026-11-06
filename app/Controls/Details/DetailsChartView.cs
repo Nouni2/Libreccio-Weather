@@ -57,9 +57,6 @@ public sealed class DetailsChartView : FrameworkElement
     private const double BarFill = 500.0 / 516.0;
     private const double BarCornerFraction = 0.15;
 
-    // Text labels are grey on the dark theme, and lines take the outline color.
-    private static readonly Brush LabelBrush = Freeze(new SolidColorBrush(Color.FromRgb(0xB2, 0xB2, 0xB2)));
-
     private long? _activeX;
     private Window? _window;
 
@@ -116,7 +113,7 @@ public sealed class DetailsChartView : FrameworkElement
             return;
         }
 
-        Brush lineBrush = (Brush)FindResource("OutlineBrush");
+        Brush lineBrush = (Brush)FindResource("ChartLineBrush");
         var axisPen = new Pen(lineBrush, 1);
         var guidelinePen = new Pen(lineBrush, 1) { DashStyle = new DashStyle([DashLength, DashGap], 0) };
         Rect layer = GetLayerBounds(data);
@@ -138,20 +135,21 @@ public sealed class DetailsChartView : FrameworkElement
             drawingContext.DrawLine(guidelinePen, new Point(x, layer.Top), new Point(x, layer.Bottom));
         }
 
-        drawingContext.PushClip(new RectangleGeometry(layer));
         if (data.Kind == DetailsChartKind.Bar)
         {
+            drawingContext.PushClip(new RectangleGeometry(layer));
             DrawBars(drawingContext, data, layer);
+            drawingContext.Pop();
         }
         else
         {
+            // Lines are not clipped to the plot area, so a line at the top or bottom of the range keeps its full
+            // thickness.
             foreach (DetailsChartSeries series in data.Series)
             {
                 DrawLine(drawingContext, data, layer, series);
             }
         }
-
-        drawingContext.Pop();
 
         // End axis on the right, with its labels centered on their values.
         drawingContext.DrawLine(axisPen, new Point(layer.Right, layer.Top), new Point(layer.Right, layer.Bottom));
@@ -421,6 +419,9 @@ public sealed class DetailsChartView : FrameworkElement
     }
 
     private FontFamily FontFamily => (FontFamily)GetValue(System.Windows.Documents.TextElement.FontFamilyProperty);
+
+    // Labels and the pressed guideline are grey, darker on a light palette.
+    private Brush LabelBrush => (Brush)FindResource("ChartLabelBrush");
 
     private static T Freeze<T>(T freezable) where T : Freezable
     {

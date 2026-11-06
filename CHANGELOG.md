@@ -1,5 +1,25 @@
 # Changelog
 
+## [0.2.2-alpha1] - 2026-11-06
+
+### Changed
+
+- Switching between forecast tabs is faster, and weather icons load once.
+- With background movement off, the weather background is drawn once instead of on every frame, which lowers CPU and GPU use while the window is open.
+
+### Removed
+
+- The "already running" notice: launching the app again brings its window forward.
+
+### Fixed
+
+- The header's condition, feels-like and temperature range are light instead of bold, and the °C sits level with the temperature, as in Breezy Weather.
+- Daily and hourly forecast columns fill a wide window instead of leaving empty space after the last day or hour. When they do not fit, they keep their width and scroll.
+- Forecast columns widen with Windows' text size.
+- Forecast columns no longer show a tooltip.
+- Detail chart axes and guidelines are faint, labels are readable on a light theme, and lines are no longer cut at the top and bottom of the chart.
+- The shading under the forecast curve is lighter on a light theme.
+
 ## [0.2.1-alpha1] - 2026-11-01
 
 ### Added

@@ -20,6 +20,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
                     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib"
                     mc:Ignorable="po">
     <SolidColorBrush x:Key="SurfaceBrush" po:Freeze="True" Color="#FDFBFF" />
     <SolidColorBrush x:Key="SurfaceContainerBrush" po:Freeze="True" Color="#F3EDF7" />
@@ -33,6 +34,10 @@
     <SolidColorBrush x:Key="OnSurfaceVariantBrush" po:Freeze="True" Color="#49454F" />
     <SolidColorBrush x:Key="PrimaryBrush" po:Freeze="True" Color="#205DAF" />
     <SolidColorBrush x:Key="OutlineBrush" po:Freeze="True" Color="#10000000" />
+    <SolidColorBrush x:Key="ChartLineBrush" po:Freeze="True" Color="#10000000" />
+    <SolidColorBrush x:Key="ChartLabelBrush" po:Freeze="True" Color="#4D4D4D" />
+    <!-- The opacity of the shade under a forecast curve. -->
+    <sys:Double x:Key="TrendShadowAlphaFactor">0.15</sys:Double>
     <SolidColorBrush x:Key="ElevatedSurfaceBrush" po:Freeze="True" Color="#EEF0F9" />
     <SolidColorBrush x:Key="SurfaceContainerLowBrush" po:Freeze="True" Color="#F7F2FA" />
     <SolidColorBrush x:Key="OnPrimaryBrush" po:Freeze="True" Color="#FFFFFF" />

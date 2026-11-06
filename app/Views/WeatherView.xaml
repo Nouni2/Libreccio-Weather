@@ -121,7 +121,7 @@
                     </StackPanel>
 
                     <TextBlock HorizontalAlignment="Center" Margin="0,8,0,0" Style="{StaticResource TitleLargeText}"
-                               FontWeight="Bold" Text="{Binding WeatherText}" />
+                               FontWeight="Light" Text="{Binding WeatherText}" />
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -129,11 +129,17 @@
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
-                        <c:NumberAnimTextBlock x:Name="TemperatureNumber" Grid.Column="1" Margin="0,-10,0,0" FontSize="140" FontWeight="Bold"
+                        <!-- The number and the unit are aligned by the top of their text boxes, laid out for a box of
+                             1900 units above the baseline and 500 below per 2048 of the font size. The bundled Roboto's
+                             box is 2146 and 555, so each margin also removes 246/2048 of the size at the top and 55/2048
+                             at the bottom: -10 becomes -26.82 and 5 becomes -1.01. -->
+                        <c:NumberAnimTextBlock x:Name="TemperatureNumber" Grid.Column="1" Margin="0,-26.82,0,-3.76" FontSize="140"
+                                               FontFamily="pack://application:,,,/assets/fonts/#Roboto" FontWeight="Bold"
                                                Foreground="{DynamicResource OnSurfaceBrush}"
                                                IsAnimEnabled="{Binding IsTemperatureAnimated, Mode=OneTime}"
                                                NumberStart="{Binding TemperatureStartText}" NumberEnd="{Binding TemperatureText}" />
-                        <TextBlock Grid.Column="2" Margin="0,5,0,0" FontSize="50" FontWeight="Bold"
+                        <TextBlock Grid.Column="2" Margin="0,-1.01,0,-1.34" FontSize="50"
+                                   FontFamily="pack://application:,,,/assets/fonts/#Roboto" FontWeight="Bold"
                                    Foreground="{DynamicResource OnSurfaceBrush}" Text="{Binding TemperatureUnitText}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
@@ -148,10 +154,10 @@
                     </Grid>
 
                     <TextBlock HorizontalAlignment="Center" Margin="0,-10,0,8" Style="{StaticResource TitleLargeText}"
-                               FontWeight="Bold" Text="{Binding FeelsLikeText}" />
+                               FontWeight="Light" Text="{Binding FeelsLikeText}" />
 
                     <TextBlock HorizontalAlignment="Center" Style="{StaticResource TitleMediumText}"
-                               FontWeight="Bold" Text="{Binding TemperatureRangeText}" />
+                               FontWeight="Light" Text="{Binding TemperatureRangeText}" />
 
                     <TextBlock HorizontalAlignment="Center" Margin="0,8,0,0" Style="{StaticResource BodyMediumText}"
                                Text="{Binding ErrorText}" />

@@ -565,25 +565,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public void CloseDialog()
     {
-        if (Dialog is AlreadyRunningDialogViewModel alreadyRunning)
-        {
-            alreadyRunning.CancelCommand.Execute(null);
-        }
-        else
-        {
-            Dialog = null;
-        }
-    }
-
-    public void ShowAlreadyRunningDialog()
-    {
-        if (Dialog is AlreadyRunningDialogViewModel)
-        {
-            return;
-        }
-
-        ObservableObject? previousDialog = Dialog;
-        ShowDialog(new AlreadyRunningDialogViewModel(() => Dialog = previousDialog));
+        Dialog = null;
     }
 
     /// <summary>

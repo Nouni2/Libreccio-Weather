@@ -58,6 +58,12 @@ public sealed class AnimationCanvas(DrawingContext context, double width, double
     /// </summary>
     public void DrawColor(Color color)
     {
+        // Thunder fills the area on every frame, transparent between flashes; a transparent fill shows nothing.
+        if (color.A == 0)
+        {
+            return;
+        }
+
         PopTransform();
         context.DrawRectangle(Brush(color), null, new Rect(0, 0, width, height));
     }
@@ -72,12 +78,14 @@ public sealed class AnimationCanvas(DrawingContext context, double width, double
 
     public void DrawRect(double left, double top, double right, double bottom, Color color)
     {
-        Draw(() => context.DrawRectangle(Brush(color), null, Normalized(left, top, right, bottom)));
+        ApplyTransform();
+        context.DrawRectangle(Brush(color), null, Normalized(left, top, right, bottom));
     }
 
     public void DrawRoundRect(double left, double top, double right, double bottom, double radius, Color color)
     {
-        Draw(() => context.DrawRoundedRectangle(Brush(color), null, Normalized(left, top, right, bottom), radius, radius));
+        ApplyTransform();
+        context.DrawRoundedRectangle(Brush(color), null, Normalized(left, top, right, bottom), radius, radius);
     }
 
     public void DrawCircle(double centerX, double centerY, double radius, Color color)
@@ -87,7 +95,8 @@ public sealed class AnimationCanvas(DrawingContext context, double width, double
             return;
         }
 
-        Draw(() => context.DrawEllipse(Brush(color), null, new Point(centerX, centerY), radius, radius));
+        ApplyTransform();
+        context.DrawEllipse(Brush(color), null, new Point(centerX, centerY), radius, radius);
     }
 
     /// <summary>
@@ -110,10 +119,12 @@ public sealed class AnimationCanvas(DrawingContext context, double width, double
 
         Pen pen = new(Brush(color), strokeWidth) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round };
         pen.Freeze();
-        Draw(() => context.DrawLine(pen, new Point(x1, y1), new Point(x2, y2)));
+        ApplyTransform();
+        context.DrawLine(pen, new Point(x1, y1), new Point(x2, y2));
     }
 
-    private void Draw(Action draw)
+    // Pushes the current transform on the drawing context before a shape, unless the shapes before it already did.
+    private void ApplyTransform()
     {
         if (_matrix.IsIdentity)
         {
@@ -127,8 +138,6 @@ public sealed class AnimationCanvas(DrawingContext context, double width, double
             context.PushTransform(transform);
             _pushed = _matrix;
         }
-
-        draw();
     }
 
     private void PopTransform()

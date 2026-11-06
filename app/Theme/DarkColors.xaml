@@ -33,6 +33,9 @@
     <SolidColorBrush x:Key="OnSurfaceVariantBrush" po:Freeze="True" Color="#CAC4D0" />
     <SolidColorBrush x:Key="PrimaryBrush" po:Freeze="True" Color="#D0BCFF" />
     <SolidColorBrush x:Key="OutlineBrush" po:Freeze="True" Color="#938F99" />
+    <!-- Detail chart axes and guidelines are far fainter than OutlineBrush, so they stay behind the data. -->
+    <SolidColorBrush x:Key="ChartLineBrush" po:Freeze="True" Color="#10FFFFFF" />
+    <SolidColorBrush x:Key="ChartLabelBrush" po:Freeze="True" Color="#B2B2B2" />
     <SolidColorBrush x:Key="ElevatedSurfaceBrush" po:Freeze="True" Color="#211E28" />
     <SolidColorBrush x:Key="SurfaceContainerLowBrush" po:Freeze="True" Color="#1D1B20" />
     <SolidColorBrush x:Key="OnPrimaryBrush" po:Freeze="True" Color="#381E72" />

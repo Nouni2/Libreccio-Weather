@@ -37,4 +37,17 @@ internal static class TextScale
             }
         }
     }
+
+    /// <summary>
+    /// The scale of widths that hold text: half of the text size's change from 100 %, so 150 % text widens them by
+    /// 25 %.
+    /// </summary>
+    public static float FontScaleToApply
+    {
+        get
+        {
+            float scale = Factor;
+            return scale != 1f ? 1f + (Math.Abs(scale - 1f) / 2f * (scale > 1f ? 1f : -1f)) : scale;
+        }
+    }
 }

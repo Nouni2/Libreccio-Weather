@@ -16,7 +16,11 @@
 <UserControl x:Class="LibreccioWeather.Views.Weather.ForecastCardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:c="clr-namespace:LibreccioWeather.Controls.Forecast">
+             xmlns:c="clr-namespace:LibreccioWeather.Controls.Forecast"
+             xmlns:icons="clr-namespace:LibreccioWeather.Icons">
+    <UserControl.Resources>
+        <icons:WeatherIconImageConverter x:Key="WeatherIconImage" />
+    </UserControl.Resources>
     <Border Margin="8" Background="{DynamicResource SurfaceContainerBrush}" CornerRadius="{DynamicResource ForecastCardCornerRadius}">
         <StackPanel>
             <StackPanel Margin="20,20,20,0">
@@ -89,13 +93,16 @@
                               PanningMode="HorizontalOnly" PreviewMouseWheel="OnForecastMouseWheel">
                     <ItemsControl ItemsSource="{Binding Columns}">
                         <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate><StackPanel Orientation="Horizontal" /></ItemsPanelTemplate>
+                            <ItemsPanelTemplate>
+                                <c:ForecastColumnsPanel MinColumnWidth="{Binding MinColumnWidth}"
+                                                        AvailableWidth="{Binding ViewportWidth, RelativeSource={RelativeSource AncestorType=ScrollViewer}}" />
+                            </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Grid Width="67" Height="{Binding DataContext.ColumnHeight, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                <Grid Height="{Binding DataContext.ColumnHeight, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                       Background="Transparent" Cursor="Hand" MouseLeftButtonUp="OnColumnClick"
-                                      ToolTip="{Binding Description}" AutomationProperties.Name="{Binding Description}">
+                                      AutomationProperties.Name="{Binding Column.Description}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
@@ -104,32 +111,33 @@
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="16" />
                                     </Grid.RowDefinitions>
-                                    <TextBlock Margin="0,2" HorizontalAlignment="Center" Style="{StaticResource TitleMediumText}" Text="{Binding Label}" />
-                                    <TextBlock Grid.Row="1" Margin="0,2" HorizontalAlignment="Center" Style="{StaticResource BodyMediumText}" Text="{Binding Date}" />
-                                    <Border Grid.Row="2" Height="48" Visibility="{Binding ShowDayIcon, Converter={StaticResource BooleanToVisibility}}">
+                                    <TextBlock Margin="0,2" HorizontalAlignment="Center" Style="{StaticResource TitleMediumText}" Text="{Binding Column.Label}" />
+                                    <TextBlock Grid.Row="1" Margin="0,2" HorizontalAlignment="Center" Style="{StaticResource BodyMediumText}" Text="{Binding Column.Date}" />
+                                    <Border Grid.Row="2" Height="48" Visibility="{Binding Column.ShowDayIcon, Converter={StaticResource BooleanToVisibility}}">
                                         <Grid>
-                                            <Image Width="32" Height="32" Source="{Binding DayIcon}" AutomationProperties.Name="{Binding Description}" />
-                                            <Image Width="32" Height="32" Source="{Binding DayWindIcon}" AutomationProperties.Name="{Binding Description}" />
+                                            <Image Width="32" Height="32" Source="{Binding Column.DayIcon, Converter={StaticResource WeatherIconImage}}"
+                                                   AutomationProperties.Name="{Binding Column.Description}" />
+                                            <Image Width="32" Height="32" Source="{Binding Column.DayWindIcon}" AutomationProperties.Name="{Binding Column.Description}" />
                                         </Grid>
                                     </Border>
-                                    <c:PolylineAndHistogramView Grid.Row="3" Data="{Binding Chart}" ClipToBounds="True"
+                                    <c:PolylineAndHistogramView Grid.Row="3" Data="{Binding Column.Chart}" ClipToBounds="True"
                                                                 Loaded="OnChartLoaded" SizeChanged="OnChartSizeChanged">
                                         <c:PolylineAndHistogramView.Style>
                                             <Style TargetType="c:PolylineAndHistogramView">
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Chart.IsDoubleHistogram}" Value="True">
+                                                    <DataTrigger Binding="{Binding Column.Chart.IsDoubleHistogram}" Value="True">
                                                         <Setter Property="Visibility" Value="Collapsed" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </c:PolylineAndHistogramView.Style>
                                     </c:PolylineAndHistogramView>
-                                    <c:DoubleHistogramView Grid.Row="3" Data="{Binding Chart.DoubleHistogram}" ClipToBounds="True">
+                                    <c:DoubleHistogramView Grid.Row="3" Data="{Binding Column.Chart.DoubleHistogram}" ClipToBounds="True">
                                         <c:DoubleHistogramView.Style>
                                             <Style TargetType="c:DoubleHistogramView">
                                                 <Setter Property="Visibility" Value="Collapsed" />
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Chart.IsDoubleHistogram}" Value="True">
+                                                    <DataTrigger Binding="{Binding Column.Chart.IsDoubleHistogram}" Value="True">
                                                         <Setter Property="Visibility" Value="Visible" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
@@ -140,15 +148,16 @@
                                         <Border.Style>
                                             <Style TargetType="Border">
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Chart.HasTopPolylineLabel}" Value="False">
+                                                    <DataTrigger Binding="{Binding Column.Chart.HasTopPolylineLabel}" Value="False">
                                                         <Setter Property="Visibility" Value="Collapsed" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
                                         <Grid>
-                                            <Image Width="32" Height="32" Source="{Binding NightIcon}" AutomationProperties.Name="{Binding Description}" />
-                                            <Image Width="32" Height="32" Source="{Binding NightWindIcon}" AutomationProperties.Name="{Binding Description}" />
+                                            <Image Width="32" Height="32" Source="{Binding Column.NightIcon, Converter={StaticResource WeatherIconImage}}"
+                                                   AutomationProperties.Name="{Binding Column.Description}" />
+                                            <Image Width="32" Height="32" Source="{Binding Column.NightWindIcon}" AutomationProperties.Name="{Binding Column.Description}" />
                                         </Grid>
                                     </Border>
                                 </Grid>
