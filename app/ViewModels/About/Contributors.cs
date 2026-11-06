@@ -17,7 +17,8 @@
 namespace LibreccioWeather.ViewModels.About;
 
 /// <summary>
-/// Someone who contributed to Breezy Weather, with the page their name links to and, for some, what they contributed.
+/// Someone who contributed to Libreccio Weather, with the page their name links to and, for some, what they
+/// contributed.
 /// </summary>
 public sealed class ContributorItem(
     string name,
@@ -78,41 +79,14 @@ public sealed class TranslatorItem(
 }
 
 /// <summary>
-/// Breezy Weather's contributors and translators, credited on the About screen. Translators are grouped by the main
-/// language they translated.
+/// The contributors of Libreccio Weather and the translators of the text it shows, which comes from Breezy Weather's
+/// translations, credited on the About screen. Translators are grouped by the main language they translated.
 /// </summary>
 public static class Contributors
 {
     public static IReadOnlyList<ContributorItem> AppContributors { get; } =
     [
-        new("Julien Papasian", github: "papjul"),
-        new("WangDaYeeeeee", github: "WangDaYeeeeee", contribution: "about_contribution_WangDaYeeeeee"),
-        new("min7-i", github: "min7-i"),
-        new("chunshek", github: "chunshek"),
-        new("Cod3d.", github: "Cod3dDOT"),
-        new("ecawthorne", github: "ecawthorne"),
-        new("Romain Théry", github: "rthery"),
-        new("Mark Bestavros", github: "mbestavros"),
-        new("Suyash Gupta", github: "suyashgupta25"),
-        new("Coelacanthus", github: "CoelacanthusHex"),
-        new("danielzhang130", github: "danielzhang130"),
-        new("majjejjam", github: "majjejjam"),
-        new("bunburya", github: "bunburya"),
-        new("Willem Schipper", github: "willem640"),
-        new("Sven", github: "SKBotNL"),
-        new("jayyuz", github: "jayyuz"),
-        new("JiunnTarn", github: "JiunnTarn"),
-        new("mags0ft", github: "mags0ft"),
-        new("Devy Ballard", github: "devycarol"),
-        new("Mushfiq1060", github: "Mushfiq1060"),
-        new("ccyybn", github: "ccyybn"),
-        new("Doğaç Tanrıverdi", github: "DogacTanriverdi"),
-        new("Nero Nguyen", github: "neronguyenvn"),
-        new("Dipesh Pal", github: "codewithdipesh"),
-        new("Cactric", github: "Cactric"),
-        new("ntzb", github: "ntzb"),
-        new("mu", github: "4eUeP"),
-        new("Anthony Dégrange", url: "https://anthony-degrange-design.fr/", contribution: "about_contribution_designer"),
+        new("Nouni2", github: "Nouni2"),
     ];
 
     public static IReadOnlyList<TranslatorItem> AppTranslators { get; } =

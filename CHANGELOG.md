@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- The About screen lists Libreccio Weather's contributors instead of Breezy Weather's. Breezy Weather's translators stay credited, since the app's text comes from their translations.
+
 ## [0.2.2-alpha1] - 2026-11-06
 
 ### Changed
