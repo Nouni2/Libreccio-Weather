@@ -27,6 +27,11 @@ namespace LibreccioWeather.Controls.WeatherAnimation;
 /// </summary>
 public sealed class SunImplementor : WeatherAnimationImplementor
 {
+    /// <summary>
+    /// The weather's own color, as packed ARGB, which tints the pull-to-refresh indicator.
+    /// </summary>
+    public const uint ThemeColor = 0xFFFDBC4C;
+
     // Lower than the top of the screen, so the sun does not sit behind the top bar's icons.
     private const double SunPosition = 0.5;
     private const double SmallSunAlpha = 0.16;

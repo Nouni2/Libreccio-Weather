@@ -34,6 +34,10 @@ public sealed class MoonPhaseView : FrameworkElement
         nameof(SurfaceAngle), typeof(double), typeof(MoonPhaseView),
         new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsRender));
 
+    public static readonly DependencyProperty StrokeBrushProperty = DependencyProperty.Register(
+        nameof(StrokeBrush), typeof(Brush), typeof(MoonPhaseView),
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+
     private const double Padding = 4;
 
     // The lit and unlit surfaces use the secondary text colors, independently of the outline.
@@ -46,6 +50,15 @@ public sealed class MoonPhaseView : FrameworkElement
         set => SetValue(SurfaceAngleProperty, value);
     }
 
+    /// <summary>
+    /// The outline, or the palette's body text color when not set.
+    /// </summary>
+    public Brush? StrokeBrush
+    {
+        get => (Brush?)GetValue(StrokeBrushProperty);
+        set => SetValue(StrokeBrushProperty, value);
+    }
+
     protected override Size MeasureOverride(Size availableSize) => new(24, 24);
 
     protected override void OnRender(DrawingContext drawingContext)
@@ -54,7 +67,7 @@ public sealed class MoonPhaseView : FrameworkElement
         DpiScale dpi = VisualTreeHelper.GetDpi(this);
         drawingContext.PushTransform(new ScaleTransform(1 / dpi.DpiScaleX, 1 / dpi.DpiScaleY));
         Draw(drawingContext, new Rect(0, 0, Math.Floor(ActualWidth * dpi.DpiScaleX + 0.5), Math.Floor(ActualHeight * dpi.DpiScaleY + 0.5)),
-            SurfaceAngle, (Brush)FindResource("BodyTextBrush"), (float)dpi.DpiScaleX);
+            SurfaceAngle, StrokeBrush ?? (Brush)FindResource("BodyTextBrush"), (float)dpi.DpiScaleX);
         drawingContext.Pop();
     }
 

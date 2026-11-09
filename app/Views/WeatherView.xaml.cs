@@ -254,11 +254,19 @@ public partial class WeatherView : UserControl
         }
     }
 
-    // A location switch or a refresh brings new cards. When the kinds of cards and their order are unchanged, each
-    // position keeps its view and takes the new card, and the cards' entrance plays again as it does for new views;
+    // A location switch or a refresh brings new weather, and the header and every card play their entrance again.
+    // When the kinds of cards and their order are unchanged, each position keeps its view and takes the new card;
     // forecast cards also keep their columns. Otherwise the views are built anew.
     private void SyncCards(IReadOnlyList<object> cards)
     {
+        // The entrance restarts before the new data arrives, so cards that animate their content on new data wait
+        // for their entrance first.
+        if (DataContext is WeatherViewModel { ShownLocation.Weather: not null } shown)
+        {
+            _cardsPanel?.RestartEntrance();
+            PlayListEntrance(shown.IsCardsFadeInEnabled);
+        }
+
         bool sameKinds = cards.Count == _cardHosts.Count
             && cards.Select((card, index) => card.GetType() == _cardHosts[index].Card.GetType()).All(same => same);
         if (!sameKinds)
@@ -270,13 +278,6 @@ public partial class WeatherView : UserControl
             }
 
             return;
-        }
-
-        // The entrance restarts before the new data arrives, so cards that animate their content on new data wait
-        // for their entrance first.
-        if (cards.Count > 0)
-        {
-            _cardsPanel?.RestartCardEntrance();
         }
 
         for (int index = 0; index < cards.Count; index++)
@@ -293,6 +294,17 @@ public partial class WeatherView : UserControl
             }
 
             host.Card = cards[index];
+        }
+    }
+
+    // With the cards' fade-in off, the cards appear at once, so the whole list plays the card entrance instead,
+    // 150 ms after the new weather. An entrance still playing is cut short to its final state.
+    private void PlayListEntrance(bool cardsFadeIn)
+    {
+        WeatherCardsPanel.ResetEntrance(WeatherScroll);
+        if (!cardsFadeIn)
+        {
+            WeatherCardsPanel.PlayEntrance(WeatherScroll, 0, TimeSpan.FromMilliseconds(150));
         }
     }
 
@@ -331,6 +343,16 @@ public partial class WeatherView : UserControl
         }
 
         return null;
+    }
+
+    // The overflow menu opens below its button on a click, as a toolbar's overflow menu does.
+    private void OnMoreClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { ContextMenu: { } menu } button)
+        {
+            menu.PlacementTarget = button;
+            menu.IsOpen = true;
+        }
     }
 
     private void OnAstroCardClick(object sender, MouseButtonEventArgs e)

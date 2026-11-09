@@ -72,6 +72,7 @@ Kotlin's `/` and `%` behave like C#'s.
 | `lowercase()`, `uppercase()` | Culture-independent. | `ToLower()` and `ToUpper()` use the current culture. | `ToLowerInvariant()` and `ToUpperInvariant()`. |
 | `compareTo` and `sorted()` on strings | Ordinal comparison of UTF-16 code units. | `string.Compare`, `CompareTo` and `OrderBy` on strings compare by culture. | `StringComparer.Ordinal` and `string.CompareOrdinal`. |
 | `Double.toString()`, `Int.toString()` | Culture-independent. | `ToString()` uses the current culture. | `ToString(CultureInfo.InvariantCulture)` for storage and identifiers, `Strings.Culture` for display. |
+| `Double.toString()` or `"$double"` in text other apps read | Always has a fraction ("48.0") and switches to an exponent below 0.001 and from 10,000,000 ("1.0E-4"). | `ToString(CultureInfo.InvariantCulture)` writes "48" and "0.0001". | `JavaNumberText.Format`; `JavaNumberTextTests` pins both forms. |
 | `String.format` | Uses the default locale. | `string.Format` uses the current culture. | An explicit culture. |
 
 ## Dates and time zones
@@ -98,7 +99,7 @@ Kotlin's `/` and `%` behave like C#'s.
 | Upstream | Upstream behaviour | .NET difference | Reproduce with |
 |---|---|---|---|
 | Android's network check before a refresh | Without a connection, the refresh stops with a network error and the saved weather is left untouched. | `NetworkInterface.GetIsNetworkAvailable()` is true whenever any adapter is up, including VPN and Hyper-V virtual adapters, so most offline cases pass. | Windows' connectivity level for the internet connection profile. |
-| `isMotionReduced`, an animator duration scale of zero | Android itself stops every animation, and the settings show the animation switches off and unavailable. | Windows' "Animation effects" setting (`SystemParameters.ClientAreaAnimation`) is the closest equivalent, but WPF animations keep running when it is off. | `ClientAreaAnimation` for the settings' availability. The app's own animations would have to check it as well to match Android. |
+| `isMotionReduced`, an animator duration scale of zero | Android itself stops every animation, and the settings show the animation switches off and unavailable. | Windows' "Animation effects" setting (`SystemParameters.ClientAreaAnimation`) is the closest equivalent, but WPF animations keep running when it is off. | `ClientAreaAnimation` for the settings' availability, and `AnimationEffects.Apply` on every animation: with the setting off, its begin time becomes zero and its speed a billion times faster, so it ends on its first frame, as an animator with a zero duration scale ends at once, start delay included. Code that waits for an animator's start delay by itself, as `AbstractMainViewHolder` does through `startDelay`, keeps waiting, since Android's getter returns the unscaled delay. |
 | An activity's `onStop` | Called whenever the activity leaves the screen, including when another activity opens on top of it or the app goes to the background. | A WPF page view model has no lifetime events. | `MainViewModel.OnCurrentPageChanged` when the screen changes, and `App.OnExit` for the screen open when the app exits. |
 
 Android manages application process and activity lifetime. A WPF executable starts a separate process on each launch, so `SingleInstance` gates startup before persistence is initialized and forwards activation through a named pipe. A named mutex acquired by a thread must be released by that same thread; an asynchronous continuation need not resume there. The instance gate therefore retains an unowned mutex handle and uses the constructor's `createdNew` result. `SingleInstanceTests` checks exclusion, handle cleanup and repeated activation after asynchronous calls.
@@ -127,6 +128,12 @@ With foreign keys enabled, renaming a parent identifier does not rename the depe
 A WPF `FormattedText` uses the selected Windows font and has no letter-spacing property. Sun/moon labels instead use the bundled Roboto faces and `TextFormatter`, keeping shaped glyph clusters together when applying the Material label spacing. Width limits include the added spacing, and ellipsizing removes whole text elements. Glyph runs returned by `TextLine.GetIndexedGlyphRuns` use baseline-relative origins; when the card supplies a line's top edge, add `TextLine.Baseline` to the drawing translation. Omitting it raises the text while leaving its title and phase icons in place.
 
 Perform the astro control's integer division and truncation after multiplying by display density. Dividing an odd physical width by two before the radius calculation differs from halving its DIP width. The sun/moon drawables also subtract two physical pixels from their radius, while the phase control truncates its four-DIP padding to an integer pixel count.
+
+## Colors
+
+| Upstream | Upstream behaviour | .NET difference | Reproduce with |
+|---|---|---|---|
+| `Color.colorToHSV`, `Color.HSVToColor` | Computed in single precision. Saturation and value are pinned to 0–1 before conversion, a saturation within 1/4096 of zero gives a grey, a hue outside 0–360 counts as 0, and each component rounds half up. Transparent black brightened at night becomes opaque grey `#404040`. | .NET and WPF have no HSV conversion; a double-precision or `Math.Round` version can land one byte away, and `Math.Clamp` keeps `NaN`. | `HsvColor` in `src/Colors/`; `HsvColorTests` pins the clamped and rounded cases. The rules come from Skia's `SkRGBToHSV` and `SkHSVToColor`, which are not in `upstream/`, and still need checking against an Android device. |
 
 ## Android resources
 

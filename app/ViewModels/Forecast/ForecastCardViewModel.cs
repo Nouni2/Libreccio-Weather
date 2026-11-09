@@ -16,6 +16,8 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LibreccioWeather.Appearance;
+using LibreccioWeather.Controls.WeatherAnimation;
 using LibreccioWeather.Core.Calculations;
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Locations;
@@ -186,6 +188,7 @@ public sealed partial class ForecastCardViewModel : ObservableObject
             }
         }
 
+        trends = ApplyTheme(trends, weather, location, settings, daily: true);
         return trends.Count == 0 ? null : new ForecastCardViewModel(true, Strings.Get("daily_forecast"),
             weather.Current?.DailyForecast, trends, weather.TodayIndex ?? 0, selectedTab, setSelectedTab, position => position);
     }
@@ -285,6 +288,8 @@ public sealed partial class ForecastCardViewModel : ObservableObject
             }
         }
 
+        trends = ApplyTheme(trends, weather, location, settings, daily: false);
+
         // An hour opens the first day that starts less than a day before it, which assumes days start at midnight.
         return trends.Count == 0 ? null : new ForecastCardViewModel(false, Strings.Get("hourly_forecast"),
             weather.Current?.HourlyForecast, trends, 0, selectedTab, setSelectedTab, position =>
@@ -327,6 +332,63 @@ public sealed partial class ForecastCardViewModel : ObservableObject
 
         return new ForecastTrend(Strings.Get(feelsLike ? "tag_feels_like" : "tag_temperature"),
             columns, showReferenceLines ? BuildReferenceLines(normals, unit) : []);
+    }
+
+    // Curves take the colors of the current weather and the bars an opacity set by the location's light or dark
+    // theme. The high line takes the first theme color, or on a dark hourly chart the second, half-opaque one; the
+    // low line and the probability bars take the second. Charts colored by risk or amount keep their colors and
+    // take only the bars' opacity, and the wind and two-bar charts keep a fixed opacity.
+    private static List<ForecastTrend> ApplyTheme(
+        List<ForecastTrend> trends, Core.Models.Weather weather, Location location, SettingsManager settings, bool daily)
+    {
+        bool daylight = RiseProgress.IsDaylight(location, DateTimeOffset.UtcNow);
+        Color[] themeColors = MaterialWeatherThemeDelegate.GetThemeColors(weather.Current?.WeatherCode, daylight);
+        bool lightTheme = ThemeManager.IsLightTheme(settings, daylight);
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        DateTimeOffset localNow = TimeZoneInfo.ConvertTime(now, location.TimeZone);
+        bool UsesAccentColor(int position)
+        {
+            if (daily)
+            {
+                if (position >= weather.DailyForecast.Count)
+                {
+                    return true;
+                }
+
+                DateTimeOffset date = weather.DailyForecast[position].Date;
+                DateTimeOffset localDate = TimeZoneInfo.ConvertTime(date, location.TimeZone);
+                return (localDate.Year == localNow.Year && localDate.DayOfYear == localNow.DayOfYear) || date > now;
+            }
+
+            return position == 0 || (position < weather.NextHourlyForecast.Count
+                && TimeZoneInfo.ConvertTime(weather.NextHourlyForecast[position].Date, location.TimeZone).Hour == 0);
+        }
+
+        trends = [.. trends.Select(trend => trend with
+        {
+            Columns = [.. trend.Columns.Select((column, position) => column with { IsAccented = UsesAccentColor(position) })],
+        })];
+        return trends.Select(trend =>
+        {
+            if (trend.Screen == DetailScreen.Wind || trend.Columns.Any(column => column.Chart.IsDoubleHistogram))
+            {
+                return trend;
+            }
+
+            bool themed = trend.Screen == DetailScreen.Conditions || trend.Screen == DetailScreen.FeelsLike
+                || trend.Screen == DetailScreen.Humidity || trend.Screen == DetailScreen.Pressure
+                || trend.Screen == DetailScreen.Visibility;
+            var histogramAlpha = (byte)(int)(255 * (lightTheme ? (themed ? 0.2f : 1f) : 0.5f));
+            Color? high = themed ? themeColors[daily || lightTheme ? 1 : 2] : null;
+            Color? low = themed ? themeColors[2] : null;
+            return trend with
+            {
+                Columns = [.. trend.Columns.Select(column => column with
+                {
+                    Chart = column.Chart with { HighLineColor = high, LowLineColor = low, HistogramAlpha = histogramAlpha },
+                })],
+            };
+        }).ToList();
     }
 
     private static float?[] BuildTemperatureArray(IEnumerable<long?> temperatures)
@@ -442,14 +504,21 @@ public sealed partial class ForecastColumnSlot : ObservableObject
 
 public sealed record ForecastColumn(
     string Label, string? Date, string? DayIcon, string? NightIcon, string? Description, TrendChartData Chart,
-    bool ShowDayIcon = true, System.Windows.Media.ImageSource? DayWindIcon = null, System.Windows.Media.ImageSource? NightWindIcon = null);
+    bool ShowDayIcon = true, System.Windows.Media.ImageSource? DayWindIcon = null, System.Windows.Media.ImageSource? NightWindIcon = null)
+{
+    /// <summary>
+    /// Whether the labels take the stronger colors: today and later days, and the first hour and each midnight.
+    /// </summary>
+    public bool IsAccented { get; init; } = true;
+}
 
 public sealed record TrendChartData(
     float?[] HighValues, float?[]? LowValues, string? HighText, string? LowText,
     float? Highest, float? Lowest, float? Histogram, string? HistogramText, bool HasTopPolylineLabel,
     float HighestHistogram = 100, float LowestHistogram = 0, Color? HistogramColor = null,
     bool HistogramUsesTitleColor = false, DoubleHistogramData? DoubleHistogram = null,
-    SecondaryHistogramData? SecondaryHistogram = null, byte HistogramAlpha = 127)
+    SecondaryHistogramData? SecondaryHistogram = null, byte HistogramAlpha = 127,
+    Color? HighLineColor = null, Color? LowLineColor = null)
 {
     public bool IsDoubleHistogram => DoubleHistogram is not null;
 }

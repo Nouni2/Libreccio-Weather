@@ -26,6 +26,7 @@ using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Settings.Options;
 using LibreccioWeather.Core.Sources.OpenMeteo;
 using LibreccioWeather.ViewModels.Details;
+using LibreccioWeather.ViewModels.Locations;
 using LibreccioWeather.ViewModels.Settings;
 
 namespace LibreccioWeather.ViewModels;
@@ -151,6 +152,14 @@ public sealed partial class MainViewModel : ObservableObject
         settings.SettingsChanged += (_, args) =>
         {
             IsAppDark = Appearance.ThemeManager.IsAppDark(settings);
+            if (args is SettingsChangedEventArgs
+                {
+                    PropertyName: nameof(SettingsManager.DarkMode) or nameof(SettingsManager.DayNightModeForLocations),
+                })
+            {
+                FollowThemeInDetails();
+            }
+
             if (args is SettingsChangedEventArgs
                 {
                     PropertyName: nameof(SettingsManager.IsWidgetNotificationEnabled)
@@ -489,7 +498,20 @@ public sealed partial class MainViewModel : ObservableObject
 
     public void OpenSearch()
     {
-        NavigateTo(new SearchViewModel(_openMeteo, location => _ = AddFromSearchAsync(location), GoBack));
+        NavigateTo(new SearchViewModel(_openMeteo, ChooseFromSearch, GoBack));
+    }
+
+    // A chosen place first shows its weather sources. Saving adds the place with them; dismissing stays on the search.
+    private void ChooseFromSearch(Location location)
+    {
+        ShowDialog(new SecondarySourcesDialogViewModel(this, location, chosen =>
+        {
+            CloseDialog();
+            if (chosen is not null)
+            {
+                _ = AddFromSearchAsync(chosen);
+            }
+        }));
     }
 
     public void OpenSettings()
@@ -527,9 +549,11 @@ public sealed partial class MainViewModel : ObservableObject
             return;
         }
 
+        // The header counts from the temperature it showed for the previous location.
+        int headerTemperature = FindMainScreen()?.HeaderTemperature ?? 0;
         _backStack.Clear();
         _currentFormattedId = location.FormattedId;
-        WeatherViewModel weather = new(_refresher, this, location);
+        WeatherViewModel weather = new(_refresher, this, location, headerTemperature);
         CurrentPage = weather;
         ShownLocationChanged?.Invoke(this, location);
         RefreshIfOutdated(weather, location);
@@ -824,6 +848,17 @@ public sealed partial class MainViewModel : ObservableObject
         {
             IsAppDark = dark;
             RebuildMainScreen();
+            FollowThemeInDetails();
+        }
+    }
+
+    // Open detail screens keep their place, so they choose their palette again instead of being built again.
+    private void FollowThemeInDetails()
+    {
+        foreach (DetailsViewModel details in _backStack.Concat(_forwardStack).Append(CurrentPage)
+            .OfType<DetailsViewModel>().Distinct())
+        {
+            details.FollowAppTheme();
         }
     }
 
@@ -845,7 +880,9 @@ public sealed partial class MainViewModel : ObservableObject
     {
         Location? current = CurrentLocation();
         WeatherViewModel? previous = FindMainScreen();
-        WeatherViewModel? replacement = current is null ? null : new WeatherViewModel(_refresher, this, current);
+        WeatherViewModel? replacement = current is null
+            ? null
+            : new WeatherViewModel(_refresher, this, current, previous?.HeaderTemperature ?? 0);
         List<ObservableObject> screens = [.. _backStack.Reverse()];
         if (screens.Count > 0 && screens[0] is WeatherViewModel)
         {

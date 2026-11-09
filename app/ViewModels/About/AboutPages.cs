@@ -219,7 +219,7 @@ public static class AboutPages
     }
 
     // A link is opened only once confirmed, with the address shown.
-    private static void OpenLink(MainViewModel main, string link)
+    internal static void OpenLink(MainViewModel main, string link)
     {
         main.ShowDialog(new LinkDialogViewModel(link, () =>
         {

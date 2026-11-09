@@ -16,6 +16,7 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using LibreccioWeather.Appearance;
 using LibreccioWeather.Core.Calculations;
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Locations;
@@ -83,11 +84,32 @@ public sealed partial class DetailsViewModel : ObservableObject
     public Location Location => _location;
 
     /// <summary>
+    /// Whether the screen uses the light palette, chosen by the location's daylight as its main screen is.
+    /// </summary>
+    public bool IsLightTheme => ThemeManager.IsLightTheme(_main.Settings, RiseProgress.IsDaylight(_location, DateTimeOffset.UtcNow));
+
+    /// <summary>
+    /// The app's body text color. The sun and moon icons keep it while the rest of the screen follows the location's
+    /// daylight, as they take their color from the app's resources rather than the screen's theme.
+    /// </summary>
+    public System.Windows.Media.Brush AppBodyTextBrush =>
+        (System.Windows.Media.Brush)ThemeManager.GetScreenColors(!_main.IsAppDark)["BodyTextBrush"];
+
+    /// <summary>
     /// The same screen built again, such as in another language, on the same day, page and pollutant.
     /// </summary>
     public DetailsViewModel Rebuild()
     {
         return new DetailsViewModel(_main, _location, SelectedDayIndex, SelectedScreen) { SelectedPollutant = SelectedPollutant };
+    }
+
+    /// <summary>
+    /// Chooses the palette again after Windows' app mode changed, as the location's palette depends on it.
+    /// </summary>
+    internal void FollowAppTheme()
+    {
+        OnPropertyChanged(nameof(IsLightTheme));
+        OnPropertyChanged(nameof(AppBodyTextBrush));
     }
 
     internal void UpdateLocation(Location location)
@@ -104,6 +126,7 @@ public sealed partial class DetailsViewModel : ObservableObject
         _weather = location.Weather ?? new Weather();
         BuildNavigation();
         OnPropertyChanged(nameof(Location));
+        OnPropertyChanged(nameof(IsLightTheme));
         OnPropertyChanged(nameof(Days));
         OnPropertyChanged(nameof(Screens));
 

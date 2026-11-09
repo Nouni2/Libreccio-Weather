@@ -128,6 +128,7 @@ public sealed class DrawerPanel : Panel
             EasingFunction = new PowerEase { Power = 4, EasingMode = EasingMode.EaseOut },
         };
         RefreshRate.Apply(slide, panel);
+        AnimationEffects.Apply(slide);
         panel.BeginAnimation(ProgressProperty, slide);
     }
 }

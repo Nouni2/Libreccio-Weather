@@ -24,11 +24,12 @@
                     mc:Ignorable="po">
     <SolidColorBrush x:Key="SurfaceBrush" po:Freeze="True" Color="#FDFBFF" />
     <SolidColorBrush x:Key="SurfaceContainerBrush" po:Freeze="True" Color="#F3EDF7" />
-    <SolidColorBrush x:Key="MainCardBackgroundBrush" po:Freeze="True" Color="#FDFBFF" />
     <SolidColorBrush x:Key="MainCardArcRootBrush" po:Freeze="True" Color="#FDFCFF" />
     <SolidColorBrush x:Key="MainCardTitleBrush" po:Freeze="True" Color="#1B1B1D" />
     <SolidColorBrush x:Key="MainCardTextBrush" po:Freeze="True" Color="#1B1B1D" />
     <SolidColorBrush x:Key="BodyTextBrush" po:Freeze="True" Color="#666666" />
+    <SolidColorBrush x:Key="TitleTextBrush" po:Freeze="True" Color="#000000" />
+    <SolidColorBrush x:Key="CaptionTextBrush" po:Freeze="True" Color="#B2B2B2" />
     <SolidColorBrush x:Key="SurfaceContainerHighBrush" po:Freeze="True" Color="#ECE6F0" />
     <SolidColorBrush x:Key="OnSurfaceBrush" po:Freeze="True" Color="#1B1B1D" />
     <SolidColorBrush x:Key="OnSurfaceVariantBrush" po:Freeze="True" Color="#49454F" />

@@ -26,6 +26,11 @@ namespace LibreccioWeather.Controls.WeatherAnimation;
 /// </summary>
 public sealed class HailImplementor : WeatherAnimationImplementor
 {
+    /// <summary>
+    /// The weather's own color, as packed ARGB, which tints the pull-to-refresh indicator.
+    /// </summary>
+    public static uint GetThemeColor(bool daylight) => daylight ? 0xFF68BAFF : 0xFF1A5B92;
+
     // Marks that no rotation was seen yet, so the first frame does not move hailstones by a rotation change.
     private const float InitialRotation3D = 1000f;
     private const int HailCount = 51;

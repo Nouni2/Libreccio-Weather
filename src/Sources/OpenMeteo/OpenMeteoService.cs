@@ -616,7 +616,10 @@ public sealed class OpenMeteoService
         };
     }
 
-    private static IReadOnlyList<OpenMeteoWeatherModel> GetWeatherModels(Location location)
+    /// <summary>
+    /// The models chosen for the location, or the best match when none is saved. Unknown model names are skipped.
+    /// </summary>
+    public static IReadOnlyList<OpenMeteoWeatherModel> GetWeatherModels(Location location)
     {
         if (location.Parameters.TryGetValue(Id, out IReadOnlyDictionary<string, string>? parameters)
             && parameters.TryGetValue("weatherModels", out string? models))

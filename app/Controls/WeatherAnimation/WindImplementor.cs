@@ -26,6 +26,11 @@ namespace LibreccioWeather.Controls.WeatherAnimation;
 /// </summary>
 public sealed class WindImplementor : WeatherAnimationImplementor
 {
+    /// <summary>
+    /// The weather's own color, as packed ARGB, which tints the pull-to-refresh indicator.
+    /// </summary>
+    public static uint GetThemeColor(bool daylight) => daylight ? 0xFFEACDA3 : 0xFF958675;
+
     // Marks that no rotation was seen yet, so the first frame does not move streaks by a rotation change.
     private const float InitialRotation3D = 1000f;
     private const int WindCount = 160;

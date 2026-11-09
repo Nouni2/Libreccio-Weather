@@ -135,6 +135,10 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
     - [x] Sun and moon path, rotation and phase animations following the element-animation setting
     - [x] Sun and moon card typography and icon alignment, elevation, compact spacing and physical-pixel measurements
     - [ ] Precipitation nowcast, alerts, clock and footer
+      - [ ] Precipitation nowcast
+      - [ ] Alerts
+      - [ ] Clock
+      - [ ] Footer with the forecast source's credit and the data sources dialog
 - [ ] Daily and hourly detail screens (`DetailsActivity`)
   - [x] Updated weather reaches open detail screens and screens kept in navigation history, preserving the selected date and page
   - [x] Current wind appears when daily wind summaries are missing
@@ -256,6 +260,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Location identifier changes, rename rollback and full source parameter replacement
   - [x] Breezy Weather's number formatting tests
   - [x] Breezy Weather's tests for card and chart lists and option names
+  - [ ] Breezy Weather's test for wind directions given as cardinal points
   - [x] Settings file storage
   - [x] Plot and reference-line coordinate checks for equal minimum and maximum values, and paired histogram coordinates with a zero maximum
   - [x] Percent-format checks for .NET rounding, optional decimals and English/French spacing differences

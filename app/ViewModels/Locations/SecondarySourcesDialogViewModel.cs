@@ -53,6 +53,9 @@ public sealed partial class SourceRow : ObservableObject
 
     public SourceFeature Feature { get; }
 
+    // The duplicate-location message sits under the forecast row, the choice that makes a location a duplicate.
+    public bool IsForecast => Feature == SourceFeature.Forecast;
+
     public string Title { get; }
 
     public IRelayCommand OpenCommand { get; }

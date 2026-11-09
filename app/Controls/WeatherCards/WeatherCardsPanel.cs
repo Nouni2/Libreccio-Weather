@@ -186,11 +186,19 @@ public sealed class WeatherCardsPanel : Panel
     }
 
     /// <summary>
-    /// Plays the cards' entrance again, as new cards would play it, for cards whose views were kept and given new
-    /// data. The header keeps its state, as it does when new cards are added.
+    /// Plays the entrance of the header and of every card again, as new weather rebinds the whole list. Card views
+    /// that were kept and given new data enter as new ones would, and the header's entry starts its temperature count.
     /// </summary>
-    internal void RestartCardEntrance()
+    internal void RestartEntrance()
     {
+        if (_header is not null)
+        {
+            StopEntrance(_header);
+            _startedCards.Remove(_header);
+            _enteredCards.Remove(_header);
+            _header.Opacity = AnimateCards ? 0 : 1;
+        }
+
         foreach (UIElement child in InternalChildren)
         {
             StopEntrance(child);
@@ -264,38 +272,23 @@ public sealed class WeatherCardsPanel : Panel
     private void StartEntrance(UIElement child, bool header)
     {
         int pendingCount = _pendingCards.Count;
-        double duration = header ? 300 : Math.Max(500 - pendingCount * 50, 250);
-        var delay = TimeSpan.FromMilliseconds(header ? 100 : pendingCount * 200);
+        bool footer = child is ContentPresenter { Content: WeatherCardHost { Card: FooterViewModel } };
+        TimeSpan delay;
         if (header)
         {
-            var alpha = new DoubleAnimationUsingKeyFrames
-            {
-                BeginTime = delay,
-                Duration = TimeSpan.FromMilliseconds(duration),
-            };
-            alpha.KeyFrames.Add(new LinearDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.Zero)));
-            alpha.KeyFrames.Add(new SplineDoubleKeyFrame(1, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(duration)),
-                new KeySpline(0.4, 0, 0.2, 1)));
-            RefreshRate.Apply(alpha, this);
-            child.BeginAnimation(OpacityProperty, alpha);
+            delay = TimeSpan.FromMilliseconds(100);
+            FadeIn(child, 300, delay);
+        }
+        else if (footer)
+        {
+            // The footer only fades, over 450 ms, waiting 150 ms for each entrance still waiting.
+            delay = TimeSpan.FromMilliseconds(pendingCount * 150);
+            FadeIn(child, 450, delay);
         }
         else
         {
-            var scale = new ScaleTransform(1.025f, 1.025f);
-            var translation = new TranslateTransform(0, 120);
-            var transforms = new TransformGroup();
-            transforms.Children.Add(scale);
-            transforms.Children.Add(translation);
-            child.RenderTransformOrigin = new Point(0.5, 0.5);
-            child.RenderTransform = transforms;
-
-            Animate(child, OpacityProperty, 0, 1, duration, delay, new SineEase { EasingMode = EasingMode.EaseInOut });
-            Animate(translation, TranslateTransform.YProperty, 120, 0, duration, delay,
-                new CardOvershootEase { Tension = 0.4f + 0.2f * pendingCount });
-            Animate(scale, ScaleTransform.ScaleXProperty, 1.025f, 1, duration, delay,
-                new QuadraticEase { EasingMode = EasingMode.EaseOut });
-            Animate(scale, ScaleTransform.ScaleYProperty, 1.025f, 1, duration, delay,
-                new QuadraticEase { EasingMode = EasingMode.EaseOut });
+            delay = TimeSpan.FromMilliseconds(pendingCount * 200);
+            PlayEntrance(child, pendingCount, delay);
         }
 
         // The queue counts cards waiting for their delay, not cards already moving.
@@ -310,27 +303,84 @@ public sealed class WeatherCardsPanel : Panel
         timer.Start();
     }
 
-    private void Animate(Animatable target, DependencyProperty property, double from, double to,
-        double milliseconds, TimeSpan delay, IEasingFunction easing)
+    // A fast-out-slow-in fade from transparent, after the delay.
+    private void FadeIn(UIElement child, double milliseconds, TimeSpan delay)
     {
-        var animation = new DoubleAnimation(from, to, TimeSpan.FromMilliseconds(milliseconds))
+        var alpha = new DoubleAnimationUsingKeyFrames
         {
             BeginTime = delay,
-            EasingFunction = easing,
+            Duration = TimeSpan.FromMilliseconds(milliseconds),
         };
-        RefreshRate.Apply(animation, this);
-        target.BeginAnimation(property, animation);
+        alpha.KeyFrames.Add(new LinearDoubleKeyFrame(0, KeyTime.FromTimeSpan(TimeSpan.Zero)));
+        alpha.KeyFrames.Add(new SplineDoubleKeyFrame(1, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(milliseconds)),
+            new KeySpline(0.4, 0, 0.2, 1)));
+        RefreshRate.Apply(alpha, this);
+        AnimationEffects.Apply(alpha);
+        child.BeginAnimation(OpacityProperty, alpha);
     }
 
-    private void Animate(UIElement target, DependencyProperty property, double from, double to,
-        double milliseconds, TimeSpan delay, IEasingFunction easing)
+    /// <summary>
+    /// Plays the card entrance on an element: a fade, a 120-DIP rise that overshoots and a 1.025 scale settling to 1,
+    /// shortened and with a stronger overshoot for each entrance already waiting. The element is hidden until its
+    /// delay ends.
+    /// </summary>
+    internal static void PlayEntrance(UIElement target, int pendingCount, TimeSpan delay)
+    {
+        double duration = Math.Max(500 - pendingCount * 50, 250);
+        var scale = new ScaleTransform(1.025f, 1.025f);
+        var translation = new TranslateTransform(0, 120);
+        var transforms = new TransformGroup();
+        transforms.Children.Add(scale);
+        transforms.Children.Add(translation);
+        target.Opacity = 0;
+        target.RenderTransformOrigin = new Point(0.5, 0.5);
+        target.RenderTransform = transforms;
+
+        Animate(target, target, OpacityProperty, 0, 1, duration, delay, new SineEase { EasingMode = EasingMode.EaseInOut });
+        Animate(target, translation, TranslateTransform.YProperty, 120, 0, duration, delay,
+            new CardOvershootEase { Tension = 0.4f + 0.2f * pendingCount });
+        Animate(target, scale, ScaleTransform.ScaleXProperty, 1.025f, 1, duration, delay,
+            new QuadraticEase { EasingMode = EasingMode.EaseOut });
+        Animate(target, scale, ScaleTransform.ScaleYProperty, 1.025f, 1, duration, delay,
+            new QuadraticEase { EasingMode = EasingMode.EaseOut });
+    }
+
+    /// <summary>
+    /// Stops an entrance played by <see cref="PlayEntrance"/> and shows the element in its final state.
+    /// </summary>
+    internal static void ResetEntrance(UIElement target)
+    {
+        if (target.RenderTransform is TransformGroup transforms)
+        {
+            foreach (Transform transform in transforms.Children)
+            {
+                if (transform is ScaleTransform scale)
+                {
+                    scale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+                    scale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+                }
+                else if (transform is TranslateTransform translation)
+                {
+                    translation.BeginAnimation(TranslateTransform.YProperty, null);
+                }
+            }
+        }
+
+        target.BeginAnimation(OpacityProperty, null);
+        target.Opacity = 1;
+        target.RenderTransform = Transform.Identity;
+    }
+
+    private static void Animate(UIElement element, IAnimatable target, DependencyProperty property, double from,
+        double to, double milliseconds, TimeSpan delay, IEasingFunction easing)
     {
         var animation = new DoubleAnimation(from, to, TimeSpan.FromMilliseconds(milliseconds))
         {
             BeginTime = delay,
             EasingFunction = easing,
         };
-        RefreshRate.Apply(animation, this);
+        RefreshRate.Apply(animation, element);
+        AnimationEffects.Apply(animation);
         target.BeginAnimation(property, animation);
     }
 
@@ -371,25 +421,7 @@ public sealed class WeatherCardsPanel : Panel
             timer.Stop();
         }
 
-        if (child.RenderTransform is TransformGroup transforms)
-        {
-            foreach (Transform transform in transforms.Children)
-            {
-                if (transform is ScaleTransform scale)
-                {
-                    scale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
-                    scale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
-                }
-                else if (transform is TranslateTransform translation)
-                {
-                    translation.BeginAnimation(TranslateTransform.YProperty, null);
-                }
-            }
-        }
-
-        child.BeginAnimation(OpacityProperty, null);
-        child.Opacity = 1;
-        child.RenderTransform = Transform.Identity;
+        ResetEntrance(child);
     }
 
     protected override Size MeasureOverride(Size availableSize) => Layout(availableSize.Width, false);

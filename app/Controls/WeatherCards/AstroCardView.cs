@@ -94,7 +94,7 @@ public sealed class AstroCardView : Grid
                 RenderingBias = RenderingBias.Quality,
             },
         };
-        shadow.SetResourceReference(Border.BackgroundProperty, "MainCardBackgroundBrush");
+        shadow.SetResourceReference(Border.BackgroundProperty, "ElevatedSurfaceBrush");
 
         // Kept as a bitmap at the screen's resolution, so the weather background redrawing beneath it on every frame
         // does not make the shadow render again.
@@ -246,6 +246,7 @@ public sealed class AstroCardView : Grid
             EasingFunction = easing,
         };
         RefreshRate.Apply(animation, this);
+        AnimationEffects.Apply(animation);
         BeginAnimation(property, animation);
     }
 
@@ -295,7 +296,7 @@ public sealed class AstroCardView : Grid
         double cornerRadius = CornerRadius * density;
         var bounds = new Rect(0, 0, size, size);
         drawingContext.PushClip(new RectangleGeometry(bounds, cornerRadius, cornerRadius));
-        var background = (SolidColorBrush)FindResource("MainCardBackgroundBrush");
+        var background = (SolidColorBrush)FindResource("ElevatedSurfaceBrush");
         drawingContext.DrawRoundedRectangle(background, null, bounds, cornerRadius, cornerRadius);
 
         bool squished = (bool)GetValue(AreBlocksSquishedProperty);

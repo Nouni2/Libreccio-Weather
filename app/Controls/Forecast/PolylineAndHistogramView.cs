@@ -51,8 +51,8 @@ public sealed class PolylineAndHistogramView : ForecastChartView
         int marginBottom = data.SecondaryHistogram?.Text is not null ? 58 : 36;
         double bottom = measuredHeight - marginBottom;
         Brush primary = (Brush)FindResource("PrimaryBrush");
-        Brush highText = (Brush)FindResource("OnSurfaceBrush");
-        Brush lowText = (Brush)FindResource("OnSurfaceVariantBrush");
+        Brush highText = (Brush)FindResource("TitleTextBrush");
+        Brush lowText = (Brush)FindResource("BodyTextBrush");
         Brush outline = (Brush)FindResource("OutlineBrush");
 
         drawingContext.DrawLine(Frozen(new Pen(outline, 1)),
@@ -76,7 +76,9 @@ public sealed class PolylineAndHistogramView : ForecastChartView
         {
             int y = TrendCoordinates.ComputeSingleCoordinate(measuredHeight, marginTop, marginBottom,
                 histogram, data.HighestHistogram, data.LowestHistogram);
-            Brush histogramBrush = data.HistogramColor is { } color ? Frozen(new SolidColorBrush(color)) : primary;
+            // Without a color of its own, the bar takes the low line's color.
+            Brush histogramBrush = data.HistogramColor is { } color ? Frozen(new SolidColorBrush(color))
+                : data.LowLineColor is { } lowColor ? Frozen(new SolidColorBrush(lowColor)) : primary;
             if (y <= bottom)
             {
                 double halfWidth = PixelTruncatedDimension(4.5f);
@@ -102,13 +104,15 @@ public sealed class PolylineAndHistogramView : ForecastChartView
             ? Coordinates(low, measuredHeight, marginTop, marginBottom, highest, lowest) : new int[3];
         if (data.HighText is { } highLabel)
         {
-            DrawPolyline(drawingContext, data.HighValues, highY, primary, marginTop, bottom, shadow: true);
+            Brush highLine = data.HighLineColor is { } highColor ? Frozen(new SolidColorBrush(highColor)) : primary;
+            DrawPolyline(drawingContext, data.HighValues, highY, highLine, marginTop, bottom, shadow: true);
             DrawLabel(labels, highLabel, highText, highY[1], highY[1] > lowY[1]);
         }
 
         if (data.LowValues is { } lowValues && data.LowText is { } lowLabel)
         {
-            DrawPolyline(drawingContext, lowValues, lowY, WithAlpha(primary, 127), marginTop, bottom, shadow: false);
+            Brush lowLine = data.LowLineColor is { } lowLineColor ? Frozen(new SolidColorBrush(lowLineColor)) : WithAlpha(primary, 127);
+            DrawPolyline(drawingContext, lowValues, lowY, lowLine, marginTop, bottom, shadow: false);
             DrawLabel(labels, lowLabel, lowText, lowY[1], lowY[1] >= highY[1]);
         }
     }

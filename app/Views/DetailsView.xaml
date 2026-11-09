@@ -19,12 +19,32 @@
              xmlns:l="clr-namespace:LibreccioWeather.Localization"
              xmlns:d="clr-namespace:LibreccioWeather.ViewModels.Details"
              xmlns:c="clr-namespace:LibreccioWeather.Controls.Details"
+             xmlns:controls="clr-namespace:LibreccioWeather.Controls"
              Background="{DynamicResource SurfaceBrush}">
     <UserControl.InputBindings>
         <KeyBinding Key="Escape" Command="{Binding CloseMenuCommand}" />
     </UserControl.InputBindings>
     <UserControl.Resources>
         <c:DetailsItemSpacingConverter x:Key="ItemMargin" />
+
+        <!-- Material 3's plain tooltip: body small text on the inverse surface, 8 by 4 inside 4 corners, at least
+             40 by 24 and at most 200 wide. The colors are given when it opens, as a tooltip is outside the screen. -->
+        <Style x:Key="PlainTooltip" TargetType="ToolTip">
+            <Setter Property="MinWidth" Value="40" />
+            <Setter Property="MinHeight" Value="24" />
+            <Setter Property="MaxWidth" Value="200" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToolTip">
+                        <Border Padding="8,4" CornerRadius="4" Background="{TemplateBinding Background}">
+                            <TextBlock Text="{TemplateBinding Content}" Foreground="{TemplateBinding Foreground}"
+                                       FontSize="12" LineHeight="16" LineStackingStrategy="BlockLineHeight"
+                                       TextWrapping="Wrap" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
         <!-- Material 3 type scale: label medium, label large, body large, title large and display small. -->
         <Style x:Key="LabelMedium" TargetType="TextBlock">
@@ -88,7 +108,7 @@
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type d:DetailsDivider}">
-            <Border Height="1" Margin="0,16" Background="#49454F" />
+            <Border Height="1" Margin="0,16" Background="{DynamicResource OutlineVariantBrush}" />
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type d:DetailsHeadline}">
@@ -202,7 +222,7 @@
                         <StackPanel>
                             <c:DetailsRunsText Style="{StaticResource DisplaySmall}" Runs="{Binding Value}"
                                                AutomationProperties.Name="{Binding ValueName}" />
-                            <TextBlock Text="{Binding Subtext.Text}" MouseLeftButtonUp="OnHelpClick" Background="Transparent" ToolTip="{Binding Subtext.Help}">
+                            <TextBlock Text="{Binding Subtext.Text}" MouseLeftButtonUp="OnHelpBelowClick" Background="Transparent" ToolTip="{Binding Subtext.Help}">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock" BasedOn="{StaticResource LabelLarge}">
                                         <Style.Triggers>
@@ -358,63 +378,111 @@
             </Grid>
         </DataTemplate>
 
-        <!-- Connected toggle buttons: the outer corners are round, and a checked button shows a check mark. -->
+        <!-- A toggle of a connected button group, as Compose's ToggleButton: 40 high inside a 48 touch target, 16 at each
+             side, on the surface container until chosen, then on the primary color. -->
+        <Style x:Key="ConnectedGroupButton" TargetType="ToggleButton">
+            <Setter Property="Height" Value="48" />
+            <Setter Property="Padding" Value="16,0" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceContainerBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource OnSurfaceVariantBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border Margin="0,4" Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+                            <Border.CornerRadius>
+                                <MultiBinding Converter="{x:Static controls:ConnectedCornersConverter.Instance}" ConverterParameter="Toggle">
+                                    <Binding Path="(controls:ConnectedPosition.IsFirst)" RelativeSource="{RelativeSource TemplatedParent}" />
+                                    <Binding Path="(controls:ConnectedPosition.IsLast)" RelativeSource="{RelativeSource TemplatedParent}" />
+                                    <Binding Path="IsChecked" RelativeSource="{RelativeSource TemplatedParent}" />
+                                    <Binding Path="IsPressed" RelativeSource="{RelativeSource TemplatedParent}" />
+                                </MultiBinding>
+                            </Border.CornerRadius>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsChecked" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <!-- The group's menu button, an unchosen toggle with the trailing shape and the 24 more icon. -->
+        <Style x:Key="ConnectedGroupOverflowButton" TargetType="Button">
+            <Setter Property="Height" Value="48" />
+            <Setter Property="Padding" Value="16,0" />
+            <Setter Property="Background" Value="{DynamicResource SurfaceContainerBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource OnSurfaceVariantBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Margin="0,4" Padding="{TemplateBinding Padding}" Background="{TemplateBinding Background}">
+                            <Border.CornerRadius>
+                                <MultiBinding Converter="{x:Static controls:ConnectedCornersConverter.Instance}">
+                                    <Binding Path="(controls:ConnectedPosition.IsFirst)" RelativeSource="{RelativeSource TemplatedParent}" />
+                                    <Binding Path="(controls:ConnectedPosition.IsLast)" RelativeSource="{RelativeSource TemplatedParent}" />
+                                </MultiBinding>
+                            </Border.CornerRadius>
+                            <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconMoreVert}"
+                                            Foreground="{TemplateBinding Foreground}" VerticalAlignment="Center" />
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        <!-- A chosen toggle starts with a 24 check mark and 8 of space; the menu shows its items the same way. -->
+        <DataTemplate x:Key="ConnectedToggleContent">
+            <StackPanel Orientation="Horizontal">
+                <c:DetailsIcon Key="IconCheck" Width="24" Height="24" Margin="0,0,8,0" VerticalAlignment="Center"
+                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Control}}"
+                               AutomationProperties.Name="{l:Translate settings_enabled}"
+                               Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibility}}" />
+                <c:DetailsRunsText FontSize="14" FontWeight="Medium" VerticalAlignment="Center" Runs="{Binding Text}"
+                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Control}}" />
+            </StackPanel>
+        </DataTemplate>
+
+        <!-- Connected toggle buttons. A choice that does not need the full width is a connected button group whose
+             overflowing choices go into a menu; one filling the width shares it between its buttons. -->
         <DataTemplate DataType="{x:Type d:DetailsToggleGroup}">
-            <ItemsControl ItemsSource="{Binding Toggles}" Focusable="False">
-                <ItemsControl.Style>
-                    <Style TargetType="ItemsControl">
-                        <Setter Property="ItemsPanel">
-                            <Setter.Value>
-                                <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
-                            </Setter.Value>
-                        </Setter>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding FillWidth}" Value="True">
-                                <Setter Property="ItemsPanel">
-                                    <Setter.Value>
-                                        <ItemsPanelTemplate><UniformGrid Rows="1" /></ItemsPanelTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </ItemsControl.Style>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Button Margin="0,0,2,2" MinHeight="40" Padding="16,0" Command="{Binding Command}" Cursor="Hand"
-                                Loaded="OnToggleLoaded">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Container" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}"
-                                            CornerRadius="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}, FallbackValue=20, TargetNullValue=20}">
-                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                    </Border>
-                                </ControlTemplate>
-                            </Button.Template>
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Background" Value="{DynamicResource SurfaceContainerBrush}" />
-                                    <Setter Property="Foreground" Value="{DynamicResource OnSurfaceVariantBrush}" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsChecked}" Value="True">
-                                            <Setter Property="Background" Value="{DynamicResource PrimaryBrush}" />
-                                            <Setter Property="Foreground" Value="{DynamicResource OnPrimaryBrush}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <StackPanel Orientation="Horizontal">
-                                <c:DetailsIcon Key="IconCheck" Width="18" Height="18" Margin="0,0,8,0" VerticalAlignment="Center"
-                                               Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
-                                               AutomationProperties.Name="{l:Translate settings_enabled}"
-                                               Visibility="{Binding IsChecked, Converter={StaticResource BooleanToVisibility}}" />
-                                <c:DetailsRunsText FontSize="14" FontWeight="Medium" VerticalAlignment="Center" Runs="{Binding Text}"
-                                                   Foreground="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}" />
-                            </StackPanel>
-                        </Button>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <Grid>
+                <controls:ConnectedButtonGroup HorizontalAlignment="Left" ItemsSource="{Binding Toggles}"
+                                               ItemTemplate="{StaticResource ConnectedToggleContent}"
+                                               IsCheckedPath="IsChecked" CommandPath="Command" OverflowRule="Compose"
+                                               RoundsLastItem="False" MenuUsesLocalResources="True"
+                                               OverflowLabel="{l:Translate action_more}">
+                    <controls:ConnectedButtonGroup.Style>
+                        <Style TargetType="controls:ConnectedButtonGroup">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding FillWidth}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </controls:ConnectedButtonGroup.Style>
+                </controls:ConnectedButtonGroup>
+                <!-- Toggles sharing the width equally, 2 apart, as weighted buttons in a row. -->
+                <ItemsControl Margin="-1,0" ItemsSource="{Binding Toggles}" Focusable="False"
+                              Visibility="{Binding FillWidth, Converter={StaticResource BooleanToVisibility}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><UniformGrid Rows="1" /></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <controls:ConnectedToggle Margin="1,0" Style="{StaticResource ConnectedGroupButton}"
+                                                      Content="{Binding}" ContentTemplate="{StaticResource ConnectedToggleContent}"
+                                                      IsChecked="{Binding IsChecked, Mode=OneWay}" Command="{Binding Command}"
+                                                      Loaded="OnToggleLoaded" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Grid>
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type d:DetailsScale}">
@@ -491,8 +559,9 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Margin="16,8" Orientation="Horizontal" AutomationProperties.Name="{Binding AutomationName}">
-                                <!-- Icons take the content text color of the dark theme. -->
-                                <c:DetailsIcon Key="{Binding IconKey}" Margin="0,0,16,0" VerticalAlignment="Center" Foreground="#999999">
+                                <!-- Icons take the app's content text color, not the screen's. -->
+                                <c:DetailsIcon Key="{Binding IconKey}" Margin="0,0,16,0" VerticalAlignment="Center"
+                                               Foreground="{Binding DataContext.AppBodyTextBrush, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                     <c:DetailsIcon.Style>
                                         <Style TargetType="c:DetailsIcon">
                                             <Style.Triggers>
@@ -503,7 +572,8 @@
                                         </Style>
                                     </c:DetailsIcon.Style>
                                 </c:DetailsIcon>
-                                <c:MoonPhaseView Margin="0,0,16,0" VerticalAlignment="Center" SurfaceAngle="{Binding MoonPhaseAngle, FallbackValue=0, TargetNullValue=0}">
+                                <c:MoonPhaseView Margin="0,0,16,0" VerticalAlignment="Center" SurfaceAngle="{Binding MoonPhaseAngle, FallbackValue=0, TargetNullValue=0}"
+                                                 StrokeBrush="{Binding DataContext.AppBodyTextBrush, RelativeSource={RelativeSource AncestorType=UserControl}}">
                                     <c:MoonPhaseView.Style>
                                         <Style TargetType="c:MoonPhaseView">
                                             <Style.Triggers>
@@ -592,11 +662,18 @@
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            <Border Height="1" VerticalAlignment="Bottom" Background="#49454F" IsHitTestVisible="False" />
+            <Border Height="1" VerticalAlignment="Bottom" Background="{DynamicResource OutlineVariantBrush}" IsHitTestVisible="False" />
         </Grid>
 
-        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
-            <ItemsControl Margin="16,8" ItemsSource="{Binding Content}" Focusable="False" />
+        <!-- The day's page. A horizontal drag moves it, as a finger swipes between days. -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly"
+                      MouseLeftButtonDown="OnPageMouseDown" MouseMove="OnPageMouseMove" MouseLeftButtonUp="OnPageMouseUp"
+                      LostMouseCapture="OnPageLostCapture">
+            <ItemsControl x:Name="DayPage" Margin="16,8" ItemsSource="{Binding Content}" Focusable="False">
+                <ItemsControl.RenderTransform>
+                    <TranslateTransform x:Name="DayPageOffset" />
+                </ItemsControl.RenderTransform>
+            </ItemsControl>
         </ScrollViewer>
 
         <!-- The page menu: a toggle button at the bottom end, which opens the pages above it. -->

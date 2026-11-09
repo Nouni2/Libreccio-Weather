@@ -75,7 +75,8 @@ public sealed class TrendReferenceLinesView : FrameworkElement
             StartLineCap = PenLineCap.Round,
             EndLineCap = PenLineCap.Round,
         };
-        Brush textBrush = (Brush)FindResource("OnSurfaceVariantBrush");
+        // The labels are a fixed grey for the location's light or dark theme, which the screen's palette carries.
+        Brush textBrush = (Brush)FindResource("ChartLabelBrush");
         foreach (TrendKeyLine line in data.KeyLines)
         {
             if (line.Value > highest || line.Value < lowest)

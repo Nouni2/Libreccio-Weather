@@ -27,6 +27,7 @@ namespace LibreccioWeather.Appearance;
 public static class ThemeManager
 {
     private static readonly Uri LightColors = new("pack://application:,,,/Theme/LightColors.xaml", UriKind.Absolute);
+    private static readonly Uri DarkColors = new("pack://application:,,,/Theme/DarkColors.xaml", UriKind.Absolute);
     private static readonly Uri BreezyLightColors = new("pack://application:,,,/Theme/BreezyLightColors.xaml", UriKind.Absolute);
     private static readonly Uri BreezyDarkColors = new("pack://application:,,,/Theme/BreezyDarkColors.xaml", UriKind.Absolute);
 
@@ -78,6 +79,15 @@ public static class ThemeManager
     public static ResourceDictionary GetLightColors()
     {
         return new ResourceDictionary { Source = LightColors };
+    }
+
+    /// <summary>
+    /// The light or dark palette of the app's screens, merged into one screen's resources so that screen follows a
+    /// location's daylight instead of the app's mode.
+    /// </summary>
+    public static ResourceDictionary GetScreenColors(bool light)
+    {
+        return new ResourceDictionary { Source = light ? LightColors : DarkColors };
     }
 
     /// <summary>

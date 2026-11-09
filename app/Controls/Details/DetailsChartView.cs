@@ -113,7 +113,8 @@ public sealed class DetailsChartView : FrameworkElement
             return;
         }
 
-        Brush lineBrush = (Brush)FindResource("ChartLineBrush");
+        // Lines take the app's outline, which follows the app's mode, while labels follow the screen's palette.
+        Brush lineBrush = (Brush)Application.Current.FindResource("ChartLineBrush");
         var axisPen = new Pen(lineBrush, 1);
         var guidelinePen = new Pen(lineBrush, 1) { DashStyle = new DashStyle([DashLength, DashGap], 0) };
         Rect layer = GetLayerBounds(data);
@@ -135,16 +136,14 @@ public sealed class DetailsChartView : FrameworkElement
             drawingContext.DrawLine(guidelinePen, new Point(x, layer.Top), new Point(x, layer.Bottom));
         }
 
+        // Columns and lines are not clipped to the plot area: a column past the range draws beyond it, and a line at
+        // the top or bottom of the range keeps its full thickness. Only the element's own bounds clip them.
         if (data.Kind == DetailsChartKind.Bar)
         {
-            drawingContext.PushClip(new RectangleGeometry(layer));
             DrawBars(drawingContext, data, layer);
-            drawingContext.Pop();
         }
         else
         {
-            // Lines are not clipped to the plot area, so a line at the top or bottom of the range keeps its full
-            // thickness.
             foreach (DetailsChartSeries series in data.Series)
             {
                 DrawLine(drawingContext, data, layer, series);

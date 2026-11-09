@@ -34,6 +34,32 @@
         <DataTemplate DataType="{x:Type conditions:ConditionsCardViewModel}">
             <cards:ConditionsCardView Data="{Binding}" Margin="8" Cursor="Hand" MouseLeftButtonUp="OnConditionsCardClick" />
         </DataTemplate>
+        <!-- The precipitation of the next hour. The chart starts at the top of the subtitle, under it. -->
+        <DataTemplate DataType="{x:Type conditions:NowcastCardViewModel}">
+            <Border Margin="8" Background="{DynamicResource ElevatedSurfaceBrush}" CornerRadius="{DynamicResource ForecastCardCornerRadius}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <StackPanel Margin="20,20,20,0" Orientation="Horizontal">
+                        <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconUmbrella}" Foreground="{DynamicResource OnSurfaceVariantBrush}" />
+                        <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" FontSize="14" FontWeight="Medium"
+                                   Foreground="{DynamicResource InverseSurfaceBrush}" Text="{Binding Title}" />
+                    </StackPanel>
+                    <TextBlock Grid.Row="1" Margin="20,2,20,0" VerticalAlignment="Top" FontSize="14" TextWrapping="Wrap"
+                               Foreground="{DynamicResource BodyTextBrush}" Text="{Binding Subtitle}" />
+                    <cards:NowcastChartView Grid.Row="1" Margin="4,2,4,0" VerticalAlignment="Top" Data="{Binding Chart}"
+                                            AutomationProperties.Name="{Binding Description}" />
+                </Grid>
+            </Border>
+        </DataTemplate>
+        <!-- The credit of the forecast source in Material's body large type, bold, centered under the cards. -->
+        <DataTemplate DataType="{x:Type conditions:FooterViewModel}">
+            <c:SegmentedText Margin="8" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
+                             FontSize="16" LineHeight="24" FontWeight="Bold" Foreground="{Binding Foreground}"
+                             Segments="{Binding Segments}" />
+        </DataTemplate>
     </UserControl.Resources>
     <Grid Background="{Binding BackgroundBrush}">
         <Grid.RowDefinitions>
@@ -72,6 +98,18 @@
                     <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconSettings}" Width="20" Height="20" />
                 </Button>
             </StackPanel>
+            <!-- The top bar's overflow menu, with the actions that have no room as icons. -->
+            <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}" Click="OnMoreClick" ContextMenuService.IsEnabled="False"
+                    ToolTip="{l:Translate action_more}" AutomationProperties.Name="{l:Translate action_more}">
+                <Button.ContextMenu>
+                    <ContextMenu Style="{StaticResource AppContextMenu}" Placement="Bottom"
+                                 DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                        <MenuItem Header="{l:Translate action_open_in_other_app}" Command="{Binding OpenInOtherAppCommand}"
+                                  AutomationProperties.HelpText="{l:Translate action_open_in_other_app_description}" />
+                    </ContextMenu>
+                </Button.ContextMenu>
+                <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconMoreVert}" />
+            </Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}" Command="{Binding EditLocationCommand}"
                     ToolTip="{l:Translate action_edit_location}" AutomationProperties.Name="{l:Translate action_edit_location}">
                 <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconEdit}" />
@@ -113,7 +151,7 @@
              the pull. -->
         <c:PullRefreshIndicator x:Name="PullIndicator" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top"
                                 Panel.ZIndex="1" Visibility="Collapsed"
-                                DiscBrush="{DynamicResource SurfaceBrush}" ArcBrush="{DynamicResource PrimaryBrush}" />
+                                DiscBrush="{DynamicResource SurfaceBrush}" ArcBrush="{Binding RefreshArcBrush}" />
 
         <ProgressBar Grid.Row="1" Height="4" IsIndeterminate="True" BorderThickness="0"
                      Background="Transparent" Foreground="{DynamicResource PrimaryBrush}"
@@ -142,7 +180,7 @@
                     </StackPanel>
 
                     <TextBlock HorizontalAlignment="Center" Margin="0,8,0,0" Style="{StaticResource TitleLargeText}"
-                               FontWeight="Light" Text="{Binding WeatherText}" />
+                               FontWeight="Light" Foreground="{DynamicResource InverseSurfaceBrush}" Text="{Binding WeatherText}" />
 
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -156,12 +194,13 @@
                              at the bottom: -10 becomes -26.82 and 5 becomes -1.01. -->
                         <c:NumberAnimTextBlock x:Name="TemperatureNumber" Grid.Column="1" Margin="0,-26.82,0,-3.76" FontSize="140"
                                                FontFamily="pack://application:,,,/assets/fonts/#Roboto" FontWeight="Bold"
-                                               Foreground="{DynamicResource OnSurfaceBrush}"
+                                               Foreground="{DynamicResource InverseSurfaceBrush}"
                                                IsAnimEnabled="{Binding IsTemperatureAnimated, Mode=OneTime}"
-                                               NumberStart="{Binding TemperatureStartText}" NumberEnd="{Binding TemperatureText}" />
+                                               NumberStart="{Binding TemperatureStartText}" NumberEnd="{Binding TemperatureText}"
+                                               AutomationProperties.Name="{Binding TemperatureDescription}" />
                         <TextBlock Grid.Column="2" Margin="0,-1.01,0,-1.34" FontSize="50"
                                    FontFamily="pack://application:,,,/assets/fonts/#Roboto" FontWeight="Bold"
-                                   Foreground="{DynamicResource OnSurfaceBrush}" Text="{Binding TemperatureUnitText}">
+                                   Foreground="{DynamicResource InverseSurfaceBrush}" Text="{Binding TemperatureUnitText}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Style.Triggers>
@@ -175,10 +214,14 @@
                     </Grid>
 
                     <TextBlock HorizontalAlignment="Center" Margin="0,-10,0,8" Style="{StaticResource TitleLargeText}"
-                               FontWeight="Light" Text="{Binding FeelsLikeText}" />
+                               FontWeight="Light" Foreground="{DynamicResource InverseSurfaceBrush}"
+                               TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Text="{Binding FeelsLikeText}"
+                               AutomationProperties.Name="{Binding FeelsLikeDescription}" />
 
                     <TextBlock HorizontalAlignment="Center" Style="{StaticResource TitleMediumText}"
-                               FontWeight="Light" Text="{Binding TemperatureRangeText}" />
+                               FontWeight="Light" Foreground="{DynamicResource InverseSurfaceBrush}"
+                               TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Text="{Binding TemperatureRangeText}"
+                               AutomationProperties.Name="{Binding TemperatureRangeDescription}" />
 
                     <TextBlock HorizontalAlignment="Center" Margin="0,8,0,0" Style="{StaticResource BodyMediumText}"
                                Text="{Binding ErrorText}" />

@@ -14,6 +14,9 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using LibreccioWeather.Core.Localization;
+using LibreccioWeather.Core.Settings.Options;
+
 namespace LibreccioWeather.Core.Sources.OpenMeteo;
 
 /// <summary>
@@ -90,6 +93,34 @@ public sealed class OpenMeteoWeatherModel
     public static OpenMeteoWeatherModel? GetInstance(string value)
     {
         return All.FirstOrDefault(model => model.Id == value);
+    }
+
+    /// <summary>
+    /// The model's name from the translated model list, with "Best match" and "Seamless" translated, since the list
+    /// keeps them in English.
+    /// </summary>
+    public string GetName()
+    {
+        string name = OptionNames.GetNameByValue(Id, "open_meteo_weather_models", "open_meteo_weather_models_values")
+            ?? throw new InvalidOperationException($"No name is listed for the weather model {Id}.");
+        return name
+            .Replace("Best match", Strings.Get("settings_weather_source_open_meteo_weather_models_best_match"))
+            .Replace("Seamless", Strings.Get("settings_weather_source_open_meteo_weather_models_seamless"));
+    }
+
+    /// <summary>
+    /// What the best match and the seamless models do; other models have no description.
+    /// </summary>
+    public string? GetDescription()
+    {
+        if (Id == "best_match")
+        {
+            return Strings.Get("settings_weather_source_open_meteo_weather_models_best_match_description");
+        }
+
+        return Id.EndsWith("_seamless", StringComparison.Ordinal)
+            ? Strings.Get("settings_weather_source_open_meteo_weather_models_seamless_description")
+            : null;
     }
 
     public override string ToString()

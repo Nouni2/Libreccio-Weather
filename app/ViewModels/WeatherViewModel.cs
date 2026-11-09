@@ -15,10 +15,12 @@
  */
 
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows.Media;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LibreccioWeather.Appearance;
+using LibreccioWeather.Controls.WeatherAnimation;
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Locations;
 using LibreccioWeather.Core.Models;
@@ -62,6 +64,16 @@ public sealed partial class WeatherViewModel : ObservableObject
     [ObservableProperty]
     private string? _temperatureRangeText;
 
+    // What a screen reader says for the temperature, the feels-like temperature and the range, with units in full.
+    [ObservableProperty]
+    private string? _temperatureDescription;
+
+    [ObservableProperty]
+    private string? _feelsLikeDescription;
+
+    [ObservableProperty]
+    private string? _temperatureRangeDescription;
+
     [ObservableProperty]
     private string? _errorText;
 
@@ -77,8 +89,11 @@ public sealed partial class WeatherViewModel : ObservableObject
     [ObservableProperty]
     private IReadOnlyList<object> _cards = [];
 
-    public WeatherViewModel(WeatherRefresher refresher, MainViewModel main, Location location)
+    /// <param name="headerTemperature">The temperature the header showed before this screen, rounded in the unit it
+    /// was shown in, which the header counts from; 0 on a new main screen.</param>
+    public WeatherViewModel(WeatherRefresher refresher, MainViewModel main, Location location, int headerTemperature = 0)
     {
+        _temperatureTo = headerTemperature;
         _refresher = refresher;
         _main = main;
         _temperatureUnit = main.Settings.GetTemperatureUnit(main.RegionCode);
@@ -119,6 +134,21 @@ public sealed partial class WeatherViewModel : ObservableObject
     }
 
     public string TemperatureUnitText { get; }
+
+    // Hands the location to whichever app Windows associates with geo links, such as a map.
+    [RelayCommand]
+    private void OpenInOtherApp()
+    {
+        string link = "geo:" + JavaNumberText.Format(_location.Latitude) + "," + JavaNumberText.Format(_location.Longitude);
+        try
+        {
+            using Process? process = Process.Start(new ProcessStartInfo(link) { UseShellExecute = true });
+        }
+        catch (Win32Exception)
+        {
+            _main.ShowSnackbar(Strings.Get("action_open_in_other_app_no_app"));
+        }
+    }
 
     [RelayCommand]
     private void OpenLocationList()
@@ -249,6 +279,11 @@ public sealed partial class WeatherViewModel : ObservableObject
     private int _temperatureTo;
 
     /// <summary>
+    /// The temperature the header shows, or showed last, rounded in its unit.
+    /// </summary>
+    public int HeaderTemperature => _temperatureTo;
+
+    /// <summary>
     /// The number the header's temperature counts from.
     /// </summary>
     [ObservableProperty]
@@ -294,7 +329,13 @@ public sealed partial class WeatherViewModel : ObservableObject
         AnimationCondition = _main.Settings.MainScreenBackgroundEnabled ? _location.Weather?.Current?.WeatherCode : null;
         AnimationDaylight = daylight;
         AnimationDarkMode = _main.IsAppDark;
+
+        // The indicator follows the current weather even when the main screen background is turned off.
+        RefreshArcBrush = MaterialWeatherThemeDelegate.GetThemeBrush(_location.Weather?.Current?.WeatherCode, daylight);
     }
+
+    [ObservableProperty]
+    private Brush _refreshArcBrush = Brushes.Transparent;
 
     private void Show(Weather weather)
     {
@@ -312,17 +353,28 @@ public sealed partial class WeatherViewModel : ObservableObject
         }
 
         TemperatureText = temperature is { } value ? UnitFormatting.FormatRounded(value, _temperatureUnit) : null;
+        if (temperature is { } spoken)
+        {
+            TemperatureDescription = UnitFormatting.Format(spoken, _temperatureUnit, unitWidth: UnitWidth.Long);
+        }
 
         // The feels-like temperature is only shown when it rounds to a different value.
         Core.Units.Temperature? feelsLike = current?.Temperature?.FeelsLikeTemperature;
-        FeelsLikeText = feelsLike is { } feels
+        Core.Units.Temperature? shownFeelsLike = feelsLike is { } feels
             && (temperature is not { } actual
                 || UnitFormatting.RoundToInt(actual.ToDouble(_temperatureUnit))
                     != UnitFormatting.RoundToInt(feels.ToDouble(_temperatureUnit)))
-            ? Strings.Format("temperature_feels_like_with_unit", FormatNarrow(feels))
+            ? feels
+            : null;
+        FeelsLikeText = shownFeelsLike is { } writtenFeelsLike
+            ? Strings.Format("temperature_feels_like_with_unit", FormatNarrow(writtenFeelsLike))
+            : null;
+        FeelsLikeDescription = shownFeelsLike is { } spokenFeelsLike
+            ? Strings.Get("temperature_feels_like") + Strings.Get("colon_separator")
+                + UnitFormatting.Format(spokenFeelsLike, _temperatureUnit, unitWidth: UnitWidth.Long)
             : null;
 
-        TemperatureRangeText = GetTemperatureRangeSummary(weather);
+        (TemperatureRangeText, TemperatureRangeDescription) = GetTemperatureRangeSummary(weather);
         UpdateTheme();
         // Hourly flags include the solar altitude when available and retain the source's flag otherwise.
         bool daylight = weather.NextHourlyForecast.FirstOrDefault()?.IsDaylight ?? true;
@@ -331,7 +383,16 @@ public sealed partial class WeatherViewModel : ObservableObject
         List<object> cards = [];
         foreach (CardDisplay card in _main.Settings.CardDisplayList)
         {
-            if (card == CardDisplay.DailyForecast && weather.DailyForecast.Count > 0)
+            if (card == CardDisplay.Nowcast)
+            {
+                // The rain colors are the daylight ones only in daylight on a light screen.
+                if (NowcastCardViewModel.Create(weather, _location, _precipitationUnit,
+                    _main.Settings.IsTrendHorizontalLinesEnabled, AnimationDaylight && IsLightTheme) is { } nowcast)
+                {
+                    cards.Add(nowcast);
+                }
+            }
+            else if (card == CardDisplay.DailyForecast && weather.DailyForecast.Count > 0)
             {
                 if (ForecastCardViewModel.CreateDaily(weather, _location, _temperatureUnit, _precipitationUnit, _speedUnit, _main.Settings,
                     _main.SelectedDailyTab, tab => _main.SelectedDailyTab = tab) is { } daily)
@@ -360,16 +421,18 @@ public sealed partial class WeatherViewModel : ObservableObject
             }
         }
 
+        // The footer ends the list whenever there is weather, even without cards.
+        cards.Add(new FooterViewModel(_main, _location, AnimationDaylight && IsLightTheme));
         Cards = cards;
     }
 
     // The next two half days: last night and today before 06:00, today and tonight until 18:00,
     // then tonight and tomorrow.
-    private string? GetTemperatureRangeSummary(Weather weather)
+    private (string? Text, string? Description) GetTemperatureRangeSummary(Weather weather)
     {
         if (weather.TodayIndex is not { } todayIndex)
         {
-            return null;
+            return (null, null);
         }
 
         Daily today = weather.DailyForecast[todayIndex];
@@ -398,17 +461,23 @@ public sealed partial class WeatherViewModel : ObservableObject
 
         string separator = Strings.Get("colon_separator");
         List<string> parts = [];
+        List<string> voiceParts = [];
         if (first is { } firstValue)
         {
-            parts.Add(Strings.Get(isDayFirst ? "daytime_short" : "nighttime_short") + separator + FormatNarrow(firstValue));
+            string name = Strings.Get(isDayFirst ? "daytime_short" : "nighttime_short") + separator;
+            parts.Add(name + FormatNarrow(firstValue));
+            voiceParts.Add(name + UnitFormatting.Format(firstValue, _temperatureUnit, UnitWidth.Narrow, UnitWidth.Long));
         }
 
         if (second is { } secondValue)
         {
-            parts.Add(Strings.Get(isDayFirst ? "nighttime_short" : "daytime_short") + separator + FormatNarrow(secondValue));
+            string name = Strings.Get(isDayFirst ? "nighttime_short" : "daytime_short") + separator;
+            parts.Add(name + FormatNarrow(secondValue));
+            voiceParts.Add(name + UnitFormatting.Format(secondValue, _temperatureUnit, UnitWidth.Narrow, UnitWidth.Long));
         }
 
-        return parts.Count > 0 ? string.Join(Strings.Get("dot_separator"), parts) : null;
+        string dot = Strings.Get("dot_separator");
+        return parts.Count > 0 ? (string.Join(dot, parts), string.Join(dot, voiceParts)) : (null, null);
     }
 
     private string FormatNarrow(Core.Units.Temperature temperature)

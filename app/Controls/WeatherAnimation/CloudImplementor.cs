@@ -33,6 +33,18 @@ public sealed class CloudImplementor : WeatherAnimationImplementor
     public const int TypeFog = 6;
     public const int TypeHaze = 7;
 
+    /// <summary>
+    /// The weather's own color, as packed ARGB, which tints the pull-to-refresh indicator.
+    /// </summary>
+    public static uint GetThemeColor(int type, bool daylight) => type switch
+    {
+        TypeCloudy => daylight ? 0xFF9DAFC1 : 0xFF263238,
+        TypeThunder => daylight ? 0xFFB296BD : 0xFF231739,
+        TypeFog => daylight ? 0xFFA3AEC2 : 0xFF4F5D68,
+        TypeHaze => daylight ? 0xFFE1C899 : 0xFF6C5C49,
+        _ => daylight ? 0xFF00A5D9 : 0xFF222D43,
+    };
+
     private Cloud[] _clouds = [];
     private Star[] _stars = [];
     private readonly Thunder? _thunder;

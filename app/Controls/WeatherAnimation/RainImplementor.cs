@@ -31,6 +31,16 @@ public sealed class RainImplementor : WeatherAnimationImplementor
     public const int TypeThunderstorm = 3;
     public const int TypeSleet = 4;
 
+    /// <summary>
+    /// The weather's own color, as packed ARGB, which tints the pull-to-refresh indicator.
+    /// </summary>
+    public static uint GetThemeColor(int type, bool daylight) => type switch
+    {
+        TypeSleet => daylight ? 0xFF68BAFF : 0xFF1A5B92,
+        TypeThunderstorm => daylight ? 0xFFB296BD : 0xFF231739,
+        _ => daylight ? 0xFF4297E7 : 0xFF264E8F,
+    };
+
     // Marks that no rotation was seen yet, so the first frame does not move drops by a rotation change.
     private const float InitialRotation3D = 1000f;
     private const int RainCount = 75;

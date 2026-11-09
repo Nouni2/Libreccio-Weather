@@ -138,6 +138,7 @@ public sealed partial class NumberAnimTextBlock : TextBlock
             Text = end;
         };
         RefreshRate.Apply(animation, this);
+        AnimationEffects.Apply(animation);
         _animating = true;
         Text = Format(_start);
         BeginAnimation(ProgressProperty, animation);

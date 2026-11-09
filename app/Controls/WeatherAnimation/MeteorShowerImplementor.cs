@@ -27,6 +27,11 @@ namespace LibreccioWeather.Controls.WeatherAnimation;
 /// </summary>
 public sealed class MeteorShowerImplementor : WeatherAnimationImplementor
 {
+    /// <summary>
+    /// The weather's own color, as packed ARGB, which tints the pull-to-refresh indicator.
+    /// </summary>
+    public const uint ThemeColor = 0xFF141C2C;
+
     // Marks that no rotation was seen yet, so the first frame does not move meteors by a rotation change.
     private const float InitialRotation3D = 1000f;
     private const int MeteorReviveSecMin = 5;

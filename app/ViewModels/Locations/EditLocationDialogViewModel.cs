@@ -20,6 +20,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Locations;
+using LibreccioWeather.Core.Sources.OpenMeteo;
 using LibreccioWeather.Localization;
 using LibreccioWeather.ViewModels.Settings;
 
@@ -160,8 +161,8 @@ public sealed class EditLocationDialogViewModel : ObservableObject
 }
 
 /// <summary>
-/// The preferences of one location: its custom name, which replaces the city and district in the interface.
-/// Closing saves a changed name.
+/// The preferences of one location: its custom name, which replaces the city and district in the interface, and
+/// Open-Meteo's weather models. Closing saves a changed name.
 /// </summary>
 public sealed partial class PerLocationDialogViewModel : ObservableObject
 {
@@ -186,6 +187,53 @@ public sealed partial class PerLocationDialogViewModel : ObservableObject
         // Closing saves a changed custom name, so the button says Done rather than Close.
         CloseText = Strings.Get("action_done");
         CustomNameSummary = _content.Length == 0 ? location.CityAndDistrict : _content;
+
+        // Open-Meteo has a section when it gives the forecast, the current conditions or the minutely precipitation;
+        // a feature without a source of its own takes the forecast source.
+        HasOpenMeteoSection = new[]
+        {
+            location.ForecastSource,
+            location.CurrentSource ?? location.ForecastSource,
+            location.MinutelySource ?? location.ForecastSource,
+        }.Contains(OpenMeteoService.Id);
+        OpenMeteoSectionTitle = OpenMeteoService.Name;
+        WeatherModelsTitle = Strings.Get("settings_weather_source_open_meteo_weather_models");
+
+        // The chosen models, sorted by name in the selected language.
+        StringComparer collator = StringComparer.Create(Strings.Culture, ignoreCase: false);
+        WeatherModelsSummary = string.Join(Strings.GetUnit("locale_separator"),
+            OpenMeteoService.GetWeatherModels(location).Select(model => model.GetName()).OrderBy(name => name, collator));
+    }
+
+    public bool HasOpenMeteoSection { get; }
+
+    public string OpenMeteoSectionTitle { get; }
+
+    public string WeatherModelsTitle { get; }
+
+    public string WeatherModelsSummary { get; }
+
+    // Saving models leaves the dialog at once with the location's other preferences as they were saved, so a custom
+    // name changed but not yet saved is dropped.
+    [RelayCommand]
+    private void OpenWeatherModels()
+    {
+        _main.ShowDialog(new WeatherModelsDialogViewModel(_main, _location, this, models =>
+        {
+            Dictionary<string, IReadOnlyDictionary<string, string>> parameters = _location.Parameters
+                .ToDictionary(pair => pair.Key, pair => pair.Value);
+            Dictionary<string, string> openMeteo = parameters.TryGetValue(OpenMeteoService.Id, out IReadOnlyDictionary<string, string>? saved)
+                ? saved.ToDictionary(pair => pair.Key, pair => pair.Value)
+                : [];
+            openMeteo["weatherModels"] = models;
+            parameters[OpenMeteoService.Id] = openMeteo;
+            _main.CloseDialog();
+            _ = _main.UpdateLocationPreferencesAsync(_location with
+            {
+                Parameters = parameters,
+                Weather = SecondarySourcesDialogViewModel.WithoutUpdateTimes(_location.Weather),
+            }, _location);
+        }));
     }
 
     public string Title { get; }

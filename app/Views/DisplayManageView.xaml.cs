@@ -99,7 +99,9 @@ public partial class DisplayManageView : UserControl
         var alpha = new DoubleAnimation(visible ? 1 : 0, duration) { EasingFunction = easing };
         var translation = new DoubleAnimation(visible ? 0 : BottomBar.ActualHeight, duration) { EasingFunction = easing };
         RefreshRate.Apply(alpha, this);
+        AnimationEffects.Apply(alpha);
         RefreshRate.Apply(translation, this);
+        AnimationEffects.Apply(translation);
 
         // A transform declared in XAML may be frozen, so the bar gets its own before it moves.
         if (BottomBar.RenderTransform is not TranslateTransform { IsFrozen: false } transform)

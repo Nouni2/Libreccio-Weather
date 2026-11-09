@@ -113,7 +113,7 @@ public sealed class DoubleHistogramView : ForecastChartView
 
     private void DrawLabel(DrawingContext drawingContext, string text, double y, bool above)
     {
-        Brush brush = (Brush)FindResource("OnSurfaceVariantBrush");
+        Brush brush = (Brush)FindResource("BodyTextBrush");
         FormattedText formatted = MakeText(text, 14, brush);
         drawingContext.DrawText(formatted,
             new Point((ActualWidth - formatted.Width) / 2, above ? y - formatted.Height - 2 : y + 2));

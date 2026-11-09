@@ -24,6 +24,7 @@
         xmlns:views="clr-namespace:LibreccioWeather.Views"
         xmlns:l="clr-namespace:LibreccioWeather.Localization"
         xmlns:c="clr-namespace:LibreccioWeather.Controls"
+        xmlns:cards="clr-namespace:LibreccioWeather.ViewModels.WeatherCards"
         Title="{l:Translate desktop_app_name}"
         Width="960"
         Height="720"
@@ -169,19 +170,110 @@
                     <TextBlock DockPanel.Dock="Top" Margin="24,0,24,16" Style="{StaticResource HeadlineSmallText}" Text="{Binding Title}" />
                     <Button DockPanel.Dock="Bottom" Margin="0,8,16,0" HorizontalAlignment="Right" Style="{StaticResource TextButton}"
                             Command="{Binding CloseCommand}" Content="{Binding CloseText}" />
-                    <StackPanel>
-                        <TextBlock Margin="24,0,24,8" FontSize="14" FontWeight="Medium" Foreground="{DynamicResource PrimaryBrush}"
-                                   Text="{Binding SectionTitle}" />
-                        <Border Padding="24,12" Background="Transparent" Cursor="Hand">
-                            <Border.InputBindings>
-                                <MouseBinding Gesture="LeftClick" Command="{Binding EditCustomNameCommand}" />
-                            </Border.InputBindings>
-                            <StackPanel>
-                                <TextBlock Style="{StaticResource TitleMediumText}" FontWeight="Normal" Text="{Binding CustomNameTitle}" />
-                                <TextBlock Margin="0,8,0,0" Style="{StaticResource BodyMediumText}" Text="{Binding CustomNameSummary}" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel>
+                            <TextBlock Margin="24,0,24,8" FontSize="14" FontWeight="Medium" Foreground="{DynamicResource PrimaryBrush}"
+                                       Text="{Binding SectionTitle}" />
+                            <Border Padding="24,12" Background="Transparent" Cursor="Hand">
+                                <Border.InputBindings>
+                                    <MouseBinding Gesture="LeftClick" Command="{Binding EditCustomNameCommand}" />
+                                </Border.InputBindings>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource TitleMediumText}" FontWeight="Normal" Text="{Binding CustomNameTitle}" />
+                                    <TextBlock Margin="0,8,0,0" Style="{StaticResource BodyMediumText}" Text="{Binding CustomNameSummary}" />
+                                </StackPanel>
+                            </Border>
+                            <StackPanel Visibility="{Binding HasOpenMeteoSection, Converter={StaticResource BooleanToVisibility}}">
+                                <TextBlock Margin="24,16,24,8" FontSize="14" FontWeight="Medium" Foreground="{DynamicResource PrimaryBrush}"
+                                           Text="{Binding OpenMeteoSectionTitle}" />
+                                <Border Padding="24,12" Background="Transparent" Cursor="Hand">
+                                    <Border.InputBindings>
+                                        <MouseBinding Gesture="LeftClick" Command="{Binding OpenWeatherModelsCommand}" />
+                                    </Border.InputBindings>
+                                    <StackPanel>
+                                        <TextBlock Style="{StaticResource TitleMediumText}" FontWeight="Normal" Text="{Binding WeatherModelsTitle}" />
+                                        <TextBlock Margin="0,8,0,0" Style="{StaticResource BodyMediumText}" TextWrapping="Wrap"
+                                                   Text="{Binding WeatherModelsSummary}" />
+                                    </StackPanel>
+                                </Border>
                             </StackPanel>
-                        </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- Open-Meteo's weather models for one location, each with a switch; a divider sets the best match apart and
+             starts each provider's seamless group. -->
+        <DataTemplate DataType="{x:Type locations:WeatherModelsDialogViewModel}">
+            <Border Style="{StaticResource DialogSurface}" Padding="0,24,0,8">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Margin="24,0,24,16" Style="{StaticResource HeadlineSmallText}" Text="{Binding Title}" />
+                    <StackPanel DockPanel.Dock="Bottom" Margin="0,8,16,0" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <Button Style="{StaticResource TextButton}" Command="{Binding CancelCommand}" Content="{Binding CancelText}" />
+                        <Button Margin="8,0,0,0" Style="{StaticResource TextButton}" Command="{Binding ConfirmCommand}" Content="{Binding ConfirmText}" />
                     </StackPanel>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Models}" Focusable="False">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel>
+                                        <Border Height="1" Background="{DynamicResource OutlineVariantBrush}"
+                                                Visibility="{Binding HasDividerBefore, Converter={StaticResource BooleanToVisibility}}" />
+                                        <Border Padding="24,12" Background="Transparent" Cursor="Hand">
+                                            <Border.InputBindings>
+                                                <MouseBinding Gesture="LeftClick" Command="{Binding ToggleCommand}" />
+                                            </Border.InputBindings>
+                                            <DockPanel>
+                                                <CheckBox DockPanel.Dock="Right" Margin="16,0,0,0" VerticalAlignment="Center" Style="{StaticResource Switch}"
+                                                          IsChecked="{Binding IsEnabled}" IsHitTestVisible="False" AutomationProperties.Name="{Binding Name}" />
+                                                <StackPanel VerticalAlignment="Center">
+                                                    <TextBlock Style="{StaticResource TitleMediumText}" FontWeight="Normal" TextWrapping="Wrap" Text="{Binding Name}" />
+                                                    <TextBlock Margin="0,4,0,0" Style="{StaticResource BodyMediumText}" TextWrapping="Wrap"
+                                                               Text="{Binding Description}" />
+                                                </StackPanel>
+                                            </DockPanel>
+                                        </Border>
+                                        <Border Height="1" Background="{DynamicResource OutlineVariantBrush}"
+                                                Visibility="{Binding HasDividerAfter, Converter={StaticResource BooleanToVisibility}}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- The source of each feature the location uses: the feature, the source's credit with its links, and a button
+             for the source's privacy policy. -->
+        <DataTemplate DataType="{x:Type cards:DataSourcesDialogViewModel}">
+            <Border Style="{StaticResource DialogSurface}" Padding="0,24,0,8">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Margin="24,0,24,16" Style="{StaticResource HeadlineSmallText}" Text="{Binding Title}" />
+                    <Button DockPanel.Dock="Bottom" Margin="0,8,16,0" HorizontalAlignment="Right" Style="{StaticResource TextButton}"
+                            Command="{Binding CloseCommand}" Content="{Binding CloseText}" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Items}" Focusable="False">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <DockPanel Margin="16,8">
+                                        <Button DockPanel.Dock="Right" Margin="16,0,0,0" VerticalAlignment="Center" Style="{StaticResource IconButton}"
+                                                Command="{Binding PrivacyPolicyCommand}"
+                                                ToolTip="{Binding PrivacyPolicyText}" AutomationProperties.Name="{Binding PrivacyPolicyText}">
+                                            <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconShieldLock}"
+                                                            Foreground="{DynamicResource OnSurfaceBrush}" />
+                                        </Button>
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock FontSize="16" Foreground="{DynamicResource OnSurfaceBrush}" TextWrapping="Wrap" Text="{Binding Title}" />
+                                            <c:SegmentedText FontSize="14" Foreground="{DynamicResource OnSurfaceVariantBrush}" TextWrapping="Wrap"
+                                                             Segments="{Binding Credit}" />
+                                        </StackPanel>
+                                    </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </DockPanel>
             </Border>
         </DataTemplate>
@@ -229,12 +321,28 @@
                                                     <TextBlock Margin="0,4,0,0" Style="{StaticResource BodyMediumText}" Text="{Binding Summary}" />
                                                 </StackPanel>
                                             </Border>
+                                            <TextBlock Margin="16,0" FontSize="12" LineHeight="16" LineStackingStrategy="BlockLineHeight"
+                                                       TextWrapping="Wrap" Foreground="{DynamicResource ErrorBrush}"
+                                                       Text="{Binding DataContext.DuplicateText, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed" />
+                                                        <Style.Triggers>
+                                                            <MultiDataTrigger>
+                                                                <MultiDataTrigger.Conditions>
+                                                                    <Condition Binding="{Binding IsForecast}" Value="True" />
+                                                                    <Condition Binding="{Binding DataContext.IsLocationDuplicate, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="True" />
+                                                                </MultiDataTrigger.Conditions>
+                                                                <Setter Property="Visibility" Value="Visible" />
+                                                            </MultiDataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
                                         </StackPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                            <TextBlock Margin="24,0" FontSize="12" Foreground="{DynamicResource ErrorBrush}" Text="{Binding DuplicateText}"
-                                       Visibility="{Binding IsLocationDuplicate, Converter={StaticResource BooleanToVisibility}}" />
                         </StackPanel>
                     </ScrollViewer>
                 </DockPanel>

@@ -69,7 +69,7 @@ public sealed class ConditionsCardView : FrameworkElement
         drawingContext.PushClip(new RectangleGeometry(bounds, corner, corner));
         if (card.Kind != ConditionsCardKind.UV)
         {
-            drawingContext.DrawRoundedRectangle(ResourceBrush("SurfaceContainerBrush"), null, bounds, corner, corner);
+            drawingContext.DrawRoundedRectangle(ResourceBrush("ElevatedSurfaceBrush"), null, bounds, corner, corner);
         }
 
         if (card.ArtworkKey is { } key && TryFindResource(key) is ImageSource artwork)
