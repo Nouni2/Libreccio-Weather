@@ -1,22 +1,48 @@
 # Changelog
 
-## [Unreleased]
+## [0.3.0] - 2026-11-09
 
 ### Added
 
-- Pull to refresh on the main screen: drag down with the mouse or turn the wheel up at the top of the screen.
+- Pull to refresh on the main screen: drag down with the mouse at the top of the screen.
 - A refresh button on the main screen, and F5 to refresh, in both interfaces.
+- A precipitation card for the coming hour on the main screen.
+- A footer at the end of the main screen with the weather data sources.
+- "Open in another app" in the main screen's menu, which opens the location in the map app Windows chooses.
+- A choice of Open-Meteo weather models for each location.
+- Two-finger touchpad swipes to go back and forward between screens. Over the forecast columns or the detail screens' day tabs, they scroll them sideways.
+- Settings → Appearance → Interface: a touchpad scroll speed, and descriptions of forecast columns when the pointer rests on them.
+- Tests of wind directions given as cardinal points, ported from Breezy Weather.
 
 ### Changed
 
 - The About screen lists Libreccio Weather's contributors instead of Breezy Weather's. Breezy Weather's translators stay credited, since the app's text comes from their translations.
 - The per-location preferences dialog's button reads "Done", since closing it saves.
 - The seasonal app icon is off by default.
-- Switching location or refreshing reuses the main screen's cards instead of building them again.
+- Switching location or refreshing reuses the main screen's cards instead of building them again, and switching location does less work.
+- The forecast cards' chart choice, and the pollutant and temperature choices in the detail screens, are connected buttons with a menu for the choices that do not fit, as in Breezy Weather.
+- Forecast charts take the colors of the current weather, and the columns of today and the hours ahead stand out from the past ones.
+- Detail screens are light or dark like their location's main screen, and change with Windows' app mode and the dark mode setting.
+- In the detail screens, a sideways drag changes the day, the day tabs have no scroll bar and center the selected day, and explanations open as Material 3 tooltips.
+- Mouse wheel and touchpad scrolling glide smoothly, and touchpad scrolling follows the fingers.
+- Animations follow Windows' animation effects setting.
+- Chart threshold labels sit beside the chart, so bars and lines never cover them.
+- The main screen's cards sit on the raised card surface of Breezy Weather's cards.
+- Choosing a search result first shows the location's weather sources, and saving them adds the location, as in Breezy Weather.
+- The search screen fills the window's width.
+- Switching location or refreshing replays the header's fade and temperature count, which starts from the temperature shown for the previous location.
+- The main screen header, the forecast cards' titles, subtitles and icons, and the pull-to-refresh indicator use Breezy Weather's colors; the indicator's arc takes the current weather's color, brighter at night.
+- In a location's weather sources, the message that the location already exists sits under the forecast row.
+- Detail screen dividers follow the screen's light or dark colors, while the Sun & Moon icons and the moon outline keep the app's grey, as in Breezy Weather.
 
 ### Fixed
 
 - Forecast chart labels use Roboto, as in Breezy Weather.
+- The help icon next to "Nighttime" in the detail screens is no longer cut at the bottom.
+- The header's feels-like and temperature range lines end with an ellipsis when too long, instead of wrapping.
+- Screen readers read the header's temperatures with their units in full.
+- Detail chart columns are no longer cut at the edges of the chart.
+- New locations in India no longer get an air quality source, since its air quality would cover other times than the forecast.
 
 ## [0.2.2-alpha1] - 2026-11-06
 

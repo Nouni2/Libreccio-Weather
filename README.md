@@ -9,7 +9,7 @@
 [![.NET 10](https://img.shields.io/badge/.NET-10-512BD4?logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
 [![WPF](https://img.shields.io/badge/UI-WPF-512BD4)](https://learn.microsoft.com/dotnet/desktop/wpf/)
 [![Licence](https://img.shields.io/github/license/Nouni2/Libreccio-Weather)](LICENCE.md)
-[![Release v0.2.2-alpha1](https://img.shields.io/badge/release-v0.2.2--alpha1-red)](https://github.com/Nouni2/Libreccio-Weather/releases/tag/v0.2.2-alpha1)
+[![Release v0.3.0](https://img.shields.io/badge/release-v0.3.0-red)](https://github.com/Nouni2/Libreccio-Weather/releases/tag/v0.3.0)
 
 #### Libreccio Weather is an unofficial Windows port of [Breezy Weather](https://github.com/breezy-weather/breezy-weather), free and open source.
 
@@ -17,19 +17,39 @@
 
 ## Download
 
-Download `0.2.2-alpha1` from its [GitHub release](https://github.com/Nouni2/Libreccio-Weather/releases/tag/v0.2.2-alpha1).
+Download `0.3.0` from its [GitHub release](https://github.com/Nouni2/Libreccio-Weather/releases/tag/v0.3.0).
 
 Libreccio Weather is developed and tested on Windows 11. Solar calculations require an x64 process.
 
 ## Screenshots
 
 <p align="center">
-  <img src="assets/images/main.png" alt="Libreccio Weather main window" width="49%" align="top">
-  <img src="assets/images/second.png" alt="Hourly forecast and weather cards" width="49%" align="top">
+  <img src="assets/images/main.gif" alt="The main screen refreshing, with its cards coming in over the animated weather" width="90%">
 </p>
+
 <p align="center">
-  <img src="assets/images/tray.png" alt="Mistray forecast popup" width="65%">
+  <img src="assets/images/second.png" alt="The hourly forecast and the current condition cards" width="49%">
+  <img src="assets/images/details.png" alt="The Sun and Moon detail page with its altitude chart" width="49%">
 </p>
+
+<details>
+<summary><b>More screenshots and animations</b></summary>
+
+<br>
+
+| Scrolling | Opening a card | Location pane |
+|:---:|:---:|:---:|
+| <img src="assets/images/scroll.gif" alt="The main screen scrolling down through the forecasts and condition cards"> | <img src="assets/images/details.gif" alt="A sun card opening the Sun and Moon detail page"> | <img src="assets/images/pane.gif" alt="The location pane closing and opening beside the main screen"> |
+
+| Tokyo | Cape Town | Phoenix |
+|:---:|:---:|:---:|
+| <img src="assets/images/tokyo.png" alt="The main screen for Tokyo"> | <img src="assets/images/cape-town.png" alt="The main screen for Cape Town"> | <img src="assets/images/phoenix.png" alt="The main screen for Phoenix"> |
+
+| Locations | Settings | Mistray |
+|:---:|:---:|:---:|
+| <img src="assets/images/locations.png" alt="The list of saved locations"> | <img src="assets/images/settings.png" alt="The settings home"> | <img src="assets/images/tray.png" alt="Mistray's daily forecast popup above the tray icon"> |
+
+</details>
 
 ## Features
 
@@ -56,9 +76,9 @@ The main window uses the selected location's meteorological season for its icon,
 |:---:|:---:|:---:|:---:|:---:|
 | <img src="assets/icons/icon.svg" alt="Non-seasonal icon" width="64"> | <img src="assets/icons/spring.svg" alt="Spring icon" width="64"> | <img src="assets/icons/summer.svg" alt="Summer icon" width="64"> | <img src="assets/icons/autumn.svg" alt="Autumn icon" width="64"> | <img src="assets/icons/winter.svg" alt="Winter icon" width="64"> |
 
-## Alpha scope
+## Scope
 
-In `0.2.2-alpha1`, you get Open-Meteo forecasts with light and dark themes. I haven't ported automatic location detection, weather providers other than Open-Meteo, Windows weather notifications or autostart. See the [roadmap](ROADMAP.md) for the remaining features.
+In `0.3.0`, you get Open-Meteo forecasts with light and dark themes. I haven't ported automatic location detection, weather providers other than Open-Meteo, Windows weather notifications or autostart. See the [roadmap](ROADMAP.md) for the remaining features.
 
 The bundled solar DLL requires x64; you cannot use it in an ARM64 process.
 
