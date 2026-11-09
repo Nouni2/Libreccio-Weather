@@ -182,7 +182,9 @@ public sealed partial class PerLocationDialogViewModel : ObservableObject
         Title = Strings.Get("settings_per_location");
         SectionTitle = Strings.Get("settings_section_general");
         CustomNameTitle = Strings.Get("location_custom_name");
-        CloseText = Strings.Get("action_close");
+
+        // Closing saves a changed custom name, so the button says Done rather than Close.
+        CloseText = Strings.Get("action_done");
         CustomNameSummary = _content.Length == 0 ? location.CityAndDistrict : _content;
     }
 

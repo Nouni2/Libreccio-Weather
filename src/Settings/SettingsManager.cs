@@ -321,11 +321,12 @@ public sealed class SettingsManager
     }
 
     /// <summary>
-    /// Gives the main window the icon of the current season at the location on screen, rather than the app's icon.
+    /// Gives the main window the icon of the current season at the location on screen, rather than the app's icon. Off
+    /// by default, as the seasonal artwork reads as a weather icon to someone who has not turned it on.
     /// </summary>
     public bool IsSeasonalWindowIconEnabled
     {
-        get => _config.GetBoolean("seasonal_window_icon", true);
+        get => _config.GetBoolean("seasonal_window_icon", false);
         set => SetAndNotify(() => _config.PutBoolean("seasonal_window_icon", value));
     }
 

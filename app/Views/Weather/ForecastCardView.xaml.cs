@@ -45,11 +45,24 @@ public partial class ForecastCardView : UserControl
 
         // Following the card only while loaded keeps a card that outlives this view from holding on to it.
         Unloaded += (_, _) => Attach(null);
+        // The view is kept when the main screen shows another location or refreshes, so it starts again where a new
+        // view would: scrolled to today, with the reference lines placed after layout.
         DataContextChanged += (_, _) =>
         {
-            if (IsLoaded)
+            if (!IsLoaded)
             {
-                Attach(DataContext as ForecastCardViewModel);
+                return;
+            }
+
+            Attach(DataContext as ForecastCardViewModel);
+            if (DataContext is ForecastCardViewModel card)
+            {
+                ForecastScroller.ScrollToHorizontalOffset(card.InitialIndex * card.MinColumnWidth);
+            }
+
+            if (_firstChart is { } chart)
+            {
+                _ = Dispatcher.InvokeAsync(() => UpdateChartBounds(chart), DispatcherPriority.Loaded);
             }
         };
     }

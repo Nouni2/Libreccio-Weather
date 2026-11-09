@@ -16,6 +16,7 @@
 
 using System.Windows;
 using System.Windows.Media;
+using LibreccioWeather.Appearance;
 using LibreccioWeather.Core.Charts;
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.ViewModels.Forecast;
@@ -91,9 +92,7 @@ public sealed class TrendReferenceLinesView : FrameworkElement
 
     private void DrawLabel(DrawingContext drawingContext, string text, Brush brush, int y, bool aboveLine, bool right)
     {
-        var typeface = new Typeface(System.Windows.SystemFonts.MessageFontFamily,
-            FontStyles.Normal, FontWeights.Normal, FontStretches.Normal);
-        var formatted = new FormattedText(text, Strings.Culture, FlowDirection, typeface, 12, brush,
+        var formatted = new FormattedText(text, Strings.Culture, FlowDirection, BundledFonts.RobotoMedium, 12, brush,
             VisualTreeHelper.GetDpi(this).PixelsPerDip);
         drawingContext.DrawText(formatted,
             new Point(right ? ActualWidth - 4 - formatted.Width : 4,

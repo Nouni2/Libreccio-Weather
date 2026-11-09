@@ -51,7 +51,7 @@ public sealed class DoubleHistogramView : ForecastChartView
         int marginBottom = data.LowSecondary?.Text is not null ? 46 : 24;
         double cx = ActualWidth / 2;
         Brush outline = (Brush)FindResource("OutlineBrush");
-        drawingContext.DrawLine(new Pen(outline, 1), new Point(cx, marginTop), new Point(cx, measuredHeight - marginBottom));
+        drawingContext.DrawLine(Frozen(new Pen(outline, 1)), new Point(cx, marginTop), new Point(cx, measuredHeight - marginBottom));
         DrawSecondaryHistogram(drawingContext, data.HighSecondary, data.HighValue, data.Highest, marginTop, marginBottom, false);
         DrawSecondaryHistogram(drawingContext, data.LowSecondary, data.LowValue, data.Highest, marginTop, marginBottom, true);
         if (data.HighValue is { } high && high != 0f && data.HighText is { } highText)
@@ -60,7 +60,7 @@ public sealed class DoubleHistogramView : ForecastChartView
             double cy = measuredHeight / 2f - 2;
             if (y <= cy)
             {
-                drawingContext.DrawRoundedRectangle(new SolidColorBrush(data.HighColor), null,
+                drawingContext.DrawRoundedRectangle(Frozen(new SolidColorBrush(data.HighColor)), null,
                     new Rect(cx - 4, y, 8, cy - y), 4, 4);
             }
 
@@ -74,7 +74,7 @@ public sealed class DoubleHistogramView : ForecastChartView
             if (y >= cy)
             {
                 Color color = data.LowColor;
-                var brush = new SolidColorBrush(Color.FromArgb(127, color.R, color.G, color.B));
+                SolidColorBrush brush = Frozen(new SolidColorBrush(Color.FromArgb(127, color.R, color.G, color.B)));
                 drawingContext.DrawRoundedRectangle(brush, null, new Rect(cx - 4, cy, 8, y - cy), 4, 4);
             }
 
@@ -105,7 +105,7 @@ public sealed class DoubleHistogramView : ForecastChartView
         double center = (int)ActualHeight / 2f + (lower ? 2 : -2);
         if (lower ? y >= center : y <= center)
         {
-            var brush = new SolidColorBrush(Color.FromArgb(76, secondary.Color.R, secondary.Color.G, secondary.Color.B));
+            SolidColorBrush brush = Frozen(new SolidColorBrush(Color.FromArgb(76, secondary.Color.R, secondary.Color.G, secondary.Color.B)));
             drawingContext.DrawRoundedRectangle(brush, null,
                 new Rect(ActualWidth / 2 - 4, Math.Min(y, center), 8, Math.Abs(y - center)), 4, 4);
         }

@@ -108,6 +108,25 @@ public sealed partial class ForecastCardViewModel : ObservableObject
     }
 
     /// <summary>
+    /// Takes over the column positions of the card this one replaces on screen, when both have as many columns, so
+    /// the columns' views stay and show this card's data instead of being built again.
+    /// </summary>
+    public void AdoptColumns(ForecastCardViewModel previous)
+    {
+        if (previous.IsDaily != IsDaily || previous._slots.Count != _slots.Count || ReferenceEquals(previous._slots, _slots))
+        {
+            return;
+        }
+
+        for (int i = 0; i < _slots.Count; i++)
+        {
+            previous._slots[i].Column = _slots[i].Column;
+        }
+
+        _slots = previous._slots;
+    }
+
+    /// <summary>
     /// Raised with the day and the detail page a clicked column opens.
     /// </summary>
     public event EventHandler<(int? DailyIndex, DetailScreen? Screen)>? DetailsRequested;

@@ -159,6 +159,15 @@ public sealed class WeatherCardsPanel : Panel
     private static void OnAnimateCardsChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
     {
         var panel = (WeatherCardsPanel)sender;
+
+        // The setting's binding can arrive while the panel is being made from its template. Reading the children then
+        // would make the items control generate its cards into a panel that must still be empty, which WPF rejects;
+        // the loaded handler sets the cards' opacity instead.
+        if (!panel.IsLoaded)
+        {
+            return;
+        }
+
         foreach (UIElement child in panel.InternalChildren)
         {
             panel.StopEntrance(child);
@@ -174,6 +183,23 @@ public sealed class WeatherCardsPanel : Panel
         panel._startedCards.Clear();
         panel._enteredCards.Clear();
         panel.QueueEnterCheck();
+    }
+
+    /// <summary>
+    /// Plays the cards' entrance again, as new cards would play it, for cards whose views were kept and given new
+    /// data. The header keeps its state, as it does when new cards are added.
+    /// </summary>
+    internal void RestartCardEntrance()
+    {
+        foreach (UIElement child in InternalChildren)
+        {
+            StopEntrance(child);
+            _startedCards.Remove(child);
+            _enteredCards.Remove(child);
+            child.Opacity = AnimateCards ? 0 : 1;
+        }
+
+        QueueEnterCheck();
     }
 
     private void QueueEnterCheck()
@@ -409,7 +435,7 @@ public sealed class WeatherCardsPanel : Panel
         int column = 0;
         foreach (UIElement child in InternalChildren)
         {
-            bool square = child is ContentPresenter { Content: ConditionsCardViewModel or AstroCardViewModel };
+            bool square = child is ContentPresenter { Content: WeatherCardHost { Card: ConditionsCardViewModel or AstroCardViewModel } };
             child.SetValue(AstroCardView.AreBlocksSquishedProperty, squished);
             if (!square && column > 0)
             {

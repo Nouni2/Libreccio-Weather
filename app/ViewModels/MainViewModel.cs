@@ -211,6 +211,8 @@ public sealed partial class MainViewModel : ObservableObject
 
     private bool CanUseDesktopNavigation => IsDesktopInterfaceEnabled && Dialog is null;
 
+    private bool CanRefreshFromKeyboard => Dialog is null;
+
     // The pane's cards show each location's weather and which one is on screen.
     private void NotifyLocationsChanged()
     {
@@ -341,7 +343,8 @@ public sealed partial class MainViewModel : ObservableObject
         GoBack();
     }
 
-    [RelayCommand(CanExecute = nameof(CanUseDesktopNavigation))]
+    // F5 refreshes in both interfaces, as the refresh button is shown in both.
+    [RelayCommand(CanExecute = nameof(CanRefreshFromKeyboard))]
     private void DesktopRefresh()
     {
         WeatherViewModel? weather = FindMainScreen();

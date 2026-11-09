@@ -55,7 +55,7 @@ public sealed class PolylineAndHistogramView : ForecastChartView
         Brush lowText = (Brush)FindResource("OnSurfaceVariantBrush");
         Brush outline = (Brush)FindResource("OutlineBrush");
 
-        drawingContext.DrawLine(new Pen(outline, 1),
+        drawingContext.DrawLine(Frozen(new Pen(outline, 1)),
             new Point(ActualWidth / 2, marginTop), new Point(ActualWidth / 2, bottom));
 
         if (data.SecondaryHistogram is { Value: { } secondary, Text: not null } gusts
@@ -76,7 +76,7 @@ public sealed class PolylineAndHistogramView : ForecastChartView
         {
             int y = TrendCoordinates.ComputeSingleCoordinate(measuredHeight, marginTop, marginBottom,
                 histogram, data.HighestHistogram, data.LowestHistogram);
-            Brush histogramBrush = data.HistogramColor is { } color ? new SolidColorBrush(color) : primary;
+            Brush histogramBrush = data.HistogramColor is { } color ? Frozen(new SolidColorBrush(color)) : primary;
             if (y <= bottom)
             {
                 double halfWidth = PixelTruncatedDimension(4.5f);
@@ -146,6 +146,8 @@ public sealed class PolylineAndHistogramView : ForecastChartView
                 context.LineTo(new Point(points[0].X, bottom), true, false);
             }
 
+            area.Freeze();
+
             // The palette sets the shade's opacity: fainter on a light palette, where the curve stands out more.
             double alphaFactor = TryFindResource("TrendShadowAlphaFactor") is double factor ? factor : 0.3;
             Color shade = ((SolidColorBrush)WithAlpha(color, (byte)(int)(255 * alphaFactor))).Color;
@@ -160,10 +162,10 @@ public sealed class PolylineAndHistogramView : ForecastChartView
                     new GradientStop(Color.FromArgb(0, shade.R, shade.G, shade.B), 1),
                 ],
             };
-            drawingContext.DrawGeometry(gradient, null, area);
+            drawingContext.DrawGeometry(Frozen(gradient), null, area);
         }
 
-        var pen = new Pen(color, 5) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round };
+        Pen pen = Frozen(new Pen(color, 5) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round });
         var polyline = new StreamGeometry();
         using (StreamGeometryContext context = polyline.Open())
         {
@@ -171,6 +173,7 @@ public sealed class PolylineAndHistogramView : ForecastChartView
             context.PolyLineTo(points.Skip(1).ToArray(), true, false);
         }
 
+        polyline.Freeze();
         drawingContext.DrawGeometry(null, pen, polyline);
     }
 
@@ -195,6 +198,6 @@ public sealed class PolylineAndHistogramView : ForecastChartView
     private static Brush WithAlpha(Brush brush, byte alpha)
     {
         Color color = ((SolidColorBrush)brush).Color;
-        return new SolidColorBrush(Color.FromArgb(alpha, color.R, color.G, color.B));
+        return Frozen(new SolidColorBrush(Color.FromArgb(alpha, color.R, color.G, color.B)));
     }
 }

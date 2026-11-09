@@ -28,7 +28,7 @@ namespace LibreccioWeather.Controls.WeatherCards;
 
 internal sealed class AstroCardText
 {
-    private static readonly FontFamily Family = new(new Uri("pack://application:,,,/"), "./assets/fonts/#Roboto");
+    private static readonly FontFamily Family = Appearance.BundledFonts.Roboto;
     private readonly List<GlyphRun> _runs = [];
 
     public double Width { get; private set; }

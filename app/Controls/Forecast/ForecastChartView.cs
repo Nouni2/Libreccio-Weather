@@ -17,6 +17,7 @@
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
+using LibreccioWeather.Appearance;
 using LibreccioWeather.Core.Localization;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
@@ -59,12 +60,23 @@ public abstract class ForecastChartView : FrameworkElement
         return (int)(dip * (float)scale) / scale;
     }
 
+    // Roboto Medium keeps the labels' size and their placement above and below the curve independent of the Windows
+    // font, as the placement is computed from the text box's height.
     protected FormattedText MakeText(string text, double size, Brush brush)
     {
-        var typeface = new Typeface(System.Windows.SystemFonts.MessageFontFamily,
-            FontStyles.Normal, FontWeights.Medium, FontStretches.Normal);
-        return new FormattedText(text, Strings.Culture, FlowDirection, typeface, size, brush,
+        return new FormattedText(text, Strings.Culture, FlowDirection, BundledFonts.RobotoMedium, size, brush,
             VisualTreeHelper.GetDpi(this).PixelsPerDip);
+    }
+
+    // Brushes, pens and geometries made while drawing are frozen, so WPF does not track them for changes.
+    protected static T Frozen<T>(T freezable) where T : Freezable
+    {
+        if (freezable.CanFreeze)
+        {
+            freezable.Freeze();
+        }
+
+        return freezable;
     }
 
     protected void DrawSecondaryHistogramPill(DrawingContext drawingContext, string text, Color color, bool above)
@@ -73,7 +85,7 @@ public abstract class ForecastChartView : FrameworkElement
         double height = formatted.Height + 6;
         double width = Math.Max(height, formatted.Width + 12);
         double top = above ? 2 : ActualHeight - 2 - height;
-        drawingContext.DrawRoundedRectangle(new SolidColorBrush(color), null,
+        drawingContext.DrawRoundedRectangle(Frozen(new SolidColorBrush(color)), null,
             new Rect((ActualWidth - width) / 2, top, width, height), height / 2, height / 2);
         drawingContext.DrawText(formatted, new System.Windows.Point((ActualWidth - formatted.Width) / 2, top + 3));
     }
@@ -81,6 +93,14 @@ public abstract class ForecastChartView : FrameworkElement
     private sealed class ShadowedLabels : DrawingVisual
     {
         private DpiScale? _dpi;
+
+        // The labels are kept as a bitmap at the screen's resolution, so the weather background redrawing beneath them
+        // on every frame does not make them render again. The shadow effect already draws them into a bitmap without
+        // ClearType, so the cache changes nothing visible.
+        public ShadowedLabels()
+        {
+            VisualCacheMode = new BitmapCache { SnapsToDevicePixels = true };
+        }
 
         public void SetDpi(DpiScale dpi)
         {

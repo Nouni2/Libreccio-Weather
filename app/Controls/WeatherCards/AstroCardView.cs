@@ -95,6 +95,10 @@ public sealed class AstroCardView : Grid
             },
         };
         shadow.SetResourceReference(Border.BackgroundProperty, "MainCardBackgroundBrush");
+
+        // Kept as a bitmap at the screen's resolution, so the weather background redrawing beneath it on every frame
+        // does not make the shadow render again.
+        shadow.CacheMode = new BitmapCache { SnapsToDevicePixels = true };
         Children.Add(shadow);
         _surface = new CardSurface(this) { IsHitTestVisible = false };
         Children.Add(_surface);

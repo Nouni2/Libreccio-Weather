@@ -89,6 +89,8 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Location list button and place name
   - [x] Edit location: weather sources, custom name, global settings and deleting the location
   - [ ] "Open in another app"
+  - [ ] Pull to refresh (`SwipeRefreshLayout`), with a mouse drag or the mouse wheel at the top of the screen
+  - [ ] Refresh button and F5 in both interface modes
 - [ ] Main screen header (`HeaderViewHolder`)
   - [x] Condition, temperature with its unit and feels-like temperature
   - [x] Temperatures of the next day and night halves, which depend on the time of day

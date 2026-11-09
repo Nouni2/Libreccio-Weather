@@ -2,9 +2,21 @@
 
 ## [Unreleased]
 
+### Added
+
+- Pull to refresh on the main screen: drag down with the mouse or turn the wheel up at the top of the screen.
+- A refresh button on the main screen, and F5 to refresh, in both interfaces.
+
 ### Changed
 
 - The About screen lists Libreccio Weather's contributors instead of Breezy Weather's. Breezy Weather's translators stay credited, since the app's text comes from their translations.
+- The per-location preferences dialog's button reads "Done", since closing it saves.
+- The seasonal app icon is off by default.
+- Switching location or refreshing reuses the main screen's cards instead of building them again.
+
+### Fixed
+
+- Forecast chart labels use Roboto, as in Breezy Weather.
 
 ## [0.2.2-alpha1] - 2026-11-06
 

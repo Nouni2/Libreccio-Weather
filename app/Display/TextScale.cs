@@ -22,19 +22,38 @@ namespace LibreccioWeather.Display;
 
 internal static class TextScale
 {
+    // Layout reads the factor several times per pass, and on every frame while a pane slides, so the registry is read
+    // at most once a second; a change of text size still shows at the next layout after that.
+    private static readonly TimeSpan CacheDuration = TimeSpan.FromSeconds(1);
+    private static float _factor = 1;
+    private static long _readAt = long.MinValue;
+
     public static float Factor
     {
         get
         {
-            try
+            long now = Environment.TickCount64;
+            if (_readAt != long.MinValue && now - _readAt < CacheDuration.TotalMilliseconds)
             {
-                return Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Accessibility", "TextScaleFactor", 100)
-                    is int percent && percent > 0 ? percent / 100f : 1;
+                return _factor;
             }
-            catch (Exception exception) when (exception is IOException or SecurityException or UnauthorizedAccessException)
-            {
-                return 1;
-            }
+
+            _factor = Read();
+            _readAt = now;
+            return _factor;
+        }
+    }
+
+    private static float Read()
+    {
+        try
+        {
+            return Registry.GetValue(@"HKEY_CURRENT_USER\Software\Microsoft\Accessibility", "TextScaleFactor", 100)
+                is int percent && percent > 0 ? percent / 100f : 1;
+        }
+        catch (Exception exception) when (exception is IOException or SecurityException or UnauthorizedAccessException)
+        {
+            return 1;
         }
     }
 

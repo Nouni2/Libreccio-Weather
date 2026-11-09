@@ -76,6 +76,21 @@
                     ToolTip="{l:Translate action_edit_location}" AutomationProperties.Name="{l:Translate action_edit_location}">
                 <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconEdit}" />
             </Button>
+            <!-- Refresh has no pull gesture with a mouse, so the standard interface shows it as a button; the desktop
+                 interface has its own in the panel above. -->
+            <Button DockPanel.Dock="Right" Command="{Binding RefreshCommand}"
+                    ToolTip="{l:Translate action_refresh}" AutomationProperties.Name="{l:Translate action_refresh}">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource IconButton}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                <Setter Property="Visibility" Value="Collapsed" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+                <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconSync}" />
+            </Button>
             <Button DockPanel.Dock="Left" Command="{Binding OpenLocationListCommand}"
                     ToolTip="{l:Translate action_location_list}" AutomationProperties.Name="{l:Translate action_location_list}">
                 <Button.Style>
@@ -93,6 +108,12 @@
                 <TextBlock Margin="12,0,0,0" Style="{StaticResource TopAppBarTitle}" Text="{Binding Place}" />
             </Grid>
         </DockPanel>
+
+        <!-- Follows a pull to refresh with the mouse wheel or a drag; it starts above the content and comes down with
+             the pull. -->
+        <c:PullRefreshIndicator x:Name="PullIndicator" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top"
+                                Panel.ZIndex="1" Visibility="Collapsed"
+                                DiscBrush="{DynamicResource SurfaceBrush}" ArcBrush="{DynamicResource PrimaryBrush}" />
 
         <ProgressBar Grid.Row="1" Height="4" IsIndeterminate="True" BorderThickness="0"
                      Background="Transparent" Foreground="{DynamicResource PrimaryBrush}"
@@ -162,10 +183,17 @@
                     <TextBlock HorizontalAlignment="Center" Margin="0,8,0,0" Style="{StaticResource BodyMediumText}"
                                Text="{Binding ErrorText}" />
                 </StackPanel>
-                <ItemsControl ItemsSource="{Binding Cards}" Margin="0,0,0,16">
+                <!-- The card positions are filled from the code-behind, which keeps each position's view when a new
+                     card of the same kind replaces the one shown. -->
+                <ItemsControl x:Name="CardsList" Margin="0,0,0,16">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate><cards:WeatherCardsPanel AnimateCards="{Binding IsCardsFadeInEnabled}" /></ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate DataType="{x:Type conditions:WeatherCardHost}">
+                            <ContentControl Content="{Binding Card}" Focusable="False" />
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </StackPanel>
         </ScrollViewer>
