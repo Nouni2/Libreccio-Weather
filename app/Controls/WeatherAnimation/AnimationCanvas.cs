@@ -33,6 +33,11 @@ public sealed class AnimationCanvas(DrawingContext context, double width, double
     // Frozen brushes by color, shared by every frame: a scene draws up to 160 shapes in a few colors and opacities.
     private static readonly Dictionary<Color, SolidColorBrush> Brushes = [];
 
+    // Frozen round-capped pens by color and width, shared by every frame like the brushes, so drawing a frame creates
+    // no pens. Widths that change from frame to frame could fill it, so it starts again once it holds this many.
+    private static readonly Dictionary<(Color Color, double Width), Pen> Pens = [];
+    private const int MaxPens = 1024;
+
     private Matrix _matrix = Matrix.Identity;
 
     // The transform pushed on the drawing context, which consecutive shapes under the same transform share.
@@ -88,6 +93,8 @@ public sealed class AnimationCanvas(DrawingContext context, double width, double
         context.DrawRoundedRectangle(Brush(color), null, Normalized(left, top, right, bottom), radius, radius);
     }
 
+    // The canvas only translates and rotates, so a circle keeps its radius and only its center moves; drawing it at the
+    // transformed center needs no transform of its own.
     public void DrawCircle(double centerX, double centerY, double radius, Color color)
     {
         if (radius <= 0)
@@ -95,8 +102,8 @@ public sealed class AnimationCanvas(DrawingContext context, double width, double
             return;
         }
 
-        ApplyTransform();
-        context.DrawEllipse(Brush(color), null, new Point(centerX, centerY), radius, radius);
+        PopTransform();
+        context.DrawEllipse(Brush(color), null, _matrix.Transform(new Point(centerX, centerY)), radius, radius);
     }
 
     /// <summary>
@@ -108,7 +115,8 @@ public sealed class AnimationCanvas(DrawingContext context, double width, double
     }
 
     /// <summary>
-    /// A line with round caps.
+    /// A line with round caps. Like a circle, it is drawn between its transformed ends, as translating and rotating
+    /// leave its width unchanged.
     /// </summary>
     public void DrawLine(double x1, double y1, double x2, double y2, double strokeWidth, Color color)
     {
@@ -117,10 +125,8 @@ public sealed class AnimationCanvas(DrawingContext context, double width, double
             return;
         }
 
-        Pen pen = new(Brush(color), strokeWidth) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round };
-        pen.Freeze();
-        ApplyTransform();
-        context.DrawLine(pen, new Point(x1, y1), new Point(x2, y2));
+        PopTransform();
+        context.DrawLine(RoundPen(color, strokeWidth), _matrix.Transform(new Point(x1, y1)), _matrix.Transform(new Point(x2, y2)));
     }
 
     // Pushes the current transform on the drawing context before a shape, unless the shapes before it already did.
@@ -153,6 +159,23 @@ public sealed class AnimationCanvas(DrawingContext context, double width, double
     private static Rect Normalized(double left, double top, double right, double bottom)
     {
         return new Rect(new Point(left, top), new Point(right, bottom));
+    }
+
+    private static Pen RoundPen(Color color, double width)
+    {
+        if (!Pens.TryGetValue((color, width), out Pen? pen))
+        {
+            if (Pens.Count >= MaxPens)
+            {
+                Pens.Clear();
+            }
+
+            pen = new Pen(Brush(color), width) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round };
+            pen.Freeze();
+            Pens[(color, width)] = pen;
+        }
+
+        return pen;
     }
 
     private static SolidColorBrush Brush(Color color)

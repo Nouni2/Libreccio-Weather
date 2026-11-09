@@ -45,4 +45,6 @@
     <data name="about_version_release" xml:space="preserve"><value>Release {0}</value><comment>About screen: under the app name, {0} is the version, such as 0.1.0-alpha1. Kept in English in every language.</comment></data>
     <data name="about_version_debug" xml:space="preserve"><value>Debug {0}</value><comment>About screen: under the app name in development builds, {0} is the commit the build comes from. Kept in English in every language.</comment></data>
     <data name="seasonal_window_icon" xml:space="preserve"><value>Seasonal app icon</value><comment>Settings > Appearance > Interface: switch giving the window the icon of the current season at the location on screen, instead of the app's usual icon.</comment></data>
+    <data name="touchpad_scroll_speed" xml:space="preserve"><value>Touchpad scroll speed</value><comment>Settings > Appearance > Interface: slider setting how far a two-finger swipe on a touchpad scrolls, as a percentage of the distance set by Windows' mouse wheel setting; 100 % follows Windows.</comment></data>
+    <data name="forecast_column_tooltip" xml:space="preserve"><value>Forecast tooltips</value><comment>Settings > Appearance > Interface: switch showing a forecast column's description, such as its date, weather and temperatures, when the pointer rests on the column of the daily or hourly forecast card.</comment></data>
 </root>

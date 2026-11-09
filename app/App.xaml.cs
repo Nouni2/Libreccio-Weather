@@ -29,6 +29,7 @@ using LibreccioWeather.Core.Sources.OpenMeteo;
 using LibreccioWeather.Core.Updates;
 using LibreccioWeather.Display;
 using LibreccioWeather.Icons;
+using LibreccioWeather.Input;
 using LibreccioWeather.Tray;
 using LibreccioWeather.Updates;
 using LibreccioWeather.ViewModels;
@@ -67,10 +68,16 @@ public partial class App : System.Windows.Application
         }
 
         _instance.StartListening(() => _ = Dispatcher.InvokeAsync(ActivateMainWindow));
+        ProportionalWheelScroll.Register();
 
         SettingsManager settings = new(new ConfigStore(SettingsManager.DefaultPath));
         RefreshRate.MatchesMonitor = settings.IsScreenRefreshRateEnabled;
-        settings.SettingsChanged += (_, _) => RefreshRate.MatchesMonitor = settings.IsScreenRefreshRateEnabled;
+        ProportionalWheelScroll.TouchpadSpeed = (settings.TouchpadScrollSpeed ?? 100) / 100.0;
+        settings.SettingsChanged += (_, _) =>
+        {
+            RefreshRate.MatchesMonitor = settings.IsScreenRefreshRateEnabled;
+            ProportionalWheelScroll.TouchpadSpeed = (settings.TouchpadScrollSpeed ?? 100) / 100.0;
+        };
 
         // The language is set before the first window opens, because translated text is read when XAML loads.
         Strings.Culture = AppLanguages.Resolve(settings.Language, CultureInfo.CurrentUICulture);

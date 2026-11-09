@@ -128,14 +128,14 @@ public sealed class NowcastChartView : FrameworkElement
         }
 
         // Reference lines over the columns, each labelled at the start below the line, or above when there is no room.
+        // The labels sit in their own column before the plot, so a tall column never covers them.
         foreach (ChartAxisLabel line in data.HorizontalLines)
         {
             double y = ToY(data, layer, line.Value);
-            drawingContext.DrawLine(linePen, new Point(layer.Left, y), new Point(layer.Right, y));
+            drawingContext.DrawLine(linePen, new Point(0, y), new Point(layer.Right, y));
             FormattedText text = MakeText(line.Text, labelBrush);
             bool below = y + LineThickness / 2 + text.Height <= layer.Bottom;
-            drawingContext.DrawText(text, new Point(layer.Left,
-                below ? y + LineThickness / 2 : y - LineThickness / 2 - text.Height));
+            drawingContext.DrawText(text, new Point(0, below ? y + LineThickness / 2 : y - LineThickness / 2 - text.Height));
         }
 
         if (_activeX is { } active)
@@ -144,14 +144,17 @@ public sealed class NowcastChartView : FrameworkElement
         }
     }
 
-    // The plot sits under the marker pill's height and above the axis. The first and last labels each add half their
-    // padded width as fixed padding, and the columns with their half-column end padding are scaled into the rest.
+    // The plot sits under the marker pill's height and above the axis, after the reference labels' column. The first
+    // and last labels each add half their padded width as fixed padding, and the columns with their half-column end
+    // padding are scaled into the rest.
     private void Layout(NowcastChartData data, Brush labelBrush, out Rect layer, out double startPadding, out double spacing)
     {
         double markerHeight = MakeText("0", labelBrush).Height + 2 * MarkerVerticalPadding;
         double axisHeight = LineThickness + MakeText("0", labelBrush).Height + 2 * AxisLabelVerticalPadding;
         double bottom = ActualHeight - BottomPadding - axisHeight;
-        layer = new Rect(0, markerHeight, ActualWidth, Math.Max(0, bottom - markerHeight));
+        double labelColumn = data.HorizontalLines.Count == 0 ? 0
+            : data.HorizontalLines.Max(line => MakeText(line.Text, labelBrush).Width) + 2 * AxisLabelHorizontalPadding;
+        layer = new Rect(labelColumn, markerHeight, Math.Max(0, ActualWidth - labelColumn), Math.Max(0, bottom - markerHeight));
 
         double fixedStart = data.BottomLabels.Count > 0
             ? (MakeText(data.BottomLabels[0].Text, labelBrush).Width + 2 * AxisLabelHorizontalPadding) / 2 : 0;

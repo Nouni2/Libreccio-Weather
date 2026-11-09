@@ -170,7 +170,8 @@ public sealed class DetailsChartView : FrameworkElement
             drawingContext.DrawText(text, new Point(x - text.Width / 2, layer.Bottom + TickLength + LabelVerticalPadding));
         }
 
-        // Reference lines, labelled below the line at the start.
+        // Reference lines, labelled below the line at the start. The labels sit in their own column before the plot, so
+        // the chart's lines and areas never cover them.
         foreach (ChartAxisLabel line in data.HorizontalLines)
         {
             double y = ToY(data, layer, line.Value);
@@ -179,9 +180,9 @@ public sealed class DetailsChartView : FrameworkElement
                 continue;
             }
 
-            drawingContext.DrawLine(axisPen, new Point(layer.Left, y), new Point(layer.Right, y));
+            drawingContext.DrawLine(axisPen, new Point(0, y), new Point(layer.Right, y));
             FormattedText text = MakeText(line.Text, LabelBrush);
-            drawingContext.DrawText(text, new Point(layer.Left + LabelHorizontalPadding, y + LabelVerticalPadding));
+            drawingContext.DrawText(text, new Point(0, y + LabelVerticalPadding));
         }
 
         DrawTop(drawingContext, data, layer, axisPen);
@@ -349,6 +350,10 @@ public sealed class DetailsChartView : FrameworkElement
         double endAxisWidth = TickLength + 2 * LabelHorizontalPadding
             + data.EndAxisLabels.Select(label => MakeText(label.Text, LabelBrush).Width).DefaultIfEmpty(0).Max();
         double bottom = TickLength + labelHeight + 2 * LabelVerticalPadding;
+        double startColumn = data.HorizontalLines
+            .Where(line => line.Value >= data.MinY && line.Value <= data.MaxY)
+            .Select(line => MakeText(line.Text, LabelBrush).Width + 2 * LabelHorizontalPadding)
+            .DefaultIfEmpty(0).Max();
 
         // Labels centered on the top and bottom values need half their height inside the chart.
         double top = labelHeight / 2;
@@ -362,7 +367,7 @@ public sealed class DetailsChartView : FrameworkElement
             top = Math.Max(top, IconSize + IconPadding);
         }
 
-        return new Rect(0, top, Math.Max(0, ActualWidth - endAxisWidth), Math.Max(0, ActualHeight - top - bottom));
+        return new Rect(startColumn, top, Math.Max(0, ActualWidth - startColumn - endAxisWidth), Math.Max(0, ActualHeight - top - bottom));
     }
 
     private static double GetSegmentWidth(DetailsChartData data, Rect layer)

@@ -87,9 +87,10 @@
 
         <!-- A label, with a help icon that opens its explanation on a click. -->
         <DataTemplate DataType="{x:Type d:DetailsLabel}">
-            <StackPanel Height="16" Orientation="Horizontal" Background="Transparent" MouseLeftButtonUp="OnHelpClick" ToolTip="{Binding Help}">
+            <StackPanel MinHeight="16" Orientation="Horizontal" Background="Transparent" MouseLeftButtonUp="OnHelpClick" ToolTip="{Binding Help}">
                 <TextBlock Style="{StaticResource LabelMedium}" Text="{Binding Text}" />
-                <c:DetailsIcon Key="IconHelp" Width="16" Height="16" Margin="8,0,0,0" Foreground="{DynamicResource OnSurfaceBrush}">
+                <c:DetailsIcon Key="IconHelp" Width="16" Height="16" Margin="8,0,0,0" VerticalAlignment="Center"
+                               Foreground="{DynamicResource OnSurfaceBrush}">
                     <c:DetailsIcon.Style>
                         <Style TargetType="c:DetailsIcon">
                             <Style.Triggers>
@@ -609,11 +610,13 @@
             <TextBlock Margin="56,0" HorizontalAlignment="Center" Style="{StaticResource TopAppBarTitle}" Text="{Binding Title}" />
         </Grid>
 
-        <!-- A tab for each day, with its weekday, day and month. -->
+        <!-- A tab for each day, with its weekday, day and month. The row scrolls by pixels without a scroll bar, as a
+             scrollable tab row does. -->
         <Grid Grid.Row="1">
             <ListBox x:Name="DayTabs" ItemsSource="{Binding Days}" SelectedIndex="{Binding SelectedDayIndex, Mode=TwoWay}"
                      Background="Transparent" BorderThickness="0" Padding="0" KeyboardNavigation.TabNavigation="Once"
-                     ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                     ScrollViewer.HorizontalScrollBarVisibility="Hidden" ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                     ScrollViewer.CanContentScroll="False"
                      SelectionChanged="OnDaySelectionChanged">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate><StackPanel Orientation="Horizontal" Margin="52,0" /></ItemsPanelTemplate>

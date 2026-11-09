@@ -41,6 +41,14 @@ public sealed record Weather
     // so they stay the same while it is shown, even across midnight.
     private readonly DateTimeOffset _builtAt = DateTimeOffset.UtcNow;
 
+    // Worked out once, on first use, after the properties are set; a copy made with "with" starts without them.
+    private IReadOnlyList<Hourly>? _nextHourlyForecast;
+    private IReadOnlyList<Hourly>? _fullNextHourlyForecast;
+    private int? _todayIndex;
+    private bool _hasTodayIndex;
+    private IReadOnlyList<Daily>? _dailyForecastStartingToday;
+    private IReadOnlyList<Alert>? _currentAlertList;
+
     public Weather()
     {
     }
@@ -80,40 +88,27 @@ public sealed record Weather
     /// <summary>
     /// Hours from the one in progress to 24 hours ahead. At 15:59, the first hour is the one starting at 15:00.
     /// </summary>
-    public IReadOnlyList<Hourly> NextHourlyForecast
-    {
-        get
-        {
-            return HourlyForecast.Where(hourly => hourly.Date >= _builtAt.AddHours(-1) && hourly.Date < _builtAt.AddHours(24)).ToList();
-        }
-    }
+    public IReadOnlyList<Hourly> NextHourlyForecast => _nextHourlyForecast ??=
+        HourlyForecast.Where(hourly => hourly.Date >= _builtAt.AddHours(-1) && hourly.Date < _builtAt.AddHours(24)).ToList();
 
     /// <summary>
     /// Hours from the one in progress to the end of the forecast.
     /// </summary>
-    public IReadOnlyList<Hourly> FullNextHourlyForecast
-    {
-        get
-        {
-            return HourlyForecast.Where(hourly => hourly.Date >= _builtAt.AddHours(-1)).ToList();
-        }
-    }
+    public IReadOnlyList<Hourly> FullNextHourlyForecast => _fullNextHourlyForecast ??=
+        HourlyForecast.Where(hourly => hourly.Date >= _builtAt.AddHours(-1)).ToList();
 
     // A day starts at midnight, so today is the first day that started less than 24 hours ago.
     public int? TodayIndex
     {
         get
         {
-            DateTimeOffset dayAgo = _builtAt.AddDays(-1);
-            for (int i = 0; i < DailyForecast.Count; i++)
+            if (!_hasTodayIndex)
             {
-                if (DailyForecast[i].Date > dayAgo)
-                {
-                    return i;
-                }
+                _todayIndex = FindTodayIndex();
+                _hasTodayIndex = true;
             }
 
-            return null;
+            return _todayIndex;
         }
     }
 
@@ -128,18 +123,27 @@ public sealed record Weather
         }
     }
 
-    public IReadOnlyList<Daily> DailyForecastStartingToday =>
+    public IReadOnlyList<Daily> DailyForecastStartingToday => _dailyForecastStartingToday ??=
         TodayIndex is { } index ? DailyForecast.Skip(index).ToList() : [];
 
     /// <summary>
     /// Alerts in effect now. An alert without a start date started in the past, and one without an end date has no end.
     /// </summary>
-    public IReadOnlyList<Alert> CurrentAlertList
+    public IReadOnlyList<Alert> CurrentAlertList => _currentAlertList ??=
+        AlertList.Where(alert => IsInEffect(alert, _builtAt)).ToList();
+
+    private int? FindTodayIndex()
     {
-        get
+        DateTimeOffset dayAgo = _builtAt.AddDays(-1);
+        for (int i = 0; i < DailyForecast.Count; i++)
         {
-            return AlertList.Where(alert => IsInEffect(alert, _builtAt)).ToList();
+            if (DailyForecast[i].Date > dayAgo)
+            {
+                return i;
+            }
         }
+
+        return null;
     }
 
     /// <summary>

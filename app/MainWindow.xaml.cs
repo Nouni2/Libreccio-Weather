@@ -32,8 +32,9 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        // The window's event handlers keep the autoscroll alive for as long as the window.
+        // The window's event handlers keep the autoscroll and the sideways wheel alive for as long as the window.
         _ = new AutoScroll(this);
+        _ = new HorizontalWheel(this);
         DataContextChanged += OnViewModelChanged;
         DialogHost.IsVisibleChanged += OnDialogVisibilityChanged;
         InterfaceHost.SizeChanged += (_, _) => UpdateWindowShape();

@@ -170,6 +170,7 @@ public sealed partial class MainViewModel : ObservableObject
                         or nameof(SettingsManager.IsTrayWeatherIconEnabled)
                         or nameof(SettingsManager.IsTrayDoubleClickEnabled)
                         or nameof(SettingsManager.TrayDoubleClickDelay)
+                        or nameof(SettingsManager.TouchpadScrollSpeed)
                         or nameof(SettingsManager.IsScreenRefreshRateEnabled)
                         or nameof(SettingsManager.IsSeasonalWindowIconEnabled),
                 })

@@ -41,10 +41,10 @@ public sealed partial class ForecastCardViewModel : ObservableObject
     private List<ForecastColumnSlot> _slots = [];
 
     [ObservableProperty]
-    private ForecastTrend? _selectedTrend;
+    private ForecastTab? _selectedTrend;
 
     private ForecastCardViewModel(
-        bool daily, string title, string? subtitle, IReadOnlyList<ForecastTrend> trends, int initialIndex,
+        bool daily, string title, string? subtitle, IReadOnlyList<ForecastTab> trends, int initialIndex,
         string? selectedTab, Action<string?> setSelectedTab, Func<int, int?> getDailyIndex)
     {
         _getDailyIndex = getDailyIndex;
@@ -53,7 +53,7 @@ public sealed partial class ForecastCardViewModel : ObservableObject
         Subtitle = subtitle;
         Trends = trends;
         InitialIndex = initialIndex;
-        ForecastTrend initialTrend = trends.FirstOrDefault(trend => trend.Name == selectedTab) ?? trends[0];
+        ForecastTab initialTrend = trends.FirstOrDefault(trend => trend.Name == selectedTab) ?? trends[0];
         SelectedTrend = initialTrend;
         _setSelectedTab = setSelectedTab;
         if (selectedTab is not null && initialTrend.Name != selectedTab)
@@ -68,7 +68,10 @@ public sealed partial class ForecastCardViewModel : ObservableObject
 
     public string? Subtitle { get; }
 
-    public IReadOnlyList<ForecastTrend> Trends { get; }
+    /// <summary>
+    /// The card's tabs. Each builds its columns the first time it is shown.
+    /// </summary>
+    public IReadOnlyList<ForecastTab> Trends { get; }
 
     public bool HasMultipleTrends => Trends.Count > 1;
 
@@ -87,9 +90,14 @@ public sealed partial class ForecastCardViewModel : ObservableObject
 
     public double ColumnHeight => IsDaily ? 318 : 206;
 
-    partial void OnSelectedTrendChanged(ForecastTrend? value)
+    /// <summary>
+    /// Whether hovering a column shows its description.
+    /// </summary>
+    public bool ShowsColumnTooltips { get; init; }
+
+    partial void OnSelectedTrendChanged(ForecastTab? value)
     {
-        IReadOnlyList<ForecastColumn> columns = value?.Columns ?? [];
+        IReadOnlyList<ForecastColumn> columns = value?.Trend.Columns ?? [];
         if (columns.Count == _slots.Count)
         {
             for (int i = 0; i < columns.Count; i++)
@@ -148,49 +156,57 @@ public sealed partial class ForecastCardViewModel : ObservableObject
         SpeedUnit speedUnit, SettingsManager settings,
         string? selectedTab, Action<string?> setSelectedTab)
     {
-        List<ForecastTrend> trends = [];
+        Func<ForecastTrend, ForecastTrend> theme = CreateTheme(weather, location, settings, daily: true);
+        List<ForecastTab> tabs = [];
+        void Add(string nameKey, DetailScreen screen, Func<ForecastTrend> build)
+        {
+            tabs.Add(new ForecastTab(Strings.Get(nameKey), screen, () => theme(build() with { Screen = screen })));
+        }
+
         foreach (DailyTrendDisplay display in settings.DailyTrendDisplayList)
         {
             if (display == DailyTrendDisplay.Temperature)
             {
-                trends.Add(CreateDailyTemperature(weather, location, unit, false, settings.IsTrendHorizontalLinesEnabled)
-                    with { Screen = DetailScreen.Conditions });
+                Add("tag_temperature", DetailScreen.Conditions,
+                    () => CreateDailyTemperature(weather, location, unit, false, settings.IsTrendHorizontalLinesEnabled));
             }
             else if (display == DailyTrendDisplay.Precipitation && weather.DailyForecast.Any(day =>
                 day.Day?.Precipitation?.Total is not null || day.Night?.Precipitation?.Total is not null))
             {
-                trends.Add(CreateDailyPrecipitation(weather, location, precipitationUnit) with { Screen = DetailScreen.Precipitation });
+                Add("tag_precipitation", DetailScreen.Precipitation, () => CreateDailyPrecipitation(weather, location, precipitationUnit));
             }
             else if (display == DailyTrendDisplay.FeelsLike && weather.DailyForecast.Any(day =>
                 day.Day?.Temperature?.FeelsLikeTemperature is not null || day.Night?.Temperature?.FeelsLikeTemperature is not null))
             {
-                trends.Add(CreateDailyTemperature(weather, location, unit, true, false) with { Screen = DetailScreen.FeelsLike });
+                Add("tag_feels_like", DetailScreen.FeelsLike, () => CreateDailyTemperature(weather, location, unit, true, false));
             }
             else if (display == DailyTrendDisplay.UVIndex && weather.DailyForecast.Any(day => day.UV?.Index is not null))
             {
-                trends.Add(CreateDailyUV(weather, location, settings.IsTrendHorizontalLinesEnabled) with { Screen = DetailScreen.UVIndex });
+                Add("tag_uv", DetailScreen.UVIndex, () => CreateDailyUV(weather, location, settings.IsTrendHorizontalLinesEnabled));
             }
             else if (display == DailyTrendDisplay.AirQuality && weather.DailyForecast.Any(day =>
                 day.AirQuality is { } airQuality && AirQualityIndex.GetIndex(airQuality) is not null))
             {
-                trends.Add(CreateDailyAirQuality(weather, location, settings.IsTrendHorizontalLinesEnabled)
-                    with { Screen = DetailScreen.AirQuality });
+                Add("tag_aqi", DetailScreen.AirQuality,
+                    () => CreateDailyAirQuality(weather, location, settings.IsTrendHorizontalLinesEnabled));
             }
             else if (display == DailyTrendDisplay.Wind && weather.DailyForecast.Any(day =>
                 day.Day?.Wind?.Speed is not null || day.Night?.Wind?.Speed is not null))
             {
-                trends.Add(CreateDailyWind(weather, location, speedUnit) with { Screen = DetailScreen.Wind });
+                Add("tag_wind", DetailScreen.Wind, () => CreateDailyWind(weather, location, speedUnit));
             }
             else if (display == DailyTrendDisplay.Sunshine && weather.DailyForecast.Any(day =>
                 day.SunshineDuration is { } duration && duration.Ticks / TimeSpan.TicksPerMinute > 0))
             {
-                trends.Add(CreateDailySunshine(weather, location) with { Screen = DetailScreen.CloudCover });
+                Add("tag_sunshine", DetailScreen.CloudCover, () => CreateDailySunshine(weather, location));
             }
         }
 
-        trends = ApplyTheme(trends, weather, location, settings, daily: true);
-        return trends.Count == 0 ? null : new ForecastCardViewModel(true, Strings.Get("daily_forecast"),
-            weather.Current?.DailyForecast, trends, weather.TodayIndex ?? 0, selectedTab, setSelectedTab, position => position);
+        return tabs.Count == 0 ? null : new ForecastCardViewModel(true, Strings.Get("daily_forecast"),
+            weather.Current?.DailyForecast, tabs, weather.TodayIndex ?? 0, selectedTab, setSelectedTab, position => position)
+        {
+            ShowsColumnTooltips = settings.IsForecastColumnTooltipEnabled,
+        };
     }
 
     private static ForecastTrend CreateDailyTemperature(
@@ -235,64 +251,66 @@ public sealed partial class ForecastCardViewModel : ObservableObject
         SpeedUnit speedUnit, PressureUnit pressureUnit, DistanceUnit distanceUnit, SettingsManager settings,
         string? selectedTab, Action<string?> setSelectedTab)
     {
-        List<ForecastTrend> trends = [];
+        Func<ForecastTrend, ForecastTrend> theme = CreateTheme(weather, location, settings, daily: false);
+        List<ForecastTab> tabs = [];
+        void Add(string nameKey, DetailScreen screen, Func<ForecastTrend> build)
+        {
+            tabs.Add(new ForecastTab(Strings.Get(nameKey), screen, () => theme(build() with { Screen = screen })));
+        }
+
         foreach (HourlyTrendDisplay display in settings.HourlyTrendDisplayList)
         {
             if (display == HourlyTrendDisplay.Temperature)
             {
-                trends.Add(CreateHourlyTemperature(weather, location, unit, false, settings.IsTrendHorizontalLinesEnabled)
-                    with { Screen = DetailScreen.Conditions });
+                Add("tag_temperature", DetailScreen.Conditions,
+                    () => CreateHourlyTemperature(weather, location, unit, false, settings.IsTrendHorizontalLinesEnabled));
             }
             else if (display == HourlyTrendDisplay.Precipitation && weather.NextHourlyForecast.Any(hour =>
                 hour.Precipitation?.Total is not null))
             {
-                trends.Add(CreateHourlyPrecipitation(weather, location, precipitationUnit) with { Screen = DetailScreen.Precipitation });
+                Add("tag_precipitation", DetailScreen.Precipitation, () => CreateHourlyPrecipitation(weather, location, precipitationUnit));
             }
             else if (display == HourlyTrendDisplay.FeelsLike && weather.NextHourlyForecast.Any(hour =>
                 hour.Temperature?.FeelsLikeTemperature is not null))
             {
-                trends.Add(CreateHourlyTemperature(weather, location, unit, true, false) with { Screen = DetailScreen.FeelsLike });
+                Add("tag_feels_like", DetailScreen.FeelsLike, () => CreateHourlyTemperature(weather, location, unit, true, false));
             }
             else if (display == HourlyTrendDisplay.Humidity && weather.NextHourlyForecast.Any(hour => hour.DewPoint is not null))
             {
-                trends.Add(CreateHourlyHumidity(weather, location, unit) with { Screen = DetailScreen.Humidity });
+                Add("tag_humidity_dew_point", DetailScreen.Humidity, () => CreateHourlyHumidity(weather, location, unit));
             }
             else if (display == HourlyTrendDisplay.UVIndex && weather.NextHourlyForecast.Any(hour => hour.UV?.Index is not null))
             {
-                trends.Add(CreateHourlyUV(weather, location, settings.IsTrendHorizontalLinesEnabled) with { Screen = DetailScreen.UVIndex });
+                Add("tag_uv", DetailScreen.UVIndex, () => CreateHourlyUV(weather, location, settings.IsTrendHorizontalLinesEnabled));
             }
-            else if (display == HourlyTrendDisplay.Pressure)
+            else if (display == HourlyTrendDisplay.Pressure && HasHourlyPressure(weather))
             {
-                if (CreateHourlyPressure(weather, location, pressureUnit, settings.IsTrendHorizontalLinesEnabled) is { } pressure)
-                {
-                    trends.Add(pressure with { Screen = DetailScreen.Pressure });
-                }
+                Add("tag_pressure", DetailScreen.Pressure,
+                    () => CreateHourlyPressure(weather, location, pressureUnit, settings.IsTrendHorizontalLinesEnabled)!);
             }
             else if (display == HourlyTrendDisplay.CloudCover && weather.NextHourlyForecast.Any(hour => hour.CloudCover is not null))
             {
-                trends.Add(CreateHourlyCloudCover(weather, location) with { Screen = DetailScreen.CloudCover });
+                Add("tag_cloud_cover", DetailScreen.CloudCover, () => CreateHourlyCloudCover(weather, location));
             }
             else if (display == HourlyTrendDisplay.Visibility && weather.NextHourlyForecast.Any(hour => hour.Visibility is not null))
             {
-                trends.Add(CreateHourlyVisibility(weather, location, distanceUnit) with { Screen = DetailScreen.Visibility });
+                Add("tag_visibility", DetailScreen.Visibility, () => CreateHourlyVisibility(weather, location, distanceUnit));
             }
             else if (display == HourlyTrendDisplay.AirQuality && weather.NextHourlyForecast.Any(hour =>
                 hour.AirQuality is { } airQuality && AirQualityIndex.GetIndex(airQuality) is not null))
             {
-                trends.Add(CreateHourlyAirQuality(weather, location, settings.IsTrendHorizontalLinesEnabled)
-                    with { Screen = DetailScreen.AirQuality });
+                Add("tag_aqi", DetailScreen.AirQuality,
+                    () => CreateHourlyAirQuality(weather, location, settings.IsTrendHorizontalLinesEnabled));
             }
             else if (display == HourlyTrendDisplay.Wind && weather.NextHourlyForecast.Any(hour => hour.Wind?.Speed is not null))
             {
-                trends.Add(CreateHourlyWind(weather, location, speedUnit) with { Screen = DetailScreen.Wind });
+                Add("tag_wind", DetailScreen.Wind, () => CreateHourlyWind(weather, location, speedUnit));
             }
         }
 
-        trends = ApplyTheme(trends, weather, location, settings, daily: false);
-
         // An hour opens the first day that starts less than a day before it, which assumes days start at midnight.
-        return trends.Count == 0 ? null : new ForecastCardViewModel(false, Strings.Get("hourly_forecast"),
-            weather.Current?.HourlyForecast, trends, 0, selectedTab, setSelectedTab, position =>
+        return tabs.Count == 0 ? null : new ForecastCardViewModel(false, Strings.Get("hourly_forecast"),
+            weather.Current?.HourlyForecast, tabs, 0, selectedTab, setSelectedTab, position =>
             {
                 DateTimeOffset hourlyDate = weather.NextHourlyForecast[position].Date;
                 for (int index = 0; index < weather.DailyForecast.Count; index++)
@@ -304,7 +322,10 @@ public sealed partial class ForecastCardViewModel : ObservableObject
                 }
 
                 return null;
-            });
+            })
+            {
+                ShowsColumnTooltips = settings.IsForecastColumnTooltipEnabled,
+            };
     }
 
     private static ForecastTrend CreateHourlyTemperature(
@@ -338,8 +359,9 @@ public sealed partial class ForecastCardViewModel : ObservableObject
     // theme. The high line takes the first theme color, or on a dark hourly chart the second, half-opaque one; the
     // low line and the probability bars take the second. Charts colored by risk or amount keep their colors and
     // take only the bars' opacity, and the wind and two-bar charts keep a fixed opacity.
-    private static List<ForecastTrend> ApplyTheme(
-        List<ForecastTrend> trends, Core.Models.Weather weather, Location location, SettingsManager settings, bool daily)
+    // The colors and accents a tab takes, worked out once for the card and applied to each tab when it is built.
+    private static Func<ForecastTrend, ForecastTrend> CreateTheme(
+        Core.Models.Weather weather, Location location, SettingsManager settings, bool daily)
     {
         bool daylight = RiseProgress.IsDaylight(location, DateTimeOffset.UtcNow);
         Color[] themeColors = MaterialWeatherThemeDelegate.GetThemeColors(weather.Current?.WeatherCode, daylight);
@@ -364,12 +386,12 @@ public sealed partial class ForecastCardViewModel : ObservableObject
                 && TimeZoneInfo.ConvertTime(weather.NextHourlyForecast[position].Date, location.TimeZone).Hour == 0);
         }
 
-        trends = [.. trends.Select(trend => trend with
+        return built =>
         {
-            Columns = [.. trend.Columns.Select((column, position) => column with { IsAccented = UsesAccentColor(position) })],
-        })];
-        return trends.Select(trend =>
-        {
+            ForecastTrend trend = built with
+            {
+                Columns = [.. built.Columns.Select((column, position) => column with { IsAccented = UsesAccentColor(position) })],
+            };
             if (trend.Screen == DetailScreen.Wind || trend.Columns.Any(column => column.Chart.IsDoubleHistogram))
             {
                 return trend;
@@ -388,7 +410,7 @@ public sealed partial class ForecastCardViewModel : ObservableObject
                     Chart = column.Chart with { HighLineColor = high, LowLineColor = low, HistogramAlpha = histogramAlpha },
                 })],
             };
-        }).ToList();
+        };
     }
 
     private static float?[] BuildTemperatureArray(IEnumerable<long?> temperatures)
@@ -483,6 +505,24 @@ public sealed record ForecastTrend(
     /// The page of the detail screen that a column of this chart opens.
     /// </summary>
     public DetailScreen? Screen { get; init; }
+}
+
+/// <summary>
+/// A tab of a forecast card. Its chart and columns are built the first time it is shown, so a card only builds the tabs
+/// that are looked at, as a list binds only the items it shows.
+/// </summary>
+public sealed class ForecastTab(string name, DetailScreen? screen, Func<ForecastTrend> build)
+{
+    private ForecastTrend? _trend;
+
+    public string Name { get; } = name;
+
+    /// <summary>
+    /// The page of the detail screen that a column of this tab opens.
+    /// </summary>
+    public DetailScreen? Screen { get; } = screen;
+
+    public ForecastTrend Trend => _trend ??= build();
 }
 
 public sealed record TrendKeyLine(float Value, string ContentLeft, string ContentRight, bool AboveLine);

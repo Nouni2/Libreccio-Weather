@@ -42,7 +42,7 @@ public partial class DetailsView : UserControl
     public DetailsView()
     {
         InitializeComponent();
-        Loaded += (_, _) => ScrollSelectedDayIntoView();
+        Loaded += (_, _) => Dispatcher.BeginInvoke(new Action(ScrollSelectedDayIntoView), System.Windows.Threading.DispatcherPriority.Loaded);
         DataContextChanged += OnDataContextChanged;
     }
 
@@ -231,11 +231,43 @@ public partial class DetailsView : UserControl
         ScrollSelectedDayIntoView();
     }
 
+    // The chosen day's tab is centered in the row where the row can scroll that far, as a scrollable tab row centers
+    // its selected tab.
     private void ScrollSelectedDayIntoView()
     {
-        if (DayTabs.SelectedItem is { } selected)
+        if (DayTabs.SelectedItem is not { } selected)
+        {
+            return;
+        }
+
+        if (DayTabs.ItemContainerGenerator.ContainerFromItem(selected) is not FrameworkElement { ActualWidth: > 0 } tab
+            || FindScrollViewer(DayTabs) is not { } viewer)
         {
             DayTabs.ScrollIntoView(selected);
+            return;
         }
+
+        double tabStart = tab.TransformToAncestor(viewer).Transform(default).X + viewer.HorizontalOffset;
+        double centered = tabStart + (tab.ActualWidth / 2) - (viewer.ViewportWidth / 2);
+        viewer.ScrollToHorizontalOffset(Math.Clamp(centered, 0, viewer.ScrollableWidth));
+    }
+
+    private static ScrollViewer? FindScrollViewer(DependencyObject parent)
+    {
+        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+        {
+            DependencyObject child = VisualTreeHelper.GetChild(parent, i);
+            if (child is ScrollViewer viewer)
+            {
+                return viewer;
+            }
+
+            if (FindScrollViewer(child) is { } found)
+            {
+                return found;
+            }
+        }
+
+        return null;
     }
 }

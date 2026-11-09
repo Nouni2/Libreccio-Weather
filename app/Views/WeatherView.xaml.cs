@@ -70,7 +70,11 @@ public partial class WeatherView : UserControl
             _wheelRelease.Stop();
             ReleasePull();
         };
-        WeatherScroll.PreviewMouseWheel += OnPullWheel;
+        if (WheelPullEnabled)
+        {
+            WeatherScroll.PreviewMouseWheel += OnPullWheel;
+        }
+
         WeatherScroll.PreviewMouseLeftButtonDown += OnPullDragStart;
         WeatherScroll.PreviewMouseMove += OnPullDragMove;
         WeatherScroll.PreviewMouseLeftButtonUp += OnPullDragEnd;
@@ -82,6 +86,10 @@ public partial class WeatherView : UserControl
     // refreshes.
     private const double PullDragRate = 0.5;
     private const double PullRefreshDistance = 64;
+
+    // The wheel pull is off: wheel and touchpad input do not give a pull that feels like a finger's, so only the drag
+    // pulls. Its rules below stay as they are for when it is turned back on.
+    private static readonly bool WheelPullEnabled = false;
 
     // A wheel notch moves the pull by 40, so two deliberate notches reach the refresh distance. The wheel has no
     // release, so the pull is released once the wheel has been still for 140 ms.

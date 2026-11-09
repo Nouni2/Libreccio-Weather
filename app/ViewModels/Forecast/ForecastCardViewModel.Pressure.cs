@@ -24,6 +24,14 @@ namespace LibreccioWeather.ViewModels.Forecast;
 
 public sealed partial class ForecastCardViewModel
 {
+    // Whether the pressure tab has a chart: it has none when every hour's pressure is missing or exactly standard, as
+    // its chart would then have no range.
+    private static bool HasHourlyPressure(Core.Models.Weather weather)
+    {
+        return weather.NextHourlyForecast.Any(hour =>
+            hour.Pressure is { } pressure && (pressure.Value > PressureUnit.Standard || pressure.Value < PressureUnit.Standard));
+    }
+
     private static ForecastTrend? CreateHourlyPressure(
         Core.Models.Weather weather, Location location, PressureUnit unit, bool showReferenceLines)
     {

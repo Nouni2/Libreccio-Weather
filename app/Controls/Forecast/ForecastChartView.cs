@@ -111,7 +111,6 @@ public abstract class ForecastChartView : FrameworkElement
             }
 
             _dpi = dpi;
-
             // The shadow radius and offset are physical pixels, independent of display scaling.
             VisualEffect = new DropShadowEffect
             {

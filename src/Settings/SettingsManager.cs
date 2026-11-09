@@ -330,6 +330,15 @@ public sealed class SettingsManager
         set => SetAndNotify(() => _config.PutBoolean("seasonal_window_icon", value));
     }
 
+    /// <summary>
+    /// Shows a forecast column's description when the pointer rests on it, as screen readers read it.
+    /// </summary>
+    public bool IsForecastColumnTooltipEnabled
+    {
+        get => _config.GetBoolean("forecast_column_tooltip", true);
+        set => SetAndNotify(() => _config.PutBoolean("forecast_column_tooltip", value));
+    }
+
     // Changing the cards does not raise SettingsChanged; the main screen reads them again when it is shown.
     public List<CardDisplay> CardDisplayList
     {
@@ -482,6 +491,25 @@ public sealed class SettingsManager
             else
             {
                 _config.Remove("tray_double_click_delay");
+            }
+        });
+    }
+
+    /// <summary>
+    /// Touchpad scrolling speed, as a percentage of the distance Windows' wheel setting gives, or null to follow Windows.
+    /// </summary>
+    public int? TouchpadScrollSpeed
+    {
+        get => _config.Contains("touchpad_scroll_speed") ? _config.GetInt("touchpad_scroll_speed", 100) : null;
+        set => SetAndNotify(() =>
+        {
+            if (value is { } speed)
+            {
+                _config.PutInt("touchpad_scroll_speed", speed);
+            }
+            else
+            {
+                _config.Remove("touchpad_scroll_speed");
             }
         });
     }

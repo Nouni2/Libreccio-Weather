@@ -128,7 +128,8 @@
                             <DataTemplate>
                                 <Grid Height="{Binding DataContext.ColumnHeight, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                       Background="Transparent" Cursor="Hand" MouseLeftButtonUp="OnColumnClick"
-                                      AutomationProperties.Name="{Binding Column.Description}">
+                                      AutomationProperties.Name="{Binding Column.Description}" ToolTip="{Binding Column.Description}"
+                                      ToolTipService.IsEnabled="{Binding DataContext.ShowsColumnTooltips, RelativeSource={RelativeSource AncestorType=ItemsControl}}">
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto" />
                                         <RowDefinition Height="Auto" />
@@ -214,7 +215,7 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
-                <c:TrendReferenceLinesView x:Name="ReferenceLines" Data="{Binding SelectedTrend}"
+                <c:TrendReferenceLinesView x:Name="ReferenceLines" Data="{Binding SelectedTrend.Trend}"
                                            IsHitTestVisible="False" Focusable="False" ClipToBounds="True" />
             </Grid>
         </StackPanel>

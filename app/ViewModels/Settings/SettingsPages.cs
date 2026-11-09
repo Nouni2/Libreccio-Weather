@@ -267,7 +267,24 @@ public static class SettingsPages
                 Strings.Get("settings_enabled"),
                 Strings.Get("settings_disabled"),
                 main.Settings.IsSeasonalWindowIconEnabled,
-                value => main.Settings.IsSeasonalWindowIconEnabled = value,
+                value => main.Settings.IsSeasonalWindowIconEnabled = value),
+            SeparatorPreference.Small,
+            new SwitchPreference(
+                Strings.Get("forecast_column_tooltip"),
+                Strings.Get("settings_enabled"),
+                Strings.Get("settings_disabled"),
+                main.Settings.IsForecastColumnTooltipEnabled,
+                value => main.Settings.IsForecastColumnTooltipEnabled = value),
+            SeparatorPreference.Small,
+
+            // 100 % follows Windows' wheel setting, which reset returns to. The slider spans a tenth to twice that
+            // distance; the field accepts up to ten times.
+            new SliderPreference(
+                Strings.Get("touchpad_scroll_speed"), Strings.GetUnit("ratio_percent_display_name_short"),
+                main.Settings.TouchpadScrollSpeed ?? 100,
+                minimum: 1, maximum: 1000, sliderMinimum: 10, sliderMaximum: 200, recommended: 100,
+                value => main.Settings.TouchpadScrollSpeed = value,
+                () => main.Settings.TouchpadScrollSpeed = null,
                 isLast: true),
         ];
         return new SettingsPageViewModel(Strings.Get("settings_appearance"), items, main.GoBack, () => Appearance(main), () => main.NavigateTo(About(main)));
