@@ -37,16 +37,22 @@ internal static class AstroCalculation
     private const double CivilTwilightDegrees = -6.0;
 
     /// <summary>
-    /// Sunrise and sunset, or null when Spp is unavailable or fails, which leaves the day without sun times.
+    /// Sunrise and sunset, then civil dawn and dusk, from one solar day. Each is null when Spp is unavailable or
+    /// fails, which leaves the day without those times.
     /// </summary>
-    public static Astro? GetSun(Daily daily, Location location)
+    public static (Astro? Sun, Astro? Twilight) GetSunAndTwilight(Daily daily, Location location)
     {
         DateOnly localDate = LocalDate(daily.Date, location.TimeZone);
         if (SolarCalculator.GetSolarDay(location.Latitude, location.Longitude, localDate, location.TimeZone) is not { } day)
         {
-            return null;
+            return (null, null);
         }
 
+        return (GetSun(daily, location, localDate, day), GetTwilight(daily, location, localDate, day));
+    }
+
+    private static Astro GetSun(Daily daily, Location location, DateOnly localDate, SolarDay day)
+    {
         if (day.Type == SolarDayType.PolarDay)
         {
             return AllDay(daily.Date);
@@ -60,17 +66,9 @@ internal static class AstroCalculation
         return Complete(daily.Date, day.Rise, day.Set, location, localDate, next => next.Set);
     }
 
-    /// <summary>
-    /// Civil dawn and dusk, when the Sun's center is 6° below the horizon, or null when Spp is unavailable or fails.
-    /// </summary>
-    public static Astro? GetTwilight(Daily daily, Location location)
+    // Civil dawn and dusk, when the Sun's center is 6° below the horizon.
+    private static Astro? GetTwilight(Daily daily, Location location, DateOnly localDate, SolarDay day)
     {
-        DateOnly localDate = LocalDate(daily.Date, location.TimeZone);
-        if (SolarCalculator.GetSolarDay(location.Latitude, location.Longitude, localDate, location.TimeZone) is not { } day)
-        {
-            return null;
-        }
-
         if (day.CivilDawn is null && day.CivilDusk is null)
         {
             // Without dawn or dusk, the Sun's center stays above −6° all day, as in white nights, or below.

@@ -153,8 +153,7 @@ public sealed class WeatherUpdateScheduler : IDisposable
             result = WeatherUpdateJobResult.Failure;
         }
 
-        JobFinished?.Invoke(this, EventArgs.Empty);
-
+        // The next run is scheduled before handlers run, so a handler that throws cannot stop background updates.
         if (result is WeatherUpdateJobResult.Retry or WeatherUpdateJobResult.AlreadyRunning or WeatherUpdateJobResult.Failure)
         {
             lock (_lock)
@@ -172,6 +171,8 @@ public sealed class WeatherUpdateScheduler : IDisposable
         {
             Reschedule(resetRetry: true);
         }
+
+        JobFinished?.Invoke(this, EventArgs.Empty);
     }
 
     private void OnSettingsChanged(object? sender, EventArgs e)

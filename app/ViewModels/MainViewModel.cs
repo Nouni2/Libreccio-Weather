@@ -931,14 +931,22 @@ public sealed partial class MainViewModel : ObservableObject
         return _locations.FirstOrDefault(location => location.FormattedId == _currentFormattedId);
     }
 
-    private async Task<List<Location>> LoadLocationsWithWeatherAsync()
+    // SQLite reads run synchronously even through their asynchronous methods, so the reading runs on a worker thread
+    // and the interface keeps drawing meanwhile.
+    private Task<List<Location>> LoadLocationsWithWeatherAsync()
     {
-        List<Location> locations = [];
-        foreach (Location location in await _locationRepository.GetAllLocationsAsync())
+        return Task.Run(async () =>
         {
-            locations.Add(location with { Weather = await _weatherRepository.GetWeatherByLocationIdAsync(location.FormattedId) });
-        }
+            List<Location> locations = [];
+            foreach (Location location in await _locationRepository.GetAllLocationsAsync().ConfigureAwait(false))
+            {
+                locations.Add(location with
+                {
+                    Weather = await _weatherRepository.GetWeatherByLocationIdAsync(location.FormattedId).ConfigureAwait(false),
+                });
+            }
 
-        return locations;
+            return locations;
+        });
     }
 }

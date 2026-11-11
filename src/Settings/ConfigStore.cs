@@ -14,6 +14,7 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Diagnostics;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -124,12 +125,21 @@ public sealed class ConfigStore
                 _values[key] = value;
             }
 
-            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(_path))!);
+            // A file that cannot be written, such as on a full disk, keeps the value for this session only, so a
+            // settings change never stops the app.
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(_path))!);
 
-            // Writing to a temporary file first means a crash during the write never leaves a half-written file.
-            string temporaryPath = _path + ".tmp";
-            File.WriteAllText(temporaryPath, _values.ToJsonString(WriteOptions));
-            File.Move(temporaryPath, _path, overwrite: true);
+                // Writing to a temporary file first means a crash during the write never leaves a half-written file.
+                string temporaryPath = _path + ".tmp";
+                File.WriteAllText(temporaryPath, _values.ToJsonString(WriteOptions));
+                File.Move(temporaryPath, _path, overwrite: true);
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                Trace.TraceWarning("Settings could not be saved to {0}: {1}", _path, exception.Message);
+            }
         }
     }
 

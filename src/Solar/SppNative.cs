@@ -53,9 +53,14 @@ internal struct SppSolarDay
 /// <summary>
 /// The C interface of spp.dll, version 1. Every call returns a status, 0 when it succeeded.
 /// </summary>
+/// <remarks>
+/// Each import searches only the app's own folder and the system folders, never the current directory or PATH, so
+/// another spp.dll there is never loaded in place of the app's.
+/// </remarks>
 internal static class SppNative
 {
     private const string Library = "spp";
+    private const DllImportSearchPath SearchPath = DllImportSearchPath.AssemblyDirectory | DllImportSearchPath.SafeDirectories;
 
     public const int AbiVersion = 1;
     public const int SolarDaySize = 72;
@@ -64,22 +69,28 @@ internal static class SppNative
     public const int PolarDay = 1;
     public const int PolarNight = 2;
 
+    [DefaultDllImportSearchPaths(SearchPath)]
     [DllImport(Library, EntryPoint = "spp_c_abi_version", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern int GetAbiVersion();
 
     // The string has static storage in the library and is never freed.
+    [DefaultDllImportSearchPaths(SearchPath)]
     [DllImport(Library, EntryPoint = "spp_c_library_version", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern IntPtr GetLibraryVersion();
 
+    [DefaultDllImportSearchPaths(SearchPath)]
     [DllImport(Library, EntryPoint = "spp_c_solar_day_size", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern int GetSolarDaySize();
 
+    [DefaultDllImportSearchPaths(SearchPath)]
     [DllImport(Library, EntryPoint = "spp_solar_day_utc", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern int SolarDayUtc(ref SppObserver observer, int year, int month, int day, ref SppSolarDay result);
 
+    [DefaultDllImportSearchPaths(SearchPath)]
     [DllImport(Library, EntryPoint = "spp_upper_limb_altitude", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern int UpperLimbAltitude(ref SppObserver observer, long utcMs, out double altitudeDeg);
 
+    [DefaultDllImportSearchPaths(SearchPath)]
     [DllImport(Library, EntryPoint = "spp_upper_limb_altitudes", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern int UpperLimbAltitudes(
         ref SppObserver observer, long startUtcMs, long stepMs, int count, [Out] double[] altitudesDeg);

@@ -27,6 +27,7 @@ using LibreccioWeather.Core.Refresh;
 using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Sources.OpenMeteo;
 using LibreccioWeather.Core.Updates;
+using LibreccioWeather.Diagnostics;
 using LibreccioWeather.Display;
 using LibreccioWeather.Icons;
 using LibreccioWeather.Input;
@@ -68,6 +69,19 @@ public partial class App : System.Windows.Application
         }
 
         _instance.StartListening(() => _ = Dispatcher.InvokeAsync(ActivateMainWindow));
+
+        // Unhandled exceptions are recorded and still end the process, so the app never runs on in a broken state.
+        ErrorLog.Start();
+        DispatcherUnhandledException += (_, args) => ErrorLog.Record("Unhandled exception on the interface thread", args.Exception);
+        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+        {
+            if (args.ExceptionObject is Exception exception)
+            {
+                ErrorLog.Record("Unhandled exception", exception);
+            }
+        };
+        TaskScheduler.UnobservedTaskException += (_, args) => ErrorLog.Record("Unobserved task exception", args.Exception);
+
         ProportionalWheelScroll.Register();
 
         SettingsManager settings = new(new ConfigStore(SettingsManager.DefaultPath));

@@ -63,6 +63,7 @@ Kotlin's `/` and `%` behave like C#'s.
 | `sorted`, `sortedBy`, `sortedWith`, `sortBy` | Stable: equal elements keep their order. | `List.Sort` and `Array.Sort` are unstable. | LINQ `OrderBy` and `ThenBy`, which are stable. |
 | `average()` on an empty collection | Returns `NaN`. | LINQ `Average` throws on an empty sequence of non-nullable numbers. | A check for an empty sequence. |
 | `maxOrNull()`, `minOrNull()` | Return `null` on an empty collection. | LINQ `Max` and `Min` throw on an empty sequence of non-nullable values. | `MaxBy`, a nullable sequence, or a check for an empty sequence. |
+| `mutableMapOf`, `associate`, `associateBy` and other default maps | `LinkedHashMap`: iteration follows insertion order by contract, so `entries.firstOrNull { … }` finds the earliest inserted match. | `Dictionary` enumerates in insertion order only while nothing has been removed, and does not promise it. | `Dictionary` filled in upstream's order and never removed from, as `WeatherRefresher`'s current air quality relies on; `OrderedDictionary<TKey, TValue>` where entries are removed. |
 | `a until b`, `a..<b` and `a..b` | `until` and `..<` exclude `b`, while `..` includes it. | A `for` loop states its bound explicitly. | `i < b` for `until`, `i <= b` for `..`. |
 
 ## Text and culture

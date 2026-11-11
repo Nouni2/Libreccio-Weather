@@ -198,6 +198,11 @@ public static class WeatherCompletion
         Dictionary<string, List<Hourly>> hourlyByDay = hourlyList
             .GroupBy(hourly => IsoDate(hourly.Date, timeZone))
             .ToDictionary(group => group.Key, group => group.ToList());
+
+        // Grouped once rather than filtered again for every day; each group keeps the order of its map.
+        Dictionary<string, List<AirQuality>> airQualityByDay = GroupByDay(hourlyAirQuality, timeZone);
+        Dictionary<string, List<Pollen>> pollenByDay = GroupByDay(hourlyPollen, timeZone);
+        Dictionary<string, List<TimeSpan?>> sunshineByDay = GroupByDay(hourlySunshine, timeZone);
         string today = IsoDate(DateTimeOffset.UtcNow, timeZone);
 
         return dailyList.Select(daily =>
@@ -219,28 +224,29 @@ public static class WeatherCompletion
                 else if (hourlyPollen.Count > 0)
                 {
                     pollen = GetDailyPollenFromHourlyList(
-                        hourlyPollen.Where(pair => IsoDate(pair.Key, timeZone) == day).Select(pair => pair.Value.ToValid()).ToList());
+                        pollenByDay.GetValueOrDefault(day)?.Select(value => value.ToValid()).ToList() ?? []);
                 }
             }
 
+            (Astro? sun, Astro? twilight) = AstroCalculation.GetSunAndTwilight(daily, location);
             return daily with
             {
                 Day = newDay,
                 Night = newNight,
-                Sun = AstroCalculation.GetSun(daily, location) ?? daily.Sun,
-                Twilight = AstroCalculation.GetTwilight(daily, location) ?? daily.Twilight,
+                Sun = sun ?? daily.Sun,
+                Twilight = twilight ?? daily.Twilight,
                 Moon = AstroCalculation.GetMoon(daily, location),
                 MoonPhase = AstroCalculation.GetMoonPhase(daily),
                 DegreeDay = daily.DegreeDay?.Cooling is null || daily.DegreeDay.Heating is null
                     ? GetDegreeDay(newDay?.Temperature?.Value, newNight?.Temperature?.Value)
                     : daily.DegreeDay,
                 AirQuality = daily.AirQuality ?? GetDailyAirQualityFromHourlyList(
-                    hourlyAirQuality.Where(pair => IsoDate(pair.Key, timeZone) == day).Select(pair => pair.Value.ToValid()).ToList()),
+                    airQualityByDay.GetValueOrDefault(day)?.Select(value => value.ToValid()).ToList() ?? []),
                 Pollen = pollen,
                 UV = daily.UV?.Index is >= 0.0 ? daily.UV : GetDailyUVFromHourlyList(hoursOfDay),
                 SunshineDuration = daily.SunshineDuration is { } sunshine && sunshine.TotalHours <= 24.0
                     ? sunshine
-                    : GetSunshineDuration(hourlySunshine.Where(pair => IsoDate(pair.Key, timeZone) == day).Select(pair => pair.Value)),
+                    : GetSunshineDuration(sunshineByDay.GetValueOrDefault(day) ?? []),
                 RelativeHumidity = GetDailyRelativeHumidity(daily.RelativeHumidity, Values(hoursOfDay, hourly => hourly.RelativeHumidity)),
                 DewPoint = GetDailyDewPoint(daily.DewPoint, Values(hoursOfDay, hourly => hourly.DewPoint)),
                 Pressure = GetDailyPressure(daily.Pressure, Values(hoursOfDay, hourly => hourly.Pressure)),
@@ -1019,6 +1025,24 @@ public static class WeatherCompletion
     public static string IsoDate(DateTimeOffset date, TimeZoneInfo timeZone)
     {
         return TimeZoneInfo.ConvertTime(date, timeZone).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+    }
+
+    private static Dictionary<string, List<T>> GroupByDay<T>(IReadOnlyDictionary<DateTimeOffset, T> byDate, TimeZoneInfo timeZone)
+    {
+        Dictionary<string, List<T>> byDay = [];
+        foreach ((DateTimeOffset date, T value) in byDate)
+        {
+            string day = IsoDate(date, timeZone);
+            if (!byDay.TryGetValue(day, out List<T>? values))
+            {
+                values = [];
+                byDay[day] = values;
+            }
+
+            values.Add(value);
+        }
+
+        return byDay;
     }
 
     private static List<T> Values<T>(List<Hourly>? hours, Func<Hourly, T?> value)

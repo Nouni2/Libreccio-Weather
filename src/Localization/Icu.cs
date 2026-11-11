@@ -45,7 +45,10 @@ internal static class Icu
     // UDAT_PATTERN for both the date and the time style, so the given pattern is used.
     private const int DatePatternStyle = -2;
 
-    private static readonly IntPtr Handle = NativeLibrary.TryLoad(Library, out IntPtr handle) ? handle : IntPtr.Zero;
+    // Windows' own icu.dll is loaded from System32 only, never from the current directory or PATH. The imports below
+    // name the same module, which Windows then finds already loaded and uses again.
+    private static readonly IntPtr Handle =
+        NativeLibrary.TryLoad(Library, typeof(Icu).Assembly, DllImportSearchPath.System32, out IntPtr handle) ? handle : IntPtr.Zero;
 
     public static bool SupportsUnitNames { get; } = HasExports(
         "unumf_openForSkeletonAndLocale", "unumf_openResult", "unumf_formatDouble", "unumf_resultToString",

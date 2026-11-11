@@ -108,7 +108,9 @@ public sealed partial class SearchViewModel : ObservableObject
                 NoResultsAdvice = Strings.Get("location_search_no_results_advice");
             }
         }
-        catch (Exception exception) when (exception is HttpRequestException or LocationSearchException or TaskCanceledException)
+        // A server that answers with something other than the expected JSON fails the search too.
+        catch (Exception exception) when (exception is HttpRequestException or LocationSearchException or TaskCanceledException
+            or System.Text.Json.JsonException)
         {
             NoResultsMessage = Strings.Get("location_message_search_failed");
         }

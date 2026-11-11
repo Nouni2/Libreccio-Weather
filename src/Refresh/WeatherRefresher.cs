@@ -14,6 +14,7 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using System.Diagnostics;
 using System.Globalization;
 using LibreccioWeather.Core.Database;
 using LibreccioWeather.Core.Locations;
@@ -170,7 +171,9 @@ public sealed class WeatherRefresher
             bool currentStillValid = IsUpdateStillValid(newBase.CurrentUpdateTime, CurrentReuseMinutes);
             CurrentWrapper? currentWrapper = completed.Current
                 ?? (currentStillValid ? location.Weather?.Current?.ToCurrentWrapper() : null);
-            // The current hour's air quality is also used when the reused current conditions have none.
+            // The current hour's air quality is also used when the reused current conditions have none. The first
+            // matching entry is the earliest only because the map is filled in time order and nothing is removed
+            // from it: Dictionary then enumerates in insertion order, which it does not promise in general.
             AirQuality? currentAirQuality = completed.AirQuality?.Current?.ToValid()
                 ?? (currentStillValid ? location.Weather?.Current?.AirQuality : null)
                 ?? completed.AirQuality?.HourlyForecast?.FirstOrDefault(pair => pair.Key >= now.AddHours(-1)).Value;
@@ -191,6 +194,7 @@ public sealed class WeatherRefresher
         }
         catch (Exception exception) when (!(exception is OperationCanceledException && cancellationToken.IsCancellationRequested))
         {
+            Trace.TraceError("Refreshing {0} failed: {1}", location.FormattedId, exception);
             return new WeatherResult(location.Weather, [new RefreshError(RefreshErrorType.DataRefreshFailed)]);
         }
     }

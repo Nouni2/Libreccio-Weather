@@ -35,8 +35,9 @@ public sealed class WeatherRepository
     {
         using SqliteConnection connection = _database.Open();
 
-        // A refresh replaces several tables, so all parts must be read from the same database snapshot.
-        using SqliteTransaction transaction = connection.BeginTransaction();
+        // A refresh replaces several tables, so all parts must be read from the same database snapshot. A deferred
+        // transaction takes only a read lock, so reads do not wait for each other.
+        using SqliteTransaction transaction = connection.BeginTransaction(deferred: true);
         Weather? weather;
         using (SqliteCommand command = connection.CreateCommand())
         {
