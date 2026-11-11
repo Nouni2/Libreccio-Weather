@@ -151,6 +151,9 @@ public partial class MainWindow : Window
         }
 
         Title = Strings.Get("desktop_app_name");
+#if DEBUG
+        Title += " — " + Strings.Get("settings_debug");
+#endif
 
         // Recreating the template also reloads markup translations after a language change.
         InterfaceHost.ContentTemplate = null;

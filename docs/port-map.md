@@ -76,6 +76,8 @@ Incompatible forecast and air-quality hours also request a retry.
 
 ## Process lifetime
 
+`src/Configuration/ApplicationIdentity.cs` reproduces the separate Debug application identity configured by `applicationIdSuffix = ".debug"` in `upstream/app/build.gradle.kts`. Windows uses `Libreccio-Weather.Debug` for Debug's mutex and activation pipe and `%LOCALAPPDATA%\Libreccio Weather Debug` for its settings, source preferences and database. Release retains its existing identity and data directory. `SettingsManager.DefaultPath` and `WeatherDatabase.DefaultPath` use this shared identity, while `App.xaml.cs` passes its instance name to `SingleInstance`. The Windows-only main window title appends the translated `settings_debug` label in Debug builds, including after a language change.
+
 | File | Responsibility and source relationship |
 |---|---|
 | `src/Processes/SingleInstance.cs` | No upstream file. A named mutex in Windows' global namespace, qualified by the user's security identifier, permits one instance per user before settings or SQLite are opened. The mutex is an existence marker, without thread ownership, so asynchronous continuations can dispose it safely. A duplex named pipe accepts activation requests from the same user and elevation level. The launching process receives the existing process ID and calls `AllowSetForegroundWindow` before requesting activation. Connections and handshakes have a five-second timeout. A second launch restores the existing window, from the tray or a minimized state, without a notice. |

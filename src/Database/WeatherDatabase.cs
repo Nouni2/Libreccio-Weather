@@ -14,6 +14,7 @@
  * with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
  */
 
+using LibreccioWeather.Core.Configuration;
 using Microsoft.Data.Sqlite;
 
 namespace LibreccioWeather.Core.Database;
@@ -88,11 +89,11 @@ public sealed class WeatherDatabase
     }
 
     /// <summary>
-    /// %LOCALAPPDATA%\Libreccio Weather\libreccio-weather.db, the usual place for data that belongs to one Windows user.
+    /// The database in the current build identity's per-user data directory.
     /// </summary>
     public static string DefaultPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "Libreccio Weather",
+        ApplicationIdentity.DataDirectoryName,
         "libreccio-weather.db");
 
     /// <summary>

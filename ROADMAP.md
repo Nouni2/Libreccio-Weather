@@ -208,8 +208,9 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Setting and location cards tinted by their elevation
   - [x] App theme from the dark mode setting or Windows' app mode, applied at once
   - [x] Main screen light during the day and dark at night, following the day/night setting for locations
-- [x] Single instance
+- [ ] Single instance
   - [x] One process per Windows user, enforced before settings and database access
+  - [ ] Separate Debug and Release instances, settings, source preferences and databases
   - [x] A second launch restores the existing window, including from the tray or a minimized state
 - [x] Closing the window to the tray, restoring it and exiting through the tray menu
 - [x] Mouse back and forward buttons moving through the screens

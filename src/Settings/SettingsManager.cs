@@ -15,6 +15,7 @@
  */
 
 using System.Runtime.CompilerServices;
+using LibreccioWeather.Core.Configuration;
 using LibreccioWeather.Core.Settings.Options;
 using LibreccioWeather.Core.Units;
 
@@ -67,7 +68,7 @@ public sealed class SettingsManager
 
     public static string DefaultPath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-        "Libreccio Weather",
+        ApplicationIdentity.DataDirectoryName,
         "settings.json");
 
     /// <summary>

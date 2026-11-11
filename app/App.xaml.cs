@@ -55,7 +55,7 @@ public partial class App : System.Windows.Application
         base.OnStartup(e);
 
         ShutdownMode = System.Windows.ShutdownMode.OnExplicitShutdown;
-        _instance = new SingleInstance("Libreccio-Weather");
+        _instance = new SingleInstance(Core.Configuration.ApplicationIdentity.InstanceName);
         if (!_instance.IsFirstInstance)
         {
             if (!await _instance.ActivateExistingAsync())

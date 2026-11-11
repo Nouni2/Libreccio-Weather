@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.1]
+
+### Fixed
+
+- Debug builds can run alongside the installed app, with separate instance activation, settings, source preferences and saved weather. Their window title includes a translated Debug label.
+
 ## [0.3.0] - 2026-11-09
 
 ### Added
