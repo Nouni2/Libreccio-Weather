@@ -19,6 +19,7 @@ using System.Windows;
 using System.Windows.Input;
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Input;
+using LibreccioWeather.Localization;
 using LibreccioWeather.ViewModels;
 
 namespace LibreccioWeather;
@@ -150,6 +151,9 @@ public partial class MainWindow : Window
             _lightColors = null;
         }
 
+        LayoutDirection.Apply(applicationResources);
+        NativeDigits.Apply(applicationResources);
+        FlowDirection = LayoutDirection.Current;
         Title = Strings.Get("desktop_app_name");
 #if DEBUG
         Title += " — " + Strings.Get("settings_debug");

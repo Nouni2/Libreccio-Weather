@@ -30,6 +30,10 @@
         <!-- Material 3's plain tooltip: body small text on the inverse surface, 8 by 4 inside 4 corners, at least
              40 by 24 and at most 200 wide. The colors are given when it opens, as a tooltip is outside the screen. -->
         <Style x:Key="PlainTooltip" TargetType="ToolTip">
+            <Setter Property="FlowDirection" Value="{DynamicResource AppFlowDirection}" />
+            <Setter Property="NumberSubstitution.CultureSource" Value="{DynamicResource AppNumberCultureSource}" />
+            <Setter Property="NumberSubstitution.CultureOverride" Value="{DynamicResource AppNumberCulture}" />
+            <Setter Property="NumberSubstitution.Substitution" Value="{DynamicResource AppNumberSubstitution}" />
             <Setter Property="MinWidth" Value="40" />
             <Setter Property="MinHeight" Value="24" />
             <Setter Property="MaxWidth" Value="200" />
@@ -605,7 +609,7 @@
         <Grid Grid.Row="0" Height="64" Margin="4,0">
             <Button HorizontalAlignment="Left" Style="{StaticResource IconButton}" Command="{Binding BackCommand}"
                     ToolTip="{l:Translate action_back}" AutomationProperties.Name="{l:Translate action_back}">
-                <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconArrowBack}" />
+                <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconArrowBack}" FlowDirection="{DynamicResource AppFlowDirection}" />
             </Button>
             <TextBlock Margin="56,0" HorizontalAlignment="Center" Style="{StaticResource TopAppBarTitle}" Text="{Binding Title}" />
         </Grid>

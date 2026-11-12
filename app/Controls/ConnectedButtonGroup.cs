@@ -187,6 +187,9 @@ public sealed class ConnectedButtonGroup : Panel
     {
         foreach (ConnectedToggle button in _buttons)
         {
+            // A resource reference is looked up again when its element leaves the tree, and the view that defines the
+            // style is then out of reach; the style found is kept as a plain value instead.
+            button.Style = button.Style;
             InternalChildren.Remove(button);
         }
 
@@ -195,7 +198,6 @@ public sealed class ConnectedButtonGroup : Panel
         foreach (object item in ItemsSource ?? Array.Empty<object>())
         {
             var button = new ConnectedToggle { DataContext = item };
-            button.SetResourceReference(StyleProperty, "ConnectedGroupButton");
             if (ItemTemplate is { } template)
             {
                 button.Content = item;
@@ -223,8 +225,12 @@ public sealed class ConnectedButtonGroup : Panel
             {
                 button.Click += (_, _) => Select(button);
             }
+
+            // Added before its style is looked up, so the lookup reaches the view that defines the style. The content
+            // comes first, as a style can bind to it and a null name is rejected.
             _buttons.Add(button);
             InternalChildren.Insert(InternalChildren.Count - 1, button);
+            button.SetResourceReference(StyleProperty, "ConnectedGroupButton");
         }
 
         UpdateChecked();

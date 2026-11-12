@@ -18,12 +18,20 @@
     <RootNamespace>LibreccioWeather.Core</RootNamespace>
     <!-- The project file sits at the root, so the default globs would pick up every folder. -->
     <EnableDefaultItems>false</EnableDefaultItems>
+    <!-- Lets a language file name its culture itself, for a language MSBuild does not recognise. -->
+    <RespectAlreadyAssignedItemCulture>true</RespectAlreadyAssignedItemCulture>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src\**\*.cs" />
     <!-- Each language file such as Strings.fr.resx becomes a satellite assembly that .NET loads for that language. -->
     <EmbeddedResource Include="translations\*.resx" />
     <EmbeddedResource Include="resources\*.resx" />
+    <!-- MSBuild only recognises the cultures ICU has data for, which leaves out Creole English, so its files would be
+         built into the main assembly under a name no language looks up. -->
+    <EmbeddedResource Update="translations\Strings.cpe.resx" Culture="cpe" WithCulture="true"
+                      LogicalName="LibreccioWeather.Core.translations.Strings.cpe.resources" />
+    <EmbeddedResource Update="translations\UnitStrings.cpe.resx" Culture="cpe" WithCulture="true"
+                      LogicalName="LibreccioWeather.Core.translations.UnitStrings.cpe.resources" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite" />

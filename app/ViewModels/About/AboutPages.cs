@@ -16,7 +16,6 @@
 
 using System.Globalization;
 using LibreccioWeather.Core.Localization;
-using LibreccioWeather.Core.Sources.OpenMeteo;
 using LibreccioWeather.Core.Updates;
 using LibreccioWeather.Updates;
 using LibreccioWeather.ViewModels.Settings;
@@ -109,7 +108,9 @@ public static class AboutPages
     {
         List<(string Name, string Url)> sources =
         [
-            (OpenMeteoService.Name, OpenMeteoService.PrivacyPolicyUrl),
+            .. main.Sources.GetHttpSources()
+                .Where(source => source.PrivacyPolicyUrl.Length > 0)
+                .Select(source => (source.Name, source.PrivacyPolicyUrl)),
         ];
         sources.Sort((a, b) => StringComparer.Create(Strings.Culture, ignoreCase: false).Compare(a.Name, b.Name));
         sources.Insert(0, (Strings.Get("desktop_app_name"), AppVersion.PrivacyPolicyLink));

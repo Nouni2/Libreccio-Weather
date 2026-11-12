@@ -53,14 +53,14 @@ Libreccio Weather is developed and tested on Windows 11. Solar calculations requ
 
 ## Features
 
-- Current weather and daily and hourly forecasts from Open-Meteo. Air quality and pollen depend on coverage; pollen covers Europe.
+- Current weather and daily and hourly forecasts from Open-Meteo, and from Bright Sky (DWD) in Germany, with its weather alerts. Air quality and pollen depend on coverage; pollen covers Europe.
 - Location search, saved locations, reordering and Undo after deletion.
 - Forecast charts and daily detail pages for temperature, feels-like temperature, precipitation, wind, air quality and UV.
 - Cards for current conditions, including humidity and dew point, visibility, pressure and pollen.
 - Sunrise, sunset, twilight and day length from [Seasonal++](https://github.com/Nouni2/Seasonal-plus-plus); moonrise, moonset, phases and altitude charts.
 - Mistray condition and temperature icons, with an optional second icon. Four popup styles: compact, multiple locations, daily and hourly.
 - Background updates with a refresh interval and Battery saver setting, plus saved forecasts for offline use.
-- English and French, localized dates and numbers, and a choice of measurement units.
+- The 66 languages Breezy Weather is translated into, laid out right to left in Arabic, Persian, Hebrew, Urdu and Central Kurdish, with localized dates and numbers and a choice of measurement units.
 - A dark Material 3 interface with per-monitor scaling and animations at the monitor's refresh rate.
 - An experimental desktop mode with compact controls, keyboard shortcuts and location context menus.
 
@@ -78,7 +78,7 @@ The main window uses the selected location's meteorological season for its icon,
 
 ## Scope
 
-In `0.4.0`, you get Open-Meteo forecasts with light and dark themes. I haven't ported automatic location detection, weather providers other than Open-Meteo, Windows weather notifications or autostart. See the [roadmap](ROADMAP.md) for the remaining features.
+In `0.4.0`, you get Open-Meteo forecasts, and Bright Sky's in Germany, with light and dark themes. I haven't ported automatic location detection, weather providers other than Open-Meteo and Bright Sky, Windows weather notifications or autostart. See the [roadmap](ROADMAP.md) for the remaining features.
 
 The bundled solar DLL requires x64; you cannot use it in an ARM64 process.
 

@@ -16,7 +16,8 @@
 <UserControl x:Class="LibreccioWeather.Views.SearchView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:l="clr-namespace:LibreccioWeather.Localization">
+             xmlns:l="clr-namespace:LibreccioWeather.Localization"
+             xmlns:c="clr-namespace:LibreccioWeather.Controls">
     <Grid Margin="{StaticResource NormalMargin}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -28,7 +29,7 @@
         <DockPanel Grid.Row="0">
             <Button DockPanel.Dock="Left" Margin="0,0,8,0" Style="{StaticResource IconButton}" Command="{Binding BackCommand}"
                     ToolTip="{l:Translate action_back}" AutomationProperties.Name="{l:Translate action_back}">
-                <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconArrowBack}" />
+                <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconArrowBack}" FlowDirection="{DynamicResource AppFlowDirection}" />
             </Button>
             <Grid>
                 <TextBox x:Name="SearchInput"
@@ -38,8 +39,8 @@
                         <KeyBinding Key="Enter" Command="{Binding SearchCommand}" />
                     </TextBox.InputBindings>
                 </TextBox>
-                <!-- Placed by code where the box puts its first character, so the hint and the caret line up. -->
-                <TextBlock x:Name="Placeholder" HorizontalAlignment="Left" VerticalAlignment="Center" IsHitTestVisible="False" FontSize="16"
+                <TextBlock HorizontalAlignment="Left" VerticalAlignment="Center" IsHitTestVisible="False" FontSize="16"
+                           c:PlaceholderAlignment.Field="{Binding ElementName=SearchInput}"
                            Foreground="{DynamicResource OnSurfaceVariantBrush}"
                            Text="{l:Translate location_search_placeholder}">
                     <TextBlock.Style>

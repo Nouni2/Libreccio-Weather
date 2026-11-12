@@ -22,7 +22,6 @@ using LibreccioWeather.Core.Models;
 using LibreccioWeather.Core.Models.Wrappers;
 using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Sources;
-using LibreccioWeather.Core.Sources.OpenMeteo;
 
 namespace LibreccioWeather.Core.Refresh;
 
@@ -52,13 +51,13 @@ public sealed class WeatherRefresher
 
     private const int MaxConcurrentSources = 5;
 
-    private readonly OpenMeteoService _openMeteo;
+    private readonly SourceManager _sources;
     private readonly WeatherRepository _weatherRepository;
     private readonly SettingsManager _settings;
 
-    public WeatherRefresher(OpenMeteoService openMeteo, WeatherRepository weatherRepository, SettingsManager settings)
+    public WeatherRefresher(SourceManager sources, WeatherRepository weatherRepository, SettingsManager settings)
     {
-        _openMeteo = openMeteo;
+        _sources = sources;
         _weatherRepository = weatherRepository;
         _settings = settings;
     }
@@ -249,7 +248,7 @@ public sealed class WeatherRefresher
             }
         }
 
-        if (source != OpenMeteoService.Id)
+        if (_sources.GetWeatherSource(source) is not { } weatherSource)
         {
             AddError(new RefreshError(RefreshErrorType.SourceNotInstalled, source));
             return null;
@@ -260,8 +259,8 @@ public sealed class WeatherRefresher
         List<SourceFeature> featuresToUpdate = features
             .Where(feature =>
             {
-                if (!OpenMeteoService.SupportedFeatures.ContainsKey(feature)
-                    || !OpenMeteoService.IsFeatureSupportedForLocation(location, feature))
+                if (!weatherSource.SupportedFeatures.ContainsKey(feature)
+                    || !weatherSource.IsFeatureSupportedForLocation(location, feature))
                 {
                     AddError(new RefreshError(RefreshErrorType.UnsupportedFeature, source));
                     return false;
@@ -279,7 +278,7 @@ public sealed class WeatherRefresher
 
         try
         {
-            return await _openMeteo.RequestWeatherAsync(location, featuresToUpdate, cancellationToken).ConfigureAwait(false);
+            return await weatherSource.RequestWeatherAsync(location, featuresToUpdate, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception exception) when (!(exception is OperationCanceledException && cancellationToken.IsCancellationRequested))
         {

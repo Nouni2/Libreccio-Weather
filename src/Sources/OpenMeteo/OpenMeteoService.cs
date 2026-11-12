@@ -28,7 +28,7 @@ namespace LibreccioWeather.Core.Sources.OpenMeteo;
 /// <summary>
 /// Forecast, current conditions, minutely precipitation, air quality, pollen and location search from Open-Meteo.
 /// </summary>
-public sealed class OpenMeteoService
+public sealed class OpenMeteoService : IWeatherSource, IHttpSource
 {
     public const string Id = "openmeteo";
     public const string Name = "Open-Meteo";
@@ -147,6 +147,22 @@ public sealed class OpenMeteoService
     };
 
     public static SourceContinent Continent => SourceContinent.Worldwide;
+
+    // The source contracts reach the same values as the members above, which the rest of the app names directly.
+    string ISource.Id => Id;
+
+    string ISource.Name => Name;
+
+    string IHttpSource.PrivacyPolicyUrl => PrivacyPolicyUrl;
+
+    IReadOnlyDictionary<string, string> IHttpSource.AttributionLinks => AttributionLinks;
+
+    SourceContinent IHttpSource.Continent => Continent;
+
+    IReadOnlyDictionary<SourceFeature, string> IFeatureSource.SupportedFeatures => SupportedFeatures;
+
+    bool IFeatureSource.IsFeatureSupportedForLocation(Location location, SourceFeature feature) =>
+        IsFeatureSupportedForLocation(location, feature);
 
     // Pollen comes from the CAMS European forecast, which covers 25° W to 45° E and 30° N to 72° N.
     // See https://ads.atmosphere.copernicus.eu/datasets/cams-europe-air-quality-forecasts?tab=overview

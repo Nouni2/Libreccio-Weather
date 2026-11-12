@@ -18,6 +18,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
+using LibreccioWeather.Localization;
 using LibreccioWeather.ViewModels.Details;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
@@ -193,11 +194,14 @@ public sealed class NowcastChartView : FrameworkElement
         drawingContext.DrawText(text, new Point(pill.X + (width - text.Width) / 2, pill.Y + MarkerVerticalPadding));
     }
 
+    // The chart mirrors with a right-to-left layout, as Vico's does; text laid out in the chart's own direction keeps
+    // its letters the right way round on the mirrored chart. Vico orders each label by its first strong letter, left to
+    // right without one.
     private FormattedText MakeText(string text, Brush brush)
     {
-        return new FormattedText(text, CultureInfo.CurrentUICulture, FlowDirection.LeftToRight,
-            new Typeface(FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal), LabelSize, brush,
-            VisualTreeHelper.GetDpi(this).PixelsPerDip);
+        return new FormattedText(BidiText.Embed(text, FlowDirection, FlowDirection.LeftToRight), CultureInfo.CurrentUICulture,
+            FlowDirection, new Typeface(FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal), LabelSize, brush,
+            NativeDigits.Substitution, VisualTreeHelper.GetDpi(this).PixelsPerDip);
     }
 
     private FontFamily FontFamily => (FontFamily)GetValue(System.Windows.Documents.TextElement.FontFamilyProperty);

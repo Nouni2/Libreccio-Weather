@@ -42,7 +42,7 @@
             <Button HorizontalAlignment="Left" Style="{StaticResource IconButton}" Command="{Binding BackCommand}"
                     ToolTip="{l:Translate action_back}" AutomationProperties.Name="{l:Translate action_back}"
                     Visibility="{Binding CanGoBack, Converter={StaticResource BooleanToVisibility}}">
-                <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconArrowBack}" />
+                <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconArrowBack}" FlowDirection="{DynamicResource AppFlowDirection}" />
             </Button>
             <TextBlock HorizontalAlignment="Center" Style="{StaticResource TopAppBarTitle}" Text="{l:Translate locations}" />
             <Button HorizontalAlignment="Right" Style="{StaticResource IconButton}" Command="{Binding OpenSettingsCommand}"

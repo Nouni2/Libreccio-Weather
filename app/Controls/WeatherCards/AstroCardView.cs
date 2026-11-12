@@ -23,6 +23,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using LibreccioWeather.Controls.Details;
 using LibreccioWeather.Display;
+using LibreccioWeather.Localization;
 using LibreccioWeather.ViewModels.WeatherCards;
 using Brush = System.Windows.Media.Brush;
 using Color = System.Windows.Media.Color;
@@ -310,17 +311,21 @@ public sealed class AstroCardView : Grid
         AstroCardText title = Text(card.Title, TitleSize * density * textScale,
             Math.Max(1, end - start - titleIconSize - textGap), bold: true);
         double titleTop = Math.Floor(size * (squished ? 0.05f : 0.1f) + 0.5f);
+        bool mirrored = FlowDirection == FlowDirection.RightToLeft;
         if (TryFindResource(card.IsSun ? "IconClearDay" : "IconClearNight") is Geometry titleIcon)
         {
             double iconTop = Math.Floor(titleTop + (title.Height - titleIconSize) / 2);
-            drawingContext.PushTransform(new TranslateTransform(start, iconTop));
-            drawingContext.PushTransform(new ScaleTransform(titleIconSize / 24, titleIconSize / 24));
-            drawingContext.DrawGeometry(titleBrush, null, titleIcon);
-            drawingContext.Pop();
-            drawingContext.Pop();
+            DrawUnmirrored(drawingContext, mirrored, start, titleIconSize, () =>
+            {
+                drawingContext.PushTransform(new TranslateTransform(start, iconTop));
+                drawingContext.PushTransform(new ScaleTransform(titleIconSize / 24, titleIconSize / 24));
+                drawingContext.DrawGeometry(titleBrush, null, titleIcon);
+                drawingContext.Pop();
+                drawingContext.Pop();
+            });
         }
 
-        title.Draw(drawingContext, titleBrush, new Point(start + titleIconSize + textGap, titleTop));
+        DrawText(drawingContext, mirrored, title, titleBrush, new Point(start + titleIconSize + textGap, titleTop));
 
         double arcTop = titleTop + title.Height;
         double outerMargin = Math.Floor(ArcViewMargin * density + 0.5f);
@@ -346,8 +351,8 @@ public sealed class AstroCardView : Grid
             set = Text(card.SetText, labelSize, availableWidth / 2);
         }
 
-        rise.Draw(drawingContext, textBrush, new Point(start, timesTop));
-        set.Draw(drawingContext, textBrush, new Point(end - set.Width, timesTop));
+        DrawText(drawingContext, mirrored, rise, textBrush, new Point(start, timesTop));
+        DrawText(drawingContext, mirrored, set, textBrush, new Point(end - set.Width, timesTop));
 
         if (!string.IsNullOrEmpty(card.Description))
         {
@@ -360,15 +365,37 @@ public sealed class AstroCardView : Grid
             double left = (size - description.Width - phaseSize - iconGap) / 2;
             if (card.MoonPhaseAngle is not null)
             {
-                MoonPhaseView.Draw(drawingContext, new Rect(left, top, phaseSize, phaseSize),
-                    (float)PhaseAngle, (Brush)FindResource("BodyTextBrush"), density);
+                Brush phaseBrush = (Brush)FindResource("BodyTextBrush");
+                DrawUnmirrored(drawingContext, mirrored, left, phaseSize, () =>
+                    MoonPhaseView.Draw(drawingContext, new Rect(left, top, phaseSize, phaseSize), (float)PhaseAngle, phaseBrush, density));
             }
 
-            description.Draw(drawingContext, textBrush, new Point(left + phaseSize + iconGap, top));
+            DrawText(drawingContext, mirrored, description, textBrush, new Point(left + phaseSize + iconGap, top));
         }
 
         drawingContext.Pop();
         drawingContext.Pop();
+    }
+
+    // The card mirrors with a right-to-left layout, as upstream's layout and its sun and moon view do, while its text,
+    // title icon and moon phase are drawn as they are; each is mirrored back about its own box, which keeps its place.
+    private static void DrawUnmirrored(DrawingContext drawingContext, bool mirrored, double left, double width, Action draw)
+    {
+        if (mirrored)
+        {
+            drawingContext.PushTransform(new ScaleTransform(-1, 1, left + width / 2, 0));
+        }
+
+        draw();
+        if (mirrored)
+        {
+            drawingContext.Pop();
+        }
+    }
+
+    private static void DrawText(DrawingContext drawingContext, bool mirrored, AstroCardText text, Brush brush, Point topLeft)
+    {
+        DrawUnmirrored(drawingContext, mirrored, topLeft.X, text.Width, () => text.Draw(drawingContext, brush, topLeft));
     }
 
     // Returns the height the arc takes. The arc spans 135°, from its start on the left to its end on the right, on a
@@ -500,12 +527,15 @@ public sealed class AstroCardView : Grid
         drawingContext.DrawGeometry(new SolidColorBrush(Color.FromRgb(171, 202, 247)), null, crescent);
     }
 
+    // The labels are text views upstream, ordered by their first strong letter or, without one, by the layout; they are
+    // laid out left to right and mirrored back on a right-to-left card.
     private AstroCardText Text(string value, double size, double width, bool bold = false)
     {
-        var key = (value, size, width, bold);
+        string ordered = BidiText.Embed(value, FlowDirection.LeftToRight, FlowDirection);
+        var key = (ordered, size, width, bold);
         if (!_labels.TryGetValue(key, out AstroCardText? text))
         {
-            text = new AstroCardText(value, size, width, bold);
+            text = new AstroCardText(ordered, size, width, bold);
             _labels.Add(key, text);
         }
 

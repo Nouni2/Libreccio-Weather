@@ -29,6 +29,14 @@ public static class DateFormatting
         return Capitalize(formatted);
     }
 
+    /// <summary>
+    /// The day and abbreviated month, such as "12 Nov", starting with a capital.
+    /// </summary>
+    public static string GetFormattedMediumDayAndMonth(DateTimeOffset date, TimeZoneInfo timeZone)
+    {
+        return Capitalize(FormatBestPattern(date, timeZone, "dMMM", "d MMM"));
+    }
+
     public static string GetWeek(DateTimeOffset date, TimeZoneInfo timeZone, bool full = false)
     {
         return Capitalize(TimeZoneInfo.ConvertTime(date, timeZone).ToString(full ? "dddd" : "ddd", Strings.Culture));

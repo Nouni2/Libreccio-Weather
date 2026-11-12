@@ -18,6 +18,7 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using LibreccioWeather.Core.Localization;
+using LibreccioWeather.Localization;
 using Microsoft.Win32;
 using Application = System.Windows.Application;
 using Forms = System.Windows.Forms;
@@ -66,8 +67,10 @@ public static class TrayIconImages
             foreground = IsLightTaskbar ? Media.Brushes.Black : Media.Brushes.White;
         }
 
-        var text = new Media.FormattedText(temperature, Strings.Culture, System.Windows.FlowDirection.LeftToRight,
-            typeface, IconSize, foreground, 1);
+        // Drawn as canvas text: ordered by its first strong letter, left to right without one, in the language's digits.
+        var text = new Media.FormattedText(
+            BidiText.Embed(temperature, System.Windows.FlowDirection.LeftToRight, System.Windows.FlowDirection.LeftToRight),
+            Strings.Culture, System.Windows.FlowDirection.LeftToRight, typeface, IconSize, foreground, NativeDigits.Substitution, 1);
         System.Windows.Rect bounds = text.BuildGeometry(new Point(0, 0)).Bounds;
         double left = Math.Floor(bounds.Left);
         double right = Math.Ceiling(bounds.Right);

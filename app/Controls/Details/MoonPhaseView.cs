@@ -44,6 +44,12 @@ public sealed class MoonPhaseView : FrameworkElement
     private static readonly Brush LightBrush = Freeze(new SolidColorBrush(Color.FromRgb(0x99, 0x99, 0x99)));
     private static readonly Brush DarkBrush = Freeze(new SolidColorBrush(Color.FromRgb(0x66, 0x66, 0x66)));
 
+    // The lit part keeps its side in a right-to-left layout, which only moves the drawing.
+    public MoonPhaseView()
+    {
+        FlowDirection = FlowDirection.LeftToRight;
+    }
+
     public double SurfaceAngle
     {
         get => (double)GetValue(SurfaceAngleProperty);

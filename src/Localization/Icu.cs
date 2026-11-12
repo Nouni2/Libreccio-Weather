@@ -72,6 +72,7 @@ internal static class Icu
     private static readonly Dictionary<string, IntPtr> PatternGenerators = [];
     private static readonly Dictionary<(string Skeleton, string Locale), string?> DatePatterns = [];
     private static readonly Dictionary<(string Pattern, string Locale, string Zone), IntPtr> DateFormatters = [];
+    private static readonly Dictionary<string, IntPtr> PluralRuleSets = [];
 
     /// <summary>
     /// Formats a value with a number skeleton, such as "measure-unit/duration-hour unit-width-full-name".
@@ -177,7 +178,159 @@ internal static class Icu
         }
     }
 
+    public static bool SupportsPluralRules { get; } = HasExports("uplrules_open", "uplrules_select", "uplrules_close");
+
+    /// <summary>
+    /// The CLDR plural category of a number in a language, such as "few", or null without ICU.
+    /// </summary>
+    public static string? SelectPlural(double number, CultureInfo culture)
+    {
+        if (!SupportsPluralRules)
+        {
+            return null;
+        }
+
+        lock (Gate)
+        {
+            string locale = LocaleId(culture);
+            IntPtr rules = Cached(PluralRuleSets, locale, () =>
+            {
+                int openStatus = 0;
+                IntPtr opened = uplrules_open(locale, ref openStatus);
+                return Opened(opened, openStatus, uplrules_close);
+            });
+            return rules == IntPtr.Zero
+                ? null
+                : ReadString((char[] buffer, ref int error) => uplrules_select(rules, number, buffer, buffer.Length, ref error));
+        }
+    }
+
+    public static bool SupportsLikelyScripts { get; } = HasExports("uloc_addLikelySubtags", "uloc_getScript");
+
+    /// <summary>
+    /// The script a language is most likely written in, such as "Cyrl" for sr and "Latn" for sr-Latn-RS, or null
+    /// without ICU.
+    /// </summary>
+    public static string? GetLikelyScript(CultureInfo culture)
+    {
+        if (!SupportsLikelyScripts)
+        {
+            return null;
+        }
+
+        lock (Gate)
+        {
+            byte[] maximized = new byte[157];
+            int status = 0;
+            int length = uloc_addLikelySubtags(LocaleId(culture), maximized, maximized.Length, ref status);
+            if (Failed(status) || length >= maximized.Length)
+            {
+                return null;
+            }
+
+            byte[] script = new byte[12];
+            status = 0;
+            int scriptLength = uloc_getScript(maximized, script, script.Length, ref status);
+            return Failed(status) || scriptLength == 0 ? null : System.Text.Encoding.ASCII.GetString(script, 0, scriptLength);
+        }
+    }
+
+    public static bool SupportsNumberingSystems { get; } = HasExports("unumsys_open", "unumsys_getName", "unumsys_close");
+
+    /// <summary>
+    /// The CLDR default numbering system of a language, such as "arab" for Arabic or "latn", or null without ICU.
+    /// </summary>
+    public static string? GetNumberingSystem(CultureInfo culture)
+    {
+        if (!SupportsNumberingSystems)
+        {
+            return null;
+        }
+
+        lock (Gate)
+        {
+            int status = 0;
+            IntPtr system = unumsys_open(LocaleId(culture), ref status);
+            if (system == IntPtr.Zero || Failed(status))
+            {
+                if (system != IntPtr.Zero)
+                {
+                    unumsys_close(system);
+                }
+
+                return null;
+            }
+
+            try
+            {
+                return Marshal.PtrToStringAnsi(unumsys_getName(system));
+            }
+            finally
+            {
+                unumsys_close(system);
+            }
+        }
+    }
+
+    public static bool SupportsLanguageNames { get; } = HasExports("uloc_getDisplayLanguage", "uloc_getDisplayCountry");
+
+    /// <summary>
+    /// A language's name in that language, such as "English (Australia)" for en-AU, or null without ICU. The language
+    /// and country names are joined with " (" and ")" in every language, as Android's Locale.getDisplayName does, where
+    /// ICU's own display name follows each language's pattern.
+    /// </summary>
+    public static string? GetOwnDisplayName(string languageCode)
+    {
+        if (!SupportsLanguageNames)
+        {
+            return null;
+        }
+
+        lock (Gate)
+        {
+            string locale = languageCode.Replace('-', '_');
+            string[] parts = languageCode.Split('-');
+            string? language = ReadString((char[] buffer, ref int error) =>
+                uloc_getDisplayLanguage(locale, locale, buffer, buffer.Length, ref error));
+            if (language is null)
+            {
+                return null;
+            }
+
+            string name = language.Length == 0 ? parts[0] : language;
+            if (parts.Length < 2)
+            {
+                return name;
+            }
+
+            string? country = ReadString((char[] buffer, ref int error) =>
+                uloc_getDisplayCountry(locale, locale, buffer, buffer.Length, ref error));
+            return country is { Length: > 0 } ? $"{name} ({country})" : name;
+        }
+    }
+
     public static bool SupportsKeywordNames { get; } = HasExports("uloc_getDisplayKeywordValue");
+
+    public static bool SupportsCountryNames { get; } = HasExports("uloc_getDisplayCountry");
+
+    /// <summary>
+    /// A country's name in a language, such as "Germany" for DE in English, or null without ICU.
+    /// </summary>
+    public static string? GetDisplayCountry(string countryCode, CultureInfo displayCulture)
+    {
+        if (!SupportsCountryNames)
+        {
+            return null;
+        }
+
+        lock (Gate)
+        {
+            string locale = "und_" + countryCode;
+            string displayLocale = LocaleId(displayCulture);
+            return ReadString((char[] buffer, ref int error) =>
+                uloc_getDisplayCountry(locale, displayLocale, buffer, buffer.Length, ref error));
+        }
+    }
 
     /// <summary>
     /// A date formatted with the best pattern for a skeleton, such as "MMMMd" for "October 12", in a time zone.
@@ -353,6 +506,39 @@ internal static class Icu
     }
 
     [DllImport(Library, BestFitMapping = false, ThrowOnUnmappableChar = true)]
+    private static extern int uloc_addLikelySubtags(
+        [MarshalAs(UnmanagedType.LPStr)] string locale, [Out] byte[] maximized, int capacity, ref int status);
+
+    [DllImport(Library)]
+    private static extern int uloc_getScript(byte[] locale, [Out] byte[] script, int capacity, ref int status);
+
+    [DllImport(Library, BestFitMapping = false, ThrowOnUnmappableChar = true)]
+    private static extern IntPtr unumsys_open([MarshalAs(UnmanagedType.LPStr)] string locale, ref int status);
+
+    [DllImport(Library)]
+    private static extern IntPtr unumsys_getName(IntPtr system);
+
+    [DllImport(Library)]
+    private static extern void unumsys_close(IntPtr system);
+
+    [DllImport(Library, CharSet = CharSet.Unicode, BestFitMapping = false, ThrowOnUnmappableChar = true)]
+    private static extern int uloc_getDisplayLanguage(
+        [MarshalAs(UnmanagedType.LPStr)] string locale,
+        [MarshalAs(UnmanagedType.LPStr)] string displayLocale,
+        [Out] char[] language,
+        int languageCapacity,
+        ref int status);
+
+    [DllImport(Library, BestFitMapping = false, ThrowOnUnmappableChar = true)]
+    private static extern IntPtr uplrules_open([MarshalAs(UnmanagedType.LPStr)] string locale, ref int status);
+
+    [DllImport(Library, CharSet = CharSet.Unicode)]
+    private static extern int uplrules_select(IntPtr rules, double number, [Out] char[] keyword, int capacity, ref int status);
+
+    [DllImport(Library)]
+    private static extern void uplrules_close(IntPtr rules);
+
+    [DllImport(Library, BestFitMapping = false, ThrowOnUnmappableChar = true)]
     private static extern IntPtr unumf_openForSkeletonAndLocale(
         [MarshalAs(UnmanagedType.LPWStr)] string skeleton, int skeletonLength,
         [MarshalAs(UnmanagedType.LPStr)] string locale, ref int status);
@@ -439,6 +625,14 @@ internal static class Icu
 
     [DllImport(Library)]
     private static extern void udat_close(IntPtr formatter);
+
+    [DllImport(Library, CharSet = CharSet.Unicode, BestFitMapping = false, ThrowOnUnmappableChar = true)]
+    private static extern int uloc_getDisplayCountry(
+        [MarshalAs(UnmanagedType.LPStr)] string locale,
+        [MarshalAs(UnmanagedType.LPStr)] string displayLocale,
+        [Out] char[] country,
+        int countryCapacity,
+        ref int status);
 
     [DllImport(Library, CharSet = CharSet.Unicode, BestFitMapping = false, ThrowOnUnmappableChar = true)]
     private static extern int uloc_getDisplayKeywordValue(

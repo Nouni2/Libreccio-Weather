@@ -20,7 +20,6 @@ using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Locations;
 using LibreccioWeather.Core.Models;
 using LibreccioWeather.Core.Sources;
-using LibreccioWeather.Core.Sources.OpenMeteo;
 using LibreccioWeather.Localization;
 using LibreccioWeather.ViewModels.Settings;
 
@@ -165,26 +164,49 @@ public sealed partial class SecondarySourcesDialogViewModel : ObservableObject
     /// then the other continents by name. The stored source is always kept, so it can be shown as unavailable.
     /// </summary>
     internal static IReadOnlyList<(string? Group, IReadOnlyList<SelectableSource> Sources)> GetCompatibleSources(
+        SourceManager sourceManager,
         Location location,
         string selectedSource,
         SourceFeature feature)
     {
-        // Open-Meteo is the only source, and it sets no priority for any location, so it is grouped by its continent.
-        bool supports = OpenMeteoService.SupportedFeatures.ContainsKey(feature)
-            && ((location.IsCurrentPosition && !location.IsUsable) || OpenMeteoService.IsFeatureSupportedForLocation(location, feature));
-        if (!supports && OpenMeteoService.Id != selectedSource)
+        const string Recommended = "weather_source_recommended";
+        const string Worldwide = "weather_source_continent_worldwide";
+        StringComparer collator = StringComparer.Create(Strings.Culture, ignoreCase: false);
+
+        // Groups keep the order in which the source list first reaches them until they are sorted.
+        return sourceManager.GetSupportedFeatureSources(feature, location, selectedSource)
+            .GroupBy(source => GetGroup(source, location, feature))
+            .OrderBy(group => group.Key == Recommended ? 0 : group.Key == Worldwide ? 1 : 2)
+            .ThenBy(group => group.Key is Recommended or Worldwide ? "" : Strings.Get(group.Key), collator)
+            .Select(group => (
+                (string?)Strings.Get(group.Key),
+                (IReadOnlyList<SelectableSource>)[.. (group.Key == Recommended && feature != SourceFeature.ReverseGeocoding
+                        ? group.OrderByDescending(source => source.GetFeaturePriorityForLocation(location, feature))
+                        : group.AsEnumerable())
+                    .Select(source => new SelectableSource(
+                        source.Id,
+                        GetName(source, feature, location),
+                        source.IsFeatureSupportedForLocation(location, feature)))]))
+            .ToList();
+    }
+
+    // A source recommended for the feature at the location is grouped as recommended, any other by its continent.
+    private static string GetGroup(IFeatureSource source, Location location, SourceFeature feature)
+    {
+        if (source.GetFeaturePriorityForLocation(location, feature) >= 0)
         {
-            return [];
+            return "weather_source_recommended";
         }
 
-        List<SelectableSource> worldwide =
-        [
-            new SelectableSource(
-                OpenMeteoService.Id,
-                OpenMeteoService.Name,
-                OpenMeteoService.IsFeatureSupportedForLocation(location, feature)),
-        ];
-        return [(Strings.Get("weather_source_continent_worldwide"), worldwide)];
+        return "weather_source_continent_" + (source is IHttpSource http ? http.Continent : SourceContinent.Worldwide).Id;
+    }
+
+    // A source that cannot give the feature at the location is named as unavailable.
+    private static string GetName(IFeatureSource source, SourceFeature feature, Location location)
+    {
+        return !source.SupportedFeatures.ContainsKey(feature) || !source.IsFeatureSupportedForLocation(location, feature)
+            ? Strings.Format("settings_weather_source_unavailable", source.Name)
+            : source.Name;
     }
 
     // A feature that can be left empty: the stored source when no longer offered, "None", then the compatible sources.
@@ -199,7 +221,7 @@ public sealed partial class SecondarySourcesDialogViewModel : ObservableObject
         string? emptyName)
     {
         IReadOnlyList<(string? Group, IReadOnlyList<SelectableSource> Sources)> compatible =
-            GetCompatibleSources(_location, selected, feature);
+            GetCompatibleSources(_main.Sources, _location, selected, feature);
         List<SelectableSource> first = [];
         if (selected.Length > 0 && !compatible.Any(group => group.Sources.Any(source => source.Id == selected)))
         {

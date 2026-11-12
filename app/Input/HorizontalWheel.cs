@@ -19,6 +19,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using LibreccioWeather.Localization;
 using LibreccioWeather.ViewModels;
 
 namespace LibreccioWeather.Input;
@@ -26,7 +27,8 @@ namespace LibreccioWeather.Input;
 /// <summary>
 /// Horizontal wheel input, which a touchpad sends for a two-finger swipe sideways. Over content that scrolls sideways,
 /// such as the forecast rows, it scrolls that content. Elsewhere one swipe moves through the screens like the back and
-/// forward buttons of a mouse: fingers moving right go back, fingers moving left go forward.
+/// forward buttons of a mouse: fingers moving right go back, fingers moving left go forward, the other way round in a
+/// right-to-left layout.
 /// </summary>
 public sealed class HorizontalWheel
 {
@@ -77,7 +79,10 @@ public sealed class HorizontalWheel
         _lastInputAt = now;
         if (FindHorizontalViewer(Mouse.DirectlyOver as DependencyObject) is { } viewer)
         {
-            ProportionalWheelScroll.ScrollBy(viewer, ProportionalWheelScroll.GetDistance(delta, viewer.ViewportWidth), horizontal: true);
+            // The delta is a direction on screen, and a right-to-left viewer's offset grows towards the screen's left.
+            double distance = ProportionalWheelScroll.GetDistance(delta, viewer.ViewportWidth);
+            ProportionalWheelScroll.ScrollBy(
+                viewer, viewer.FlowDirection == FlowDirection.RightToLeft ? -distance : distance, horizontal: true);
             return true;
         }
 
@@ -86,7 +91,8 @@ public sealed class HorizontalWheel
             return true;
         }
 
-        _swipe += delta;
+        // In a right-to-left layout the previous screen lies on the right, where the mirrored back arrow points.
+        _swipe += LayoutDirection.IsRightToLeft ? -delta : delta;
         if (Math.Abs(_swipe) >= NavigationDistance)
         {
             _navigated = true;

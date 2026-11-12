@@ -16,8 +16,11 @@
 
 using System.ComponentModel;
 using System.Diagnostics;
+using CommunityToolkit.Mvvm.ComponentModel;
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Refresh;
+using LibreccioWeather.Core.Sources;
+using LibreccioWeather.ViewModels.Locations;
 using LibreccioWeather.ViewModels.Settings;
 
 namespace LibreccioWeather.ViewModels.RefreshErrors;
@@ -61,6 +64,60 @@ public static class RefreshErrorHelp
     }
 
     /// <summary>
+    /// The source the error came from, followed by the feature in parentheses when known, or null without a source.
+    /// </summary>
+    public static string? GetSourceWithOptionalFeature(RefreshError error, SourceManager sources)
+    {
+        if (string.IsNullOrEmpty(error.Source))
+        {
+            return null;
+        }
+
+        string sourceName = sources.GetSource(error.Source)?.Name ?? error.Source;
+        return error.Feature is { } feature
+            ? Strings.Format("parenthesis", sourceName, Strings.Get(SecondarySourcesDialogViewModel.FeatureNameKey(feature)))
+            : sourceName;
+    }
+
+    /// <summary>
+    /// The short message, after the source and feature when the error has a source.
+    /// </summary>
+    public static string GetMessage(RefreshError error, SourceManager sources)
+    {
+        return GetSourceWithOptionalFeature(error, sources) is { } source
+            ? source + Strings.Get("colon_separator") + GetShortMessage(error.Error)
+            : GetShortMessage(error.Error);
+    }
+
+    /// <summary>
+    /// The message after a refresh: several errors offer a list of them, and a single one shows its message, with its
+    /// button when it has help. No error shows nothing.
+    /// </summary>
+    public static void ShowErrors(IReadOnlyList<RefreshError> errors, MainViewModel main)
+    {
+        if (errors.Count > 1)
+        {
+            main.ShowSnackbar(
+                Strings.Get("message_multiple_refresh_errors"),
+                Strings.Get("action_show"),
+                () => main.ShowDialog(new RefreshErrorDetailsDialogViewModel(main, errors)));
+        }
+        else if (errors.Count == 1)
+        {
+            RefreshError error = errors[0];
+            string message = GetMessage(error, main.Sources);
+            if (GetActionButtonText(error.Error) is { } actionText)
+            {
+                main.ShowSnackbar(message, actionText, () => ShowDialog(error.Error, main));
+            }
+            else
+            {
+                main.ShowSnackbar(message);
+            }
+        }
+    }
+
+    /// <summary>
     /// The text of the message's button, or null for an error whose message has no button.
     /// </summary>
     public static string? GetActionButtonText(RefreshErrorType error)
@@ -81,42 +138,45 @@ public static class RefreshErrorHelp
     /// <summary>
     /// What the message's button does: a help dialog, or the screen where the problem is solved.
     /// </summary>
-    public static void ShowDialog(RefreshErrorType error, MainViewModel main)
+    /// <param name="returnTo">The dialog shown again when the help dialog is closed, such as the list of errors it was
+    /// opened from; only one dialog shows at a time.</param>
+    public static void ShowDialog(RefreshErrorType error, MainViewModel main, ObservableObject? returnTo = null)
     {
         // The main screen and the location list stand for the activity that can edit the shown location.
         bool onMainScreen = main.CurrentPage is WeatherViewModel or ManagementViewModel;
+        Action close = returnTo is null ? main.CloseDialog : () => main.ShowDialog(returnTo);
         Action openSourceSettings = () => main.NavigateTo(SettingsPages.WeatherSources(main));
         Action editLocation = () => main.WeatherPage?.EditLocationCommand.Execute(null);
         switch (error)
         {
             case RefreshErrorType.ApiKeyRequiredMissing:
-                ShowErrorHelp(main, "weather_api_key_required_missing_title", "weather_api_key_required_missing_content",
+                ShowErrorHelp(main, close, "weather_api_key_required_missing_title", "weather_api_key_required_missing_content",
                     "action_settings", openSourceSettings);
                 break;
             case RefreshErrorType.ApiLimitReached:
-                ShowErrorHelp(main, "weather_api_limit_reached_title", "weather_api_limit_reached_content",
+                ShowErrorHelp(main, close, "weather_api_limit_reached_title", "weather_api_limit_reached_content",
                     "action_settings", openSourceSettings);
                 break;
             case RefreshErrorType.ApiUnauthorized:
-                ShowErrorHelp(main, "weather_api_unauthorized_title", "weather_api_unauthorized_content",
+                ShowErrorHelp(main, close, "weather_api_unauthorized_title", "weather_api_unauthorized_content",
                     "action_settings", openSourceSettings);
                 break;
             case RefreshErrorType.ServerUnavailable:
-                ShowErrorHelp(main, "message_server_unavailable_title", "message_server_unavailable_content");
+                ShowErrorHelp(main, close, "message_server_unavailable_title", "message_server_unavailable_content");
                 break;
             case RefreshErrorType.ParsingError:
-                ShowErrorHelp(main, "message_parsing_error_title", "message_parsing_error_content");
+                ShowErrorHelp(main, close, "message_parsing_error_title", "message_parsing_error_content");
                 break;
             case RefreshErrorType.SourceNotInstalled:
-                ShowErrorHelp(main, "message_source_not_installed_error_title", "message_source_not_installed_error_content",
+                ShowErrorHelp(main, close, "message_source_not_installed_error_title", "message_source_not_installed_error_content",
                     onMainScreen ? "action_change" : null, onMainScreen ? editLocation : null);
                 break;
             case RefreshErrorType.NonFreeNetworkSource:
-                ShowErrorHelp(main, "message_source_non_free_network_title", "message_source_non_free_network_content",
+                ShowErrorHelp(main, close, "message_source_non_free_network_title", "message_source_non_free_network_content",
                     onMainScreen ? "action_change" : null, onMainScreen ? editLocation : null);
                 break;
             case RefreshErrorType.LocationFailed:
-                main.ShowDialog(new LocationHelpDialogViewModel(main));
+                main.ShowDialog(new LocationHelpDialogViewModel(main, close));
                 break;
             case RefreshErrorType.AccessLocationPermissionMissing or RefreshErrorType.AccessBackgroundLocationPermissionMissing
                 or RefreshErrorType.LocationAccessOff:
@@ -124,7 +184,7 @@ public static class RefreshErrorHelp
                 break;
             case RefreshErrorType.IncompatibleForecastTimes:
                 // The button is offered everywhere, but only edits a location from the main screen.
-                ShowErrorHelp(main, "message_incompatible_times_title", "message_incompatible_times_content",
+                ShowErrorHelp(main, close, "message_incompatible_times_title", "message_incompatible_times_content",
                     "action_change", () =>
                     {
                         if (onMainScreen)
@@ -136,8 +196,9 @@ public static class RefreshErrorHelp
         }
     }
 
+    // The action leaves every dialog, as it leads to another screen or edits the location.
     private static void ShowErrorHelp(
-        MainViewModel main, string titleKey, string contentKey, string? actionKey = null, Action? onAction = null)
+        MainViewModel main, Action close, string titleKey, string contentKey, string? actionKey = null, Action? onAction = null)
     {
         main.ShowDialog(new ErrorHelpDialogViewModel(
             Strings.Get(titleKey),
@@ -148,7 +209,7 @@ public static class RefreshErrorHelp
                 main.CloseDialog();
                 onAction();
             },
-            main.CloseDialog));
+            close));
     }
 
     private static void OpenLocationSettings()

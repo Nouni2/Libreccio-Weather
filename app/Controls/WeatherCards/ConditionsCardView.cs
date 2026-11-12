@@ -19,6 +19,7 @@ using System.Windows.Automation;
 using System.Windows.Automation.Peers;
 using System.Windows.Media;
 using LibreccioWeather.Core.Localization;
+using LibreccioWeather.Localization;
 using LibreccioWeather.ViewModels.WeatherCards;
 using Brush = System.Windows.Media.Brush;
 using Color = System.Windows.Media.Color;
@@ -72,11 +73,24 @@ public sealed class ConditionsCardView : FrameworkElement
             drawingContext.DrawRoundedRectangle(ResourceBrush("ElevatedSurfaceBrush"), null, bounds, corner, corner);
         }
 
+        bool mirrored = FlowDirection == FlowDirection.RightToLeft;
         if (card.ArtworkKey is { } key && TryFindResource(key) is ImageSource artwork)
         {
+            // Upstream marks only the UV and variable wind drawables to be mirrored; the others, such as the wind arrow
+            // turned to the wind's direction, keep their drawing on the mirrored card.
+            bool unmirror = mirrored && !key.StartsWith("CardUV", StringComparison.Ordinal) && key != "CardWindVariable";
+            if (unmirror)
+            {
+                drawingContext.PushTransform(new ScaleTransform(-1, 1, size / 2, 0));
+            }
+
             drawingContext.PushTransform(new RotateTransform(card.Rotation, size / 2, size / 2));
             drawingContext.DrawImage(artwork, bounds);
             drawingContext.Pop();
+            if (unmirror)
+            {
+                drawingContext.Pop();
+            }
         }
 
         if (card.GaugeProgress is { } progress)
@@ -101,7 +115,17 @@ public sealed class ConditionsCardView : FrameworkElement
         double titleY = size * (card.Kind == ConditionsCardKind.Pollen ? 0.1 : rectangular ? 0.08 : 0.2);
         if (TryFindResource(card.IconKey) is ImageSource icon)
         {
-            drawingContext.DrawImage(icon, new Rect(titleX - iconSize - 4, titleY, iconSize, iconSize));
+            var iconBounds = new Rect(titleX - iconSize - 4, titleY, iconSize, iconSize);
+            if (mirrored)
+            {
+                drawingContext.PushTransform(new ScaleTransform(-1, 1, iconBounds.X + iconBounds.Width / 2, 0));
+            }
+
+            drawingContext.DrawImage(icon, iconBounds);
+            if (mirrored)
+            {
+                drawingContext.Pop();
+            }
         }
 
         drawingContext.DrawText(title, new Point(titleX, titleY));
@@ -137,18 +161,20 @@ public sealed class ConditionsCardView : FrameworkElement
         FormattedText value = Text(card.ValueText, valueSize, foreground);
         if (card.HalfSizeUnits)
         {
+            // The marks that order the text add one character before it and one after it.
+            int offset = value.Text.Length > card.ValueText.Length ? 1 : 0;
             int first = card.ValueText.IndexOfAny(Digits.ToCharArray());
             int last = card.ValueText.LastIndexOfAny(Digits.ToCharArray());
             if (first >= 0 && last >= 0)
             {
                 if (first > 0)
                 {
-                    value.SetFontSize(valueSize / 2, 0, first);
+                    value.SetFontSize(valueSize / 2, offset, first);
                 }
 
                 if (last < card.ValueText.Length - 1)
                 {
-                    value.SetFontSize(valueSize / 2, last + 1, card.ValueText.Length - last - 1);
+                    value.SetFontSize(valueSize / 2, offset + last + 1, card.ValueText.Length - last - 1);
                 }
             }
         }
@@ -225,11 +251,12 @@ public sealed class ConditionsCardView : FrameworkElement
         return (Brush)FindResource(key);
     }
 
+    // The card's texts are text views upstream, ordered by their first strong letter or, without one, by the layout.
     private FormattedText Text(string value, double size, Brush brush, bool bold = false)
     {
         var typeface = new Typeface(System.Windows.SystemFonts.MessageFontFamily,
             FontStyles.Normal, bold ? FontWeights.Bold : FontWeights.Normal, FontStretches.Normal);
-        return new FormattedText(value, Strings.Culture, FlowDirection, typeface, size, brush,
-            VisualTreeHelper.GetDpi(this).PixelsPerDip);
+        return new FormattedText(BidiText.Embed(value, FlowDirection, FlowDirection), Strings.Culture, FlowDirection, typeface,
+            size, brush, NativeDigits.Substitution, VisualTreeHelper.GetDpi(this).PixelsPerDip);
     }
 }

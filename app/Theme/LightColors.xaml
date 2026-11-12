@@ -56,5 +56,9 @@
     <SolidColorBrush x:Key="ScrimBrush" po:Freeze="True" Color="#99000000" />
     <SolidColorBrush x:Key="HoverLayerBrush" po:Freeze="True" Color="#141D1B20" />
     <SolidColorBrush x:Key="AlertBackgroundBrush" po:Freeze="True" Color="#FFB4AB" />
+    <!-- The main screen's title and caption text, also here so that its forecast columns, built before they join the
+         screen, find a value; the main screen's own palette gives theirs once they are shown. -->
+    <SolidColorBrush x:Key="TitleTextBrush" po:Freeze="True" Color="#000000" />
+    <SolidColorBrush x:Key="CaptionTextBrush" po:Freeze="True" Color="#B2B2B2" />
     <SolidColorBrush x:Key="AlertTextBrush" po:Freeze="True" Color="#BA1A1A" />
 </ResourceDictionary>

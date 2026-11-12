@@ -26,9 +26,11 @@ namespace LibreccioWeather.Appearance;
 internal static class BundledFonts
 {
     /// <summary>
-    /// Roboto, with its medium and bold faces.
+    /// Roboto, with its medium and bold faces. Scripts Roboto lacks, such as Arabic, Chinese, Indic and Thai letters and
+    /// digits, fall back to WPF's system composite font; the line metrics stay Roboto's.
     /// </summary>
-    public static FontFamily Roboto { get; } = new(new Uri("pack://application:,,,/"), "./assets/fonts/#Roboto");
+    public static FontFamily Roboto { get; } =
+        new(new Uri("pack://application:,,,/"), "./assets/fonts/#Roboto, Global User Interface");
 
     public static Typeface RobotoMedium { get; } = new(Roboto, FontStyles.Normal, FontWeights.Medium, FontStretches.Normal);
 }

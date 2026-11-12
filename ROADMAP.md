@@ -69,11 +69,16 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [ ] Model names and per-location model settings
   - [x] Custom server addresses, set in the weather sources settings
 - [ ] Choosing a source for each feature (`SourceManager`)
+  - [ ] Source list, the sources giving a feature at a location, and the recommended and default source for each feature
+  - [ ] Every source in a location's source choices, grouped as recommended, worldwide and by continent
+  - [ ] Recommended sources for new locations from the search, or the default forecast source when one is set
+  - [ ] Credits, data sources and privacy policies of every source a location uses
 - [ ] Other weather sources
+  - [ ] Bright Sky (DWD) for Germany: forecast, current conditions, minutely precipitation and alerts, with its server address in the weather sources settings
 
 ### Translations
 
-- [x] English and French
+- [ ] English and French
   - [x] String importer
   - [x] English used for strings missing from the selected language
   - [x] CLDR plural rules for English and French
@@ -82,6 +87,13 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [ ] Mistray popup title, button and accessibility labels follow language changes without restarting
   - [x] String arrays in the importer
   - [x] Libreccio Weather's own English and French interface text in resource files
+- [ ] Every language Breezy Weather is translated into
+  - [ ] Generated strings for each language
+  - [ ] Languages listed under their own names, sorted by name
+  - [ ] Plural rules from Windows' ICU, with each language's CLDR rules without it
+  - [ ] Regional variants such as Brazilian Portuguese and Traditional Chinese, with Windows' regional languages matched to the closest one
+  - [ ] Right-to-left layout for Arabic, Persian, Hebrew, Urdu and Central Kurdish
+  - [ ] Libreccio Weather's own interface text in each language
 
 ### Main window
 
@@ -91,6 +103,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [ ] "Open in another app"
   - [ ] Pull to refresh (`SwipeRefreshLayout`), with a mouse drag at the top of the screen
   - [ ] Refresh button and F5 in both interface modes
+  - [ ] Refresh error messages: each error's message with its help, or the list of every error when there are several
 - [ ] Main screen header (`HeaderViewHolder`)
   - [x] Condition, temperature with its unit and feels-like temperature
   - [x] Temperatures of the next day and night halves, which depend on the time of day
@@ -136,7 +149,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
     - [x] Sun and moon card typography and icon alignment, elevation, compact spacing and physical-pixel measurements
     - [ ] Precipitation nowcast, alerts, clock and footer
       - [ ] Precipitation nowcast
-      - [ ] Alerts
+      - [ ] Alerts: the alerts in force with their color and dates, or a line announcing alerts to come
       - [ ] Clock
       - [ ] Footer with the forecast source's credit and the data sources dialog
 - [ ] Daily and hourly detail screens (`DetailsActivity`)
@@ -152,6 +165,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Sun, twilight and moon times
   - [x] Sun and moon altitude chart and moon phase
   - [ ] Swiping between days
+- [ ] Alerts screen (`AlertActivity`): each alert with its color, dates, description, instruction and source, opened at the chosen alert
 - [ ] Location search (`SearchActivity`)
   - [x] Search by name, with each result's region and country
   - [x] Attribution, and the no-results and failure messages
@@ -277,6 +291,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Solar date selection at the .NET minimum date and beyond the native date range
   - [x] commons-suncalc's moonrise, moonset, phase and altitude references
 - [ ] Third-party notices for the ported parts that come from other projects
+  - [ ] Weather artwork, fonts, moon calculations, Seasonal++, CLDR default units, and the Mihon-derived background update, update check and crash log code
 - [ ] Libreccio Weather's logo
 - [x] Releases
   - [x] Compressed Windows x64 single-executable package, including the runtime and native libraries

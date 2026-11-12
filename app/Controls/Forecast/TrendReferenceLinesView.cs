@@ -19,6 +19,7 @@ using System.Windows.Media;
 using LibreccioWeather.Appearance;
 using LibreccioWeather.Core.Charts;
 using LibreccioWeather.Core.Localization;
+using LibreccioWeather.Localization;
 using LibreccioWeather.ViewModels.Forecast;
 using Brush = System.Windows.Media.Brush;
 using Pen = System.Windows.Media.Pen;
@@ -58,6 +59,13 @@ public sealed class TrendReferenceLinesView : FrameworkElement
         set => SetValue(ChartBottomProperty, value);
     }
 
+    // The lines' labels keep their left and right sides in a right-to-left layout, as upstream draws them at fixed
+    // positions on its canvas.
+    public TrendReferenceLinesView()
+    {
+        FlowDirection = FlowDirection.LeftToRight;
+    }
+
     protected override void OnRender(DrawingContext drawingContext)
     {
         base.OnRender(drawingContext);
@@ -93,8 +101,8 @@ public sealed class TrendReferenceLinesView : FrameworkElement
 
     private void DrawLabel(DrawingContext drawingContext, string text, Brush brush, int y, bool aboveLine, bool right)
     {
-        var formatted = new FormattedText(text, Strings.Culture, FlowDirection, BundledFonts.RobotoMedium, 12, brush,
-            VisualTreeHelper.GetDpi(this).PixelsPerDip);
+        var formatted = new FormattedText(BidiText.Embed(text, FlowDirection, FlowDirection.LeftToRight), Strings.Culture,
+            FlowDirection, BundledFonts.RobotoMedium, 12, brush, NativeDigits.Substitution, VisualTreeHelper.GetDpi(this).PixelsPerDip);
         drawingContext.DrawText(formatted,
             new Point(right ? ActualWidth - 4 - formatted.Width : 4,
                 aboveLine ? y - formatted.Height - 2 : y + 2));

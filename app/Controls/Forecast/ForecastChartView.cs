@@ -19,6 +19,7 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using LibreccioWeather.Appearance;
 using LibreccioWeather.Core.Localization;
+using LibreccioWeather.Localization;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
 using Color = System.Windows.Media.Color;
@@ -30,8 +31,11 @@ public abstract class ForecastChartView : FrameworkElement
 {
     private readonly ShadowedLabels _labels = new();
 
+    // Trend charts draw on an unmirrored canvas in a right-to-left layout; the columns change places with the layout,
+    // and a chart flips only the positions it chooses itself.
     protected ForecastChartView()
     {
+        FlowDirection = FlowDirection.LeftToRight;
         AddVisualChild(_labels);
     }
 
@@ -61,11 +65,12 @@ public abstract class ForecastChartView : FrameworkElement
     }
 
     // Roboto Medium keeps the labels' size and their placement above and below the curve independent of the Windows
-    // font, as the placement is computed from the text box's height.
+    // font, as the placement is computed from the text box's height. Canvas text is ordered by its first strong letter,
+    // left to right without one.
     protected FormattedText MakeText(string text, double size, Brush brush)
     {
-        return new FormattedText(text, Strings.Culture, FlowDirection, BundledFonts.RobotoMedium, size, brush,
-            VisualTreeHelper.GetDpi(this).PixelsPerDip);
+        return new FormattedText(BidiText.Embed(text, FlowDirection, FlowDirection.LeftToRight), Strings.Culture, FlowDirection,
+            BundledFonts.RobotoMedium, size, brush, NativeDigits.Substitution, VisualTreeHelper.GetDpi(this).PixelsPerDip);
     }
 
     // Brushes, pens and geometries made while drawing are frozen, so WPF does not track them for changes.

@@ -17,6 +17,7 @@
 using System.Windows;
 using System.Windows.Media;
 using LibreccioWeather.Core.Charts;
+using LibreccioWeather.Localization;
 using LibreccioWeather.ViewModels.Forecast;
 using Brush = System.Windows.Media.Brush;
 using Color = System.Windows.Media.Color;
@@ -196,7 +197,7 @@ public sealed class PolylineAndHistogramView : ForecastChartView
 
     private double GetRTLCompactX(double x)
     {
-        return FlowDirection == System.Windows.FlowDirection.RightToLeft ? ActualWidth - x : x;
+        return LayoutDirection.IsRightToLeft ? ActualWidth - x : x;
     }
 
     private static Brush WithAlpha(Brush brush, byte alpha)

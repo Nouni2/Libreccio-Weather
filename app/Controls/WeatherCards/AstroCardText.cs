@@ -19,6 +19,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.TextFormatting;
 using LibreccioWeather.Core.Localization;
+using LibreccioWeather.Localization;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
 using FontFamily = System.Windows.Media.FontFamily;
@@ -133,6 +134,7 @@ internal sealed class AstroCardText
         public override Brush ForegroundBrush => Brushes.Black;
         public override Brush BackgroundBrush => null!;
         public override CultureInfo CultureInfo => Strings.Culture;
+        public override NumberSubstitution NumberSubstitution => NativeDigits.Substitution;
         public override TextEffectCollection TextEffects { get; } = new();
     }
 

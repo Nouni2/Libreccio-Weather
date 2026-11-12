@@ -32,6 +32,9 @@
         MinWidth="400"
         MinHeight="500"
         UseLayoutRounding="True"
+        NumberSubstitution.CultureSource="{DynamicResource AppNumberCultureSource}"
+        NumberSubstitution.CultureOverride="{DynamicResource AppNumberCulture}"
+        NumberSubstitution.Substitution="{DynamicResource AppNumberSubstitution}"
         Background="{DynamicResource SurfaceBrush}">
     <Window.Resources>
         <!-- In wide windows, the location list sits in a pane beside the main screen, which the list button folds. -->
@@ -59,6 +62,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type details:DetailsViewModel}">
             <views:DetailsView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:AlertsViewModel}">
+            <views:AlertsView />
         </DataTemplate>
 
         <!-- A list preference's choices. -->
@@ -146,7 +152,7 @@
                                         </Border.InputBindings>
                                         <DockPanel>
                                             <Viewbox DockPanel.Dock="Left" Width="24" Height="24" Margin="0,0,16,0" VerticalAlignment="Center">
-                                                <Canvas Width="{Binding IconViewport}" Height="{Binding IconViewport}">
+                                                <Canvas Width="{Binding IconViewport}" Height="{Binding IconViewport}" FlowDirection="LeftToRight">
                                                     <Path Data="{Binding Icon}" Fill="{DynamicResource OnSurfaceVariantBrush}" />
                                                 </Canvas>
                                             </Viewbox>
@@ -261,6 +267,7 @@
                                     <DockPanel Margin="16,8">
                                         <Button DockPanel.Dock="Right" Margin="16,0,0,0" VerticalAlignment="Center" Style="{StaticResource IconButton}"
                                                 Command="{Binding PrivacyPolicyCommand}"
+                                                Visibility="{Binding HasPrivacyPolicy, Converter={StaticResource BooleanToVisibility}}"
                                                 ToolTip="{Binding PrivacyPolicyText}" AutomationProperties.Name="{Binding PrivacyPolicyText}">
                                             <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconShieldLock}"
                                                             Foreground="{DynamicResource OnSurfaceBrush}" />
@@ -315,12 +322,64 @@
                                         </Border.InputBindings>
                                         <DockPanel>
                                             <Viewbox DockPanel.Dock="Left" Width="24" Height="24" Margin="0,0,16,0" VerticalAlignment="Center">
-                                                <Canvas Width="{Binding IconViewport}" Height="{Binding IconViewport}">
+                                                <Canvas Width="{Binding IconViewport}" Height="{Binding IconViewport}" FlowDirection="LeftToRight">
                                                     <Path Data="{Binding Icon}" Fill="{DynamicResource OnSurfaceVariantBrush}" />
                                                 </Canvas>
                                             </Viewbox>
                                             <TextBlock VerticalAlignment="Center" Style="{StaticResource BodyMediumText}" TextWrapping="Wrap"
                                                        Text="{Binding Title}" />
+                                        </DockPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- Every error of a refresh, each with its source, and a help icon on those with help. -->
+        <DataTemplate DataType="{x:Type errors:RefreshErrorDetailsDialogViewModel}">
+            <Border Style="{StaticResource DialogSurface}" Padding="0,24,0,8">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Margin="24,0,24,16">
+                        <TextBlock Style="{StaticResource HeadlineSmallText}" TextWrapping="Wrap" Text="{Binding Title}" />
+                        <TextBlock Margin="0,8,0,0" Style="{StaticResource BodyMediumText}" TextWrapping="Wrap" Text="{Binding Content}" />
+                    </StackPanel>
+                    <Button DockPanel.Dock="Bottom" Margin="0,8,16,0" HorizontalAlignment="Right" Style="{StaticResource TextButton}"
+                            IsDefault="True" Command="{Binding CloseCommand}" Content="{Binding CloseText}" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Items}" Focusable="False">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="24,16" Background="Transparent">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding HasHelp}" Value="True">
+                                                        <Setter Property="Cursor" Value="Hand" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <Border.InputBindings>
+                                            <MouseBinding Gesture="LeftClick" Command="{Binding ClickCommand}" />
+                                        </Border.InputBindings>
+                                        <DockPanel>
+                                            <Viewbox DockPanel.Dock="Right" Width="24" Height="24" Margin="16,0,0,0" VerticalAlignment="Center"
+                                                     AutomationProperties.Name="{Binding HelpText}"
+                                                     Visibility="{Binding HasHelp, Converter={StaticResource BooleanToVisibility}}">
+                                                <Canvas Width="960" Height="960">
+                                                    <Path Data="{StaticResource IconHelp}" Fill="{DynamicResource OnSurfaceVariantBrush}" />
+                                                </Canvas>
+                                            </Viewbox>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Style="{StaticResource TitleMediumText}" FontWeight="Normal" TextWrapping="Wrap"
+                                                           Foreground="{DynamicResource OnSurfaceBrush}" Text="{Binding Headline}" />
+                                                <TextBlock Margin="0,8,0,0" Style="{StaticResource BodyMediumText}" TextWrapping="Wrap"
+                                                           Text="{Binding Supporting}"
+                                                           Visibility="{Binding HasSupporting, Converter={StaticResource BooleanToVisibility}}" />
+                                            </StackPanel>
                                         </DockPanel>
                                     </Border>
                                 </DataTemplate>
@@ -408,9 +467,10 @@
                 <StackPanel>
                     <TextBlock Margin="0,0,0,16" Style="{StaticResource HeadlineSmallText}" Text="{Binding Title}" />
                     <Grid>
-                        <TextBox x:Name="EditTextInput" FontSize="16" Padding="12,14"
+                        <TextBox x:Name="EditTextInput" Style="{StaticResource OutlinedTextField}" Tag="{Binding IsError}"
                                  Text="{Binding Input, UpdateSourceTrigger=PropertyChanged}" />
                         <TextBlock Margin="16,0" VerticalAlignment="Center" IsHitTestVisible="False" FontSize="16"
+                                   c:PlaceholderAlignment.Field="{Binding ElementName=EditTextInput}"
                                    Foreground="{DynamicResource OnSurfaceVariantBrush}" Text="{Binding Placeholder}"
                                    Visibility="{Binding HasPlaceholder, Converter={StaticResource BooleanToVisibility}}" />
                     </Grid>

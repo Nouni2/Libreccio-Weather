@@ -61,6 +61,9 @@ public sealed class WeatherAnimationView : FrameworkElement
     {
         IsHitTestVisible = false;
 
+        // The weather is painted on a canvas that a right-to-left layout does not mirror.
+        FlowDirection = FlowDirection.LeftToRight;
+
         // The clouds' circles reach far past the edges, and would otherwise be drawn over the location pane.
         ClipToBounds = true;
         Loaded += (_, _) => UpdateDrawable();

@@ -54,6 +54,51 @@
                 </Grid>
             </Border>
         </DataTemplate>
+        <!-- The alerts in force on the alert color, each a list item, or a line announcing alerts to come. -->
+        <DataTemplate DataType="{x:Type conditions:AlertCardViewModel}">
+            <Border Margin="8" Background="{DynamicResource AlertBackgroundBrush}" CornerRadius="{DynamicResource ForecastCardCornerRadius}"
+                    Cursor="Hand">
+                <Border.InputBindings>
+                    <MouseBinding Gesture="LeftClick" Command="{Binding OpenCommand}" />
+                </Border.InputBindings>
+                <Grid>
+                    <Border Padding="16,8" Background="Transparent"
+                            Visibility="{Binding HasOnlyUpcomingAlerts, Converter={StaticResource BooleanToVisibility}}">
+                        <DockPanel MinHeight="40">
+                            <ContentControl DockPanel.Dock="Left" Margin="0,0,16,0" VerticalAlignment="Center" Style="{StaticResource Icon960}"
+                                            Tag="{StaticResource IconWarning}" Foreground="{DynamicResource OnSurfaceBrush}"
+                                            AutomationProperties.Name="{Binding UpcomingText}" />
+                            <TextBlock VerticalAlignment="Center" Style="{StaticResource TitleMediumText}" FontWeight="Normal" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource OnSurfaceBrush}" Text="{Binding UpcomingText}" />
+                        </DockPanel>
+                    </Border>
+                    <ItemsControl ItemsSource="{Binding Items}" Focusable="False"
+                                  Visibility="{Binding HasCurrentAlerts, Converter={StaticResource BooleanToVisibility}}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Padding="16,8" Background="Transparent">
+                                    <Border.InputBindings>
+                                        <MouseBinding Gesture="LeftClick" Command="{Binding OpenCommand}" />
+                                    </Border.InputBindings>
+                                    <DockPanel MinHeight="56">
+                                        <Path DockPanel.Dock="Left" Width="24" Height="24" Margin="0,0,16,0" VerticalAlignment="Center"
+                                              Stretch="Uniform" Data="{StaticResource AlertTriangle}" Fill="{Binding ColorBrush}" />
+                                        <StackPanel VerticalAlignment="Center">
+                                            <TextBlock Style="{StaticResource TitleMediumText}" FontWeight="Normal" TextWrapping="Wrap"
+                                                       Foreground="{DynamicResource OnSurfaceBrush}" Text="{Binding Headline}" />
+                                            <TextBlock Style="{StaticResource BodyMediumText}" TextWrapping="Wrap"
+                                                       Foreground="{DynamicResource OnSurfaceVariantBrush}" Text="{Binding Dates}"
+                                                       AutomationProperties.Name="{Binding DatesDescription}"
+                                                       Visibility="{Binding HasDates, Converter={StaticResource BooleanToVisibility}}" />
+                                        </StackPanel>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </Border>
+        </DataTemplate>
         <!-- The credit of the forecast source in Material's body large type, bold, centered under the cards. -->
         <DataTemplate DataType="{x:Type conditions:FooterViewModel}">
             <c:SegmentedText Margin="8" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"
@@ -193,13 +238,13 @@
                              box is 2146 and 555, so each margin also removes 246/2048 of the size at the top and 55/2048
                              at the bottom: -10 becomes -26.82 and 5 becomes -1.01. -->
                         <c:NumberAnimTextBlock x:Name="TemperatureNumber" Grid.Column="1" Margin="0,-26.82,0,-3.76" FontSize="140"
-                                               FontFamily="pack://application:,,,/assets/fonts/#Roboto" FontWeight="Bold"
+                                               FontFamily="pack://application:,,,/assets/fonts/#Roboto, Global User Interface" FontWeight="Bold"
                                                Foreground="{DynamicResource InverseSurfaceBrush}"
                                                IsAnimEnabled="{Binding IsTemperatureAnimated, Mode=OneTime}"
                                                NumberStart="{Binding TemperatureStartText}" NumberEnd="{Binding TemperatureText}"
                                                AutomationProperties.Name="{Binding TemperatureDescription}" />
                         <TextBlock Grid.Column="2" Margin="0,-1.01,0,-1.34" FontSize="50"
-                                   FontFamily="pack://application:,,,/assets/fonts/#Roboto" FontWeight="Bold"
+                                   FontFamily="pack://application:,,,/assets/fonts/#Roboto, Global User Interface" FontWeight="Bold"
                                    Foreground="{DynamicResource InverseSurfaceBrush}" Text="{Binding TemperatureUnitText}">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
@@ -222,9 +267,6 @@
                                FontWeight="Light" Foreground="{DynamicResource InverseSurfaceBrush}"
                                TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" Text="{Binding TemperatureRangeText}"
                                AutomationProperties.Name="{Binding TemperatureRangeDescription}" />
-
-                    <TextBlock HorizontalAlignment="Center" Margin="0,8,0,0" Style="{StaticResource BodyMediumText}"
-                               Text="{Binding ErrorText}" />
                 </StackPanel>
                 <!-- The card positions are filled from the code-behind, which keeps each position's view when a new
                      card of the same kind replaces the one shown. -->

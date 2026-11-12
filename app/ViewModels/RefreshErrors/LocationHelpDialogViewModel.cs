@@ -27,11 +27,12 @@ namespace LibreccioWeather.ViewModels.RefreshErrors;
 /// </summary>
 public sealed class LocationHelpDialogViewModel : ObservableObject
 {
-    public LocationHelpDialogViewModel(MainViewModel main)
+    /// <param name="onClose">What Close does, such as going back to the dialog this one was opened from.</param>
+    public LocationHelpDialogViewModel(MainViewModel main, Action onClose)
     {
         Title = Strings.Get("location_message_failed_to_locate");
         CloseText = Strings.Get("action_close");
-        CloseCommand = new RelayCommand(main.CloseDialog);
+        CloseCommand = new RelayCommand(onClose);
         Entries =
         [
             // The location settings are where the location source is chosen; they open on the settings screen that
@@ -57,4 +58,7 @@ public sealed class LocationHelpDialogViewModel : ObservableObject
     public IReadOnlyList<EditLocationEntry> Entries { get; }
 
     public IRelayCommand CloseCommand { get; }
+
+    // A click outside the dialog or Escape closes it, as dismissing upstream's dialog does.
+    public IRelayCommand CancelCommand => CloseCommand;
 }

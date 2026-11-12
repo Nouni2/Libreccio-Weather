@@ -18,7 +18,6 @@ using CommunityToolkit.Mvvm.Input;
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Locations;
 using LibreccioWeather.Core.Sources;
-using LibreccioWeather.Core.Sources.OpenMeteo;
 using LibreccioWeather.ViewModels.About;
 using LibreccioWeather.ViewModels.Locations;
 using Brush = System.Windows.Media.Brush;
@@ -40,10 +39,10 @@ public sealed class FooterViewModel
     {
         var openSources = new RelayCommand(() => main.ShowDialog(new DataSourcesDialogViewModel(main, location)));
         List<TextSegment> segments = [];
-        if (location.ForecastSource == OpenMeteoService.Id
-            && OpenMeteoService.SupportedFeatures.TryGetValue(SourceFeature.Forecast, out string? credit))
+        IWeatherSource? forecastSource = main.Sources.GetWeatherSource(location.ForecastSource);
+        if (forecastSource is not null && forecastSource.SupportedFeatures.TryGetValue(SourceFeature.Forecast, out string? credit))
         {
-            segments.AddRange(LinkCredit(main, credit));
+            segments.AddRange(LinkCredit(main, forecastSource, credit));
             segments.Add(new TextSegment(Strings.Get("dot_separator")));
             segments.Add(new TextSegment(Strings.Get("action_more"), openSources));
         }
@@ -65,10 +64,15 @@ public sealed class FooterViewModel
     /// <summary>
     /// A source's credit with each name that has a link of its own made clickable; the link opens once confirmed.
     /// </summary>
-    internal static IEnumerable<TextSegment> LinkCredit(MainViewModel main, string credit)
+    internal static IEnumerable<TextSegment> LinkCredit(MainViewModel main, ISource source, string credit)
     {
-        return SplitKeeping(credit, OpenMeteoService.AttributionLinks.Keys).Select(part =>
-            OpenMeteoService.AttributionLinks.TryGetValue(part, out string? link)
+        if (source is not IHttpSource { AttributionLinks.Count: > 0 } http)
+        {
+            return [new TextSegment(credit)];
+        }
+
+        return SplitKeeping(credit, http.AttributionLinks.Keys).Select(part =>
+            http.AttributionLinks.TryGetValue(part, out string? link)
                 ? new TextSegment(part, new RelayCommand(() => AboutPages.OpenLink(main, link)))
                 : new TextSegment(part));
     }
@@ -96,7 +100,10 @@ public sealed class FooterViewModel
 /// <summary>
 /// One feature of the location and the source that provides it.
 /// </summary>
-public sealed record DataSourceItem(string Title, IReadOnlyList<TextSegment> Credit, IRelayCommand? PrivacyPolicyCommand, string PrivacyPolicyText);
+public sealed record DataSourceItem(string Title, IReadOnlyList<TextSegment> Credit, IRelayCommand? PrivacyPolicyCommand, string PrivacyPolicyText)
+{
+    public bool HasPrivacyPolicy => PrivacyPolicyCommand is not null;
+}
 
 /// <summary>
 /// The source of each feature the location uses, with its credit and privacy policy.
@@ -117,14 +124,17 @@ public sealed class DataSourcesDialogViewModel : CommunityToolkit.Mvvm.Component
             (SourceFeature.ReverseGeocoding, location.ReverseGeocodingSource),
         ];
 
-        // Open-Meteo is the only source, so a feature is listed when it is set to Open-Meteo and Open-Meteo offers it.
+        // A feature is listed when its source is known and gives it; a source without a privacy policy has no button.
         Items = sources
-            .Where(source => source.Source == OpenMeteoService.Id
-                && OpenMeteoService.SupportedFeatures.ContainsKey(source.Feature))
+            .Where(source => !string.IsNullOrEmpty(source.Source))
+            .Select(source => (source.Feature, Source: main.Sources.GetFeatureSource(source.Source!)))
+            .Where(source => source.Source is not null && source.Source.SupportedFeatures.ContainsKey(source.Feature))
             .Select(source => new DataSourceItem(
                 Strings.Get(SecondarySourcesDialogViewModel.FeatureNameKey(source.Feature)),
-                FooterViewModel.LinkCredit(main, OpenMeteoService.SupportedFeatures[source.Feature]).ToList(),
-                new RelayCommand(() => AboutPages.OpenLink(main, OpenMeteoService.PrivacyPolicyUrl)),
+                FooterViewModel.LinkCredit(main, source.Source!, source.Source!.SupportedFeatures[source.Feature]).ToList(),
+                source.Source is IHttpSource { PrivacyPolicyUrl.Length: > 0 } http
+                    ? new RelayCommand(() => AboutPages.OpenLink(main, http.PrivacyPolicyUrl))
+                    : null,
                 Strings.Get("about_privacy_policy")))
             .ToList();
         Title = Strings.Get("data_sources");

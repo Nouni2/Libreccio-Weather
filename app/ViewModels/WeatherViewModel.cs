@@ -75,9 +75,6 @@ public sealed partial class WeatherViewModel : ObservableObject
     private string? _temperatureRangeDescription;
 
     [ObservableProperty]
-    private string? _errorText;
-
-    [ObservableProperty]
     private string? _refreshTimeText;
 
     [ObservableProperty]
@@ -247,15 +244,13 @@ public sealed partial class WeatherViewModel : ObservableObject
         {
             WeatherResult result = await _refresher.GetWeatherAsync(_location);
             _location = _location with { Weather = result.Weather };
-            ErrorText = result.Errors.Any(error => error.Error == RefreshErrorType.InvalidLocation)
-                ? Strings.Get("weather_message_invalid_location")
-                : null;
             if (result.Weather is { } weather)
             {
                 Show(weather);
             }
 
             _main.UpdateLocation(_location);
+            RefreshErrors.RefreshErrorHelp.ShowErrors(result.Errors, _main);
         }
         finally
         {
@@ -381,6 +376,13 @@ public sealed partial class WeatherViewModel : ObservableObject
         BackgroundBrush = _main.Settings.MainScreenBackgroundEnabled
             ? WeatherBackground.GetBrush(current?.WeatherCode, daylight) : Brushes.Transparent;
         List<object> cards = [];
+
+        // The alert card comes first, before the cards the settings order.
+        if (AlertCardViewModel.Create(weather, _location, _main) is { } alerts)
+        {
+            cards.Add(alerts);
+        }
+
         foreach (CardDisplay card in _main.Settings.CardDisplayList)
         {
             if (card == CardDisplay.Nowcast)

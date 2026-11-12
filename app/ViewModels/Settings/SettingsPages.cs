@@ -19,6 +19,7 @@ using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Refresh;
 using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Settings.Options;
+using LibreccioWeather.Core.Sources.BrightSky;
 using LibreccioWeather.Core.Sources.OpenMeteo;
 using LibreccioWeather.Core.Units;
 using LibreccioWeather.Diagnostics;
@@ -276,7 +277,7 @@ public static class SettingsPages
     {
         // The Windows language comes first, then each shipped language under its own name, sorted by that name.
         List<(string Code, string Name)> languages = AppLanguages.Codes
-            .Select(code => (Code: code, Name: NativeName(code)))
+            .Select(code => (Code: code, Name: AppLanguages.GetOwnName(code)))
             .OrderBy(language => language.Name, StringComparer.Ordinal)
             .ToList();
         languages.Insert(0, ("", Strings.Get("settings_follow_system")));
@@ -632,6 +633,19 @@ public static class SettingsPages
                 main, "settings_weather_source_open_meteo_instance_geocoding", openMeteo.GeocodingInstance,
                 OpenMeteoService.GeocodingBaseUrl, invalid, value => openMeteo.GeocodingInstance = value, isLast: true),
         ];
+
+        // Each other source with settings follows, in the order of the source list.
+        if (main.Sources.GetWeatherSource(BrightSkyService.Id) is BrightSkyService brightSky)
+        {
+            items.AddRange(
+            [
+                SeparatorPreference.Large,
+                new SectionHeaderPreference(brightSky.Name),
+                InstancePreference(
+                    main, "settings_weather_source_bright_sky_instance", brightSky.Instance,
+                    BrightSkyService.BaseUrl, invalid, value => brightSky.Instance = value, isFirst: true, isLast: true),
+            ]);
+        }
         return new SettingsPageViewModel(
             Strings.Get("settings_weather_sources"), items, main.GoBack, () => WeatherSources(main), () => main.NavigateTo(About(main)));
     }
@@ -873,13 +887,5 @@ public static class SettingsPages
     {
         return new ClickablePreference(
             Strings.Get(titleKey), Strings.Get(summaryKey), onClick: null, iconKey, isFirst, isLast, isEnabled: false);
-    }
-
-    // A language's name in that language, starting with a capital, such as "Français".
-    private static string NativeName(string code)
-    {
-        CultureInfo culture = CultureInfo.GetCultureInfo(code);
-        string name = culture.NativeName;
-        return name.Length == 0 ? code : culture.TextInfo.ToUpper(name[0]) + name[1..];
     }
 }

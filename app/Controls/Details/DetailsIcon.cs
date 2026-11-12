@@ -30,7 +30,10 @@ public sealed class DetailsIcon : FrameworkElement
 {
     public static readonly DependencyProperty KeyProperty = DependencyProperty.Register(
         nameof(Key), typeof(string), typeof(DetailsIcon),
-        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender, OnKeyChanged));
+
+    // Only the help icon is marked to be mirrored in a right-to-left layout; every other icon keeps its drawing.
+    private const string MirroredKey = "IconHelp";
 
     public static readonly DependencyProperty ForegroundProperty = DependencyProperty.Register(
         nameof(Foreground), typeof(Brush), typeof(DetailsIcon),
@@ -40,6 +43,20 @@ public sealed class DetailsIcon : FrameworkElement
     {
         Width = 24;
         Height = 24;
+        FlowDirection = FlowDirection.LeftToRight;
+    }
+
+    private static void OnKeyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+    {
+        var icon = (DetailsIcon)sender;
+        if (e.NewValue as string == MirroredKey)
+        {
+            icon.ClearValue(FlowDirectionProperty);
+        }
+        else
+        {
+            icon.FlowDirection = FlowDirection.LeftToRight;
+        }
     }
 
     public string? Key

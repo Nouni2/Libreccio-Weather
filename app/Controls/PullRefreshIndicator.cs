@@ -52,6 +52,9 @@ public sealed class PullRefreshIndicator : FrameworkElement
     public PullRefreshIndicator()
     {
         IsHitTestVisible = false;
+
+        // The arc is drawn as it is in a right-to-left layout, and its shadow keeps falling straight down.
+        FlowDirection = FlowDirection.LeftToRight;
         Effect = new DropShadowEffect { BlurRadius = 6, ShadowDepth = 1, Direction = 270, Opacity = 0.3 };
     }
 

@@ -19,6 +19,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 using LibreccioWeather.Core.Charts;
+using LibreccioWeather.Localization;
 using LibreccioWeather.ViewModels.Details;
 using Brush = System.Windows.Media.Brush;
 using Brushes = System.Windows.Media.Brushes;
@@ -221,8 +222,20 @@ public sealed class DetailsChartView : FrameworkElement
                 }
 
                 double x = ToX(data, layer, value);
-                drawingContext.DrawImage(icon,
-                    new Rect(Math.Round(x - IconSize / 2), Math.Round(layer.Top - IconSize - IconPadding), IconSize, IconSize));
+                Rect bounds = new(Math.Round(x - IconSize / 2), Math.Round(layer.Top - IconSize - IconPadding), IconSize, IconSize);
+
+                // Vico places its icons on a mirrored chart without mirroring them.
+                bool unmirror = FlowDirection == FlowDirection.RightToLeft;
+                if (unmirror)
+                {
+                    drawingContext.PushTransform(new ScaleTransform(-1, 1, bounds.X + bounds.Width / 2, 0));
+                }
+
+                drawingContext.DrawImage(icon, bounds);
+                if (unmirror)
+                {
+                    drawingContext.Pop();
+                }
             }
         }
     }
@@ -415,11 +428,14 @@ public sealed class DetailsChartView : FrameworkElement
         return range == 0 ? layer.Bottom : layer.Bottom - (y - data.MinY) / range * layer.Height;
     }
 
+    // The chart mirrors with a right-to-left layout, as Vico's does; text laid out in the chart's own direction keeps
+    // its letters the right way round on the mirrored chart. Vico orders each label by its first strong letter, left to
+    // right without one.
     private FormattedText MakeText(string text, Brush brush)
     {
-        return new FormattedText(text, CultureInfo.CurrentUICulture, FlowDirection.LeftToRight,
-            new Typeface(FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal), LabelSize, brush,
-            VisualTreeHelper.GetDpi(this).PixelsPerDip);
+        return new FormattedText(BidiText.Embed(text, FlowDirection, FlowDirection.LeftToRight), CultureInfo.CurrentUICulture,
+            FlowDirection, new Typeface(FontFamily, FontStyles.Normal, FontWeights.Normal, FontStretches.Normal), LabelSize, brush,
+            NativeDigits.Substitution, VisualTreeHelper.GetDpi(this).PixelsPerDip);
     }
 
     private FontFamily FontFamily => (FontFamily)GetValue(System.Windows.Documents.TextElement.FontFamilyProperty);

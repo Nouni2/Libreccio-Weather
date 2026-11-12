@@ -1,6 +1,40 @@
 # Changelog
 
-## [0.3.1]
+## [0.4.0] - 2026-11-12
+
+### Added
+
+- Every language Breezy Weather is translated into, 66 in all, with regional variants such as British English, Brazilian Portuguese and Traditional Chinese. The language setting lists each language under its own name, and plurals follow each language's rules. Libreccio Weather's own few texts stay in English outside English and French.
+- Right-to-left layout for Arabic, Persian, Hebrew, Urdu and Central Kurdish, mirrored as in Breezy Weather: images, icons, the weather animation and the forecast charts keep their drawing, and text in another direction keeps its order, such as "Follow system (Dark)" in Arabic.
+- Arabic, Persian, Central Kurdish, Bengali and Marathi show numbers in their own digits, as in Breezy Weather.
+- Bright Sky (DWD), Breezy Weather's weather source for Germany: forecast, current conditions, precipitation for the next two hours and the Deutscher Wetterdienst's alerts. Its server address can be changed in Settings → Weather sources.
+- A location's weather sources list every source for each feature: recommended sources first, then worldwide sources, then each continent. New places take Breezy Weather's default sources, so German places get Bright Sky, and places using Open-Meteo also get its current conditions.
+- The alert card on the main screen and the Alerts screen it opens, with each alert's headline, dates, description, instruction and source. Open-Meteo gives no alerts; they come from Bright Sky.
+- Refresh errors are reported as in Breezy Weather: a single error shows its message, with Help, Change, Allow or Enable where it has help, and several errors show "Refresh completed with errors" with the list of them.
+- Settings → Debug with "Share crash logs", which saves the app's recent errors with the app, Windows and device versions to a text file and offers to open it. Debug builds also have Breezy Weather's developer tools.
+- Errors are written to `libreccio-weather.log` in the app's data folder.
+
+### Changed
+
+- The settings text dialog uses Material 3's outlined text field, as in Breezy Weather.
+- The footer, the data sources dialog and the About screen's privacy policies cover every weather source.
+
+### Fixed
+
+- In text fields, the cursor goes where the click lands, the text is no longer pushed in by doubled padding, and a placeholder such as a server's default address starts where the cursor does.
+- A setting that cannot be saved, such as on a full disk, is kept for the session instead of closing the app.
+- A location search answered with an unexpected reply shows "search failed" instead of closing the app.
+- Saved locations load without freezing the window, at startup and when the location list opens.
+- An error after a background update no longer stops later background updates.
+- Each day's sun times, air quality, pollen and sunshine take less work to compute during a refresh.
+- Without Windows' ICU, numbers with a sign are written as in Breezy Weather.
+- "Resource not found" warnings no longer appear in the debug output.
+
+### Security
+
+- `spp.dll` is loaded only from the app's folder or Windows' system folders, and `icu.dll` only from System32.
+
+## [0.3.1] - 2026-11-11
 
 ### Fixed
 

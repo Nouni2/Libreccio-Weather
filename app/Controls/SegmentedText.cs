@@ -18,6 +18,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using LibreccioWeather.Localization;
 using LibreccioWeather.ViewModels.WeatherCards;
 
 namespace LibreccioWeather.Controls;
@@ -53,5 +54,7 @@ public sealed class SegmentedText : TextBlock
             link.SetBinding(TextElement.ForegroundProperty, new System.Windows.Data.Binding(nameof(Foreground)) { Source = this });
             Inlines.Add(link);
         }
+
+        BidiText.EmbedInlines(Inlines, string.Concat((Segments ?? []).Select(segment => segment.Text)), FlowDirection);
     }
 }

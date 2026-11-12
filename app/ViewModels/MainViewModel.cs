@@ -24,6 +24,7 @@ using LibreccioWeather.Core.Locations;
 using LibreccioWeather.Core.Refresh;
 using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Settings.Options;
+using LibreccioWeather.Core.Sources;
 using LibreccioWeather.Core.Sources.OpenMeteo;
 using LibreccioWeather.ViewModels.Details;
 using LibreccioWeather.ViewModels.Locations;
@@ -102,6 +103,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public MainViewModel(
         OpenMeteoService openMeteo,
+        SourceManager sources,
         WeatherRefresher refresher,
         LocationRepository locationRepository,
         WeatherRepository weatherRepository,
@@ -110,6 +112,7 @@ public sealed partial class MainViewModel : ObservableObject
         string regionCode)
     {
         _openMeteo = openMeteo;
+        Sources = sources;
         _refresher = refresher;
         _locationRepository = locationRepository;
         _weatherRepository = weatherRepository;
@@ -205,6 +208,11 @@ public sealed partial class MainViewModel : ObservableObject
     public SettingsManager Settings => _settings;
 
     public OpenMeteoService OpenMeteo => _openMeteo;
+
+    /// <summary>
+    /// Every weather source, for the choices of sources and their settings.
+    /// </summary>
+    public SourceManager Sources { get; }
 
     /// <summary>
     /// Checks for new releases of the app; set once the app has started.
@@ -501,7 +509,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     public void OpenSearch()
     {
-        NavigateTo(new SearchViewModel(_openMeteo, ChooseFromSearch, GoBack));
+        NavigateTo(new SearchViewModel(_openMeteo, Sources, _settings.DefaultForecastSource, ChooseFromSearch, GoBack));
     }
 
     // A chosen place first shows its weather sources. Saving adds the place with them; dismissing stays on the search.
@@ -520,6 +528,15 @@ public sealed partial class MainViewModel : ObservableObject
     public void OpenSettings()
     {
         NavigateTo(SettingsPages.Root(this));
+    }
+
+    /// <summary>
+    /// Opens a location's alerts, scrolled to an alert, or to the first one without it.
+    /// </summary>
+    public void OpenAlerts(Location location, string? alertId)
+    {
+        location = _locations.FirstOrDefault(item => item.FormattedId == location.FormattedId) ?? location;
+        NavigateTo(new AlertsViewModel(this, location, alertId));
     }
 
     /// <summary>
@@ -581,6 +598,12 @@ public sealed partial class MainViewModel : ObservableObject
             || !saved.IsValid(_settings.UpdateInterval.Validity)
             || saved.Base.RefreshTime < languageUpdateTime)
         {
+            // The listed errors may no longer apply once the new refresh starts.
+            if (Dialog is RefreshErrors.RefreshErrorDetailsDialogViewModel)
+            {
+                CloseDialog();
+            }
+
             weather.RefreshCommand.Execute(null);
         }
     }

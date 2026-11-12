@@ -17,6 +17,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using LibreccioWeather.Localization;
 using LibreccioWeather.ViewModels.Details;
 using Brush = System.Windows.Media.Brush;
 
@@ -67,6 +68,8 @@ public sealed class DetailsRunsText : TextBlock
 
             Inlines.Add(run);
         }
+
+        BidiText.EmbedInlines(Inlines, string.Concat((Runs ?? []).Select(textRun => textRun.Text)), FlowDirection);
     }
 
     // A subscript is drawn at 80 % of the text size.

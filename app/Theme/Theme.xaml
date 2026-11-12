@@ -16,6 +16,7 @@
 <!-- Material 3 baseline dark colors. -->
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
                     xmlns:c="clr-namespace:LibreccioWeather.Controls">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="DarkColors.xaml" />
@@ -94,8 +95,10 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
-                    <Border Background="{TemplateBinding Background}" CornerRadius="{DynamicResource SearchCornerRadius}" Padding="{TemplateBinding Padding}">
-                        <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
+                    <Border Background="{TemplateBinding Background}" CornerRadius="{DynamicResource SearchCornerRadius}">
+                        <!-- Not rounded and not focusable; see OutlinedTextField. The text box gives its padding to the text
+                             host itself. -->
+                        <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" UseLayoutRounding="False" Focusable="False" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
@@ -117,8 +120,10 @@
             <Setter.Value>
                 <ControlTemplate TargetType="TextBox">
                     <Border x:Name="Outline" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4" Padding="{TemplateBinding Padding}">
-                        <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" />
+                            BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                        <!-- Not rounded and not focusable; see OutlinedTextField. The text box gives its padding to the text
+                             host itself. -->
+                        <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" UseLayoutRounding="False" Focusable="False" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
@@ -128,7 +133,57 @@
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Outline" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}" />
                             <Setter TargetName="Outline" Property="BorderThickness" Value="2" />
-                            <Setter TargetName="Outline" Property="Padding" Value="11,7" />
+                            <Setter Property="Padding" Value="11,7" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Material 3 outlined text field, 56 high, with the colors the settings' text dialog sets: a 1-pixel on-surface-variant
+         outline, 2 pixels in on-surface while focused, and the error color, caret included, while its content is invalid,
+         which the Tag set to True marks. -->
+    <Style x:Key="OutlinedTextField" TargetType="TextBox">
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Foreground" Value="{DynamicResource OnSurfaceBrush}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource PrimaryBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{DynamicResource OnSurfaceVariantBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="16,15" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Grid>
+                        <Border x:Name="Outline" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
+                            <!-- Layout rounding, inherited from the window, moves the text to whole pixels while the caret is
+                                 still placed from the unrounded glyph positions, so on a scaled display the caret lands inside
+                                 a letter. The text host is therefore not rounded. The text box gives its padding to the text
+                                 host itself; padding here as well would inset the text twice. A focusable scroll viewer takes
+                                 focus on a left click and marks the click handled, so the text box never places the caret
+                                 where the click landed; the host is therefore not focusable. -->
+                            <ScrollViewer x:Name="PART_ContentHost" VerticalAlignment="Center" UseLayoutRounding="False" Focusable="False" />
+                        </Border>
+                        <!-- The thicker focused outline is a separate layer over the thin one, so focusing the field does not
+                             re-arrange the text host after a click has placed the caret. -->
+                        <Border x:Name="FocusOutline" BorderBrush="{DynamicResource OnSurfaceBrush}" BorderThickness="2"
+                                CornerRadius="4" IsHitTestVisible="False" Visibility="Hidden" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="FocusOutline" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <!-- Tag holds an object, so the value it is compared with is a Boolean rather than the text "True". -->
+                        <Trigger Property="Tag">
+                            <Trigger.Value>
+                                <sys:Boolean>True</sys:Boolean>
+                            </Trigger.Value>
+                            <Setter TargetName="Outline" Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
+                            <Setter TargetName="FocusOutline" Property="BorderBrush" Value="{DynamicResource ErrorBrush}" />
+                            <Setter Property="CaretBrush" Value="{DynamicResource ErrorBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -423,7 +478,27 @@
         <Setter Property="Height" Value="36" />
     </Style>
 
+    <!-- Images keep their drawing in a right-to-left layout, as Android only mirrors a drawable marked to be mirrored. -->
+    <Style TargetType="Image">
+        <Setter Property="FlowDirection" Value="LeftToRight" />
+    </Style>
+
+    <!-- A tooltip opens outside the window it belongs to, so it takes the language's direction and digits from the
+         resources. -->
+    <Style TargetType="ToolTip" BasedOn="{StaticResource {x:Type ToolTip}}">
+        <Setter Property="FlowDirection" Value="{DynamicResource AppFlowDirection}" />
+        <Setter Property="NumberSubstitution.CultureSource" Value="{DynamicResource AppNumberCultureSource}" />
+        <Setter Property="NumberSubstitution.CultureOverride" Value="{DynamicResource AppNumberCulture}" />
+        <Setter Property="NumberSubstitution.Substitution" Value="{DynamicResource AppNumberSubstitution}" />
+    </Style>
+
     <Style x:Key="AppContextMenu" TargetType="ContextMenu">
+        <!-- A menu opens outside the window it belongs to, so it takes the language's direction and digits from the
+             resources. -->
+        <Setter Property="FlowDirection" Value="{DynamicResource AppFlowDirection}" />
+        <Setter Property="NumberSubstitution.CultureSource" Value="{DynamicResource AppNumberCultureSource}" />
+        <Setter Property="NumberSubstitution.CultureOverride" Value="{DynamicResource AppNumberCulture}" />
+        <Setter Property="NumberSubstitution.Substitution" Value="{DynamicResource AppNumberSubstitution}" />
         <Setter Property="Background" Value="{DynamicResource SurfaceContainerHighBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource OnSurfaceBrush}" />
         <Setter Property="Template">
@@ -448,7 +523,7 @@
                                 <Border x:Name="Highlight" Padding="{TemplateBinding Padding}" CornerRadius="4" Background="Transparent">
                                     <DockPanel>
                                         <!-- The icons live in a sibling dictionary, so they are resolved at run time. -->
-                                        <Path x:Name="Check" DockPanel.Dock="Left" Width="16" Height="16" Margin="0,0,8,0"
+                                        <Path x:Name="Check" DockPanel.Dock="Left" Width="16" Height="16" Margin="0,0,8,0" FlowDirection="LeftToRight"
                                               Stretch="Uniform" Fill="{TemplateBinding Foreground}"
                                               Data="{DynamicResource IconCheck}" Visibility="Collapsed" />
                                         <Path x:Name="Arrow" DockPanel.Dock="Right" Width="16" Height="16" Margin="16,0,0,0"

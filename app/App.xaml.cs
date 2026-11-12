@@ -25,12 +25,15 @@ using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Processes;
 using LibreccioWeather.Core.Refresh;
 using LibreccioWeather.Core.Settings;
+using LibreccioWeather.Core.Sources;
+using LibreccioWeather.Core.Sources.BrightSky;
 using LibreccioWeather.Core.Sources.OpenMeteo;
 using LibreccioWeather.Core.Updates;
 using LibreccioWeather.Diagnostics;
 using LibreccioWeather.Display;
 using LibreccioWeather.Icons;
 using LibreccioWeather.Input;
+using LibreccioWeather.Localization;
 using LibreccioWeather.Tray;
 using LibreccioWeather.Updates;
 using LibreccioWeather.ViewModels;
@@ -83,6 +86,7 @@ public partial class App : System.Windows.Application
         TaskScheduler.UnobservedTaskException += (_, args) => ErrorLog.Record("Unobserved task exception", args.Exception);
 
         ProportionalWheelScroll.Register();
+        BidiText.Register();
 
         SettingsManager settings = new(new ConfigStore(SettingsManager.DefaultPath));
         RefreshRate.MatchesMonitor = settings.IsScreenRefreshRateEnabled;
@@ -106,10 +110,12 @@ public partial class App : System.Windows.Application
         OpenMeteoService openMeteo = new(HttpClient, new ConfigStore(SettingsManager.GetSourcePath(OpenMeteoService.Id)));
         WeatherRepository weather = new(database);
         LocationRepository locations = new(database);
-        WeatherRefresher refresher = new(openMeteo, weather, settings);
+        BrightSkyService brightSky = new(HttpClient, new ConfigStore(SettingsManager.GetSourcePath(BrightSkyService.Id)));
+        SourceManager sources = new(worldwideWeatherSources: [openMeteo], nationalWeatherSources: [brightSky]);
+        WeatherRefresher refresher = new(sources, weather, settings);
         WeatherUpdateJob updateJob = new(refresher, locations, weather, settings);
         MainViewModel viewModel = new(
-            openMeteo, refresher, locations, weather, updateJob, settings, RegionInfo.CurrentRegion.TwoLetterISORegionName);
+            openMeteo, sources, refresher, locations, weather, updateJob, settings, RegionInfo.CurrentRegion.TwoLetterISORegionName);
         AppUpdateChecker updateChecker = new(
             settings, new GetApplicationRelease(settings, new ReleaseService(HttpClient)), Dispatcher) { Main = viewModel };
         viewModel.UpdateChecker = updateChecker;

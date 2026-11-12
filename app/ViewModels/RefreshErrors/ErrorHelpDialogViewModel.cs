@@ -38,5 +38,8 @@ public sealed class ErrorHelpDialogViewModel(string title, string content, strin
 
     public IRelayCommand CloseCommand { get; } = new RelayCommand(onClose);
 
+    // A click outside the dialog or Escape closes it, as dismissing upstream's dialog does.
+    public IRelayCommand CancelCommand => CloseCommand;
+
     public IRelayCommand ActionCommand { get; } = new RelayCommand(() => onAction?.Invoke());
 }

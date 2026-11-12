@@ -90,7 +90,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Viewbox.Style>
-                        <Canvas Width="{Binding IconViewport}" Height="{Binding IconViewport}">
+                        <Canvas Width="{Binding IconViewport}" Height="{Binding IconViewport}" FlowDirection="LeftToRight">
                             <Path Data="{Binding Icon}" Fill="{DynamicResource OnSurfaceBrush}" />
                         </Canvas>
                     </Viewbox>
@@ -205,7 +205,7 @@
         <DockPanel Grid.Row="0" Margin="4,0,8,0">
             <Button DockPanel.Dock="Left" Style="{StaticResource IconButton}" Command="{Binding BackCommand}"
                     ToolTip="{l:Translate action_back}" AutomationProperties.Name="{l:Translate action_back}">
-                <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconArrowBack}" />
+                <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconArrowBack}" FlowDirection="{DynamicResource AppFlowDirection}" />
             </Button>
             <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}" Command="{Binding AboutCommand}"
                     Visibility="{Binding HasAboutButton, Converter={StaticResource BooleanToVisibility}}"
