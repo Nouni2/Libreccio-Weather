@@ -21,6 +21,7 @@
         xmlns:details="clr-namespace:LibreccioWeather.ViewModels.Details"
         xmlns:about="clr-namespace:LibreccioWeather.ViewModels.About"
         xmlns:locations="clr-namespace:LibreccioWeather.ViewModels.Locations"
+        xmlns:errors="clr-namespace:LibreccioWeather.ViewModels.RefreshErrors"
         xmlns:views="clr-namespace:LibreccioWeather.Views"
         xmlns:l="clr-namespace:LibreccioWeather.Localization"
         xmlns:c="clr-namespace:LibreccioWeather.Controls"
@@ -270,6 +271,58 @@
                                                              Segments="{Binding Credit}" />
                                         </StackPanel>
                                     </DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- A refresh error explained, with Close and, for some errors, the way to solve it. -->
+        <DataTemplate DataType="{x:Type errors:ErrorHelpDialogViewModel}">
+            <Border Style="{StaticResource DialogSurface}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Margin="0,0,0,16" Style="{StaticResource HeadlineSmallText}" TextWrapping="Wrap"
+                               Text="{Binding Title}" />
+                    <StackPanel DockPanel.Dock="Bottom" Margin="0,24,0,0" HorizontalAlignment="Right" Orientation="Horizontal">
+                        <Button Margin="0,0,8,0" Style="{StaticResource TextButton}" Command="{Binding ActionCommand}" Content="{Binding ActionText}"
+                                Visibility="{Binding HasAction, Converter={StaticResource BooleanToVisibility}}" />
+                        <Button Style="{StaticResource TextButton}" IsDefault="True" Command="{Binding CloseCommand}" Content="{Binding CloseText}" />
+                    </StackPanel>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <TextBlock Style="{StaticResource BodyMediumText}" TextWrapping="Wrap" Text="{Binding Content}" />
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- The current position could not be found: two ways to go on, then Close. -->
+        <DataTemplate DataType="{x:Type errors:LocationHelpDialogViewModel}">
+            <Border Style="{StaticResource DialogSurface}" Padding="0,24,0,8">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Margin="24,0,24,16" Style="{StaticResource HeadlineSmallText}" TextWrapping="Wrap"
+                               Text="{Binding Title}" />
+                    <Button DockPanel.Dock="Bottom" Margin="0,8,16,0" HorizontalAlignment="Right" Style="{StaticResource TextButton}"
+                            IsDefault="True" Command="{Binding CloseCommand}" Content="{Binding CloseText}" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl ItemsSource="{Binding Entries}" Focusable="False">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Padding="24,12" Background="Transparent" Cursor="Hand">
+                                        <Border.InputBindings>
+                                            <MouseBinding Gesture="LeftClick" Command="{Binding ClickCommand}" />
+                                        </Border.InputBindings>
+                                        <DockPanel>
+                                            <Viewbox DockPanel.Dock="Left" Width="24" Height="24" Margin="0,0,16,0" VerticalAlignment="Center">
+                                                <Canvas Width="{Binding IconViewport}" Height="{Binding IconViewport}">
+                                                    <Path Data="{Binding Icon}" Fill="{DynamicResource OnSurfaceVariantBrush}" />
+                                                </Canvas>
+                                            </Viewbox>
+                                            <TextBlock VerticalAlignment="Center" Style="{StaticResource BodyMediumText}" TextWrapping="Wrap"
+                                                       Text="{Binding Title}" />
+                                        </DockPanel>
+                                    </Border>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>

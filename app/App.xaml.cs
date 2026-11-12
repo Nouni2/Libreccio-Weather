@@ -87,10 +87,14 @@ public partial class App : System.Windows.Application
         SettingsManager settings = new(new ConfigStore(SettingsManager.DefaultPath));
         RefreshRate.MatchesMonitor = settings.IsScreenRefreshRateEnabled;
         ProportionalWheelScroll.TouchpadSpeed = (settings.TouchpadScrollSpeed ?? 100) / 100.0;
+        FormatterSettings.UseNumberFormatter = settings.UseNumberFormatter;
+        FormatterSettings.UseMeasureFormat = settings.UseMeasureFormat;
         settings.SettingsChanged += (_, _) =>
         {
             RefreshRate.MatchesMonitor = settings.IsScreenRefreshRateEnabled;
             ProportionalWheelScroll.TouchpadSpeed = (settings.TouchpadScrollSpeed ?? 100) / 100.0;
+            FormatterSettings.UseNumberFormatter = settings.UseNumberFormatter;
+            FormatterSettings.UseMeasureFormat = settings.UseMeasureFormat;
         };
 
         // The language is set before the first window opens, because translated text is read when XAML loads.

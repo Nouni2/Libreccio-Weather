@@ -40,7 +40,11 @@ public static class DurationFormatting
         };
         string precisionSkeleton = precision == 0 ? "precision-integer" : "." + new string('#', precision);
         double hours = precision == 0 ? UnitFormatting.RoundToInt(duration.TotalHours) : duration.TotalHours;
-        if (Icu.SupportsUnitNames
+
+        // Either switch allows ICU: the number formatter's output, or the measure format's, which ICU gives the same way.
+        bool useNumberFormatter = FormatterSettings.UseNumberFormatter;
+        bool useMeasureFormat = FormatterSettings.UseMeasureFormat;
+        if (Icu.SupportsUnitNames && (useNumberFormatter || useMeasureFormat)
             && Icu.FormatNumber($"measure-unit/duration-hour {width} {precisionSkeleton}", hours, Strings.Culture)?.Text is { } formatted)
         {
             return formatted;
@@ -48,7 +52,8 @@ public static class DurationFormatting
 
         string suffix = unitWidth == UnitWidth.Long ? "long" : "short";
         return string.Format(Strings.Culture, Strings.GetUnit($"duration_hr_nominative_{suffix}"),
-            NumberFormatting.Format(duration.TotalHours, precision, Strings.Culture));
+            NumberFormatting.Format(duration.TotalHours, precision, Strings.Culture,
+                useNumberFormatter: useNumberFormatter, useNumberFormat: useMeasureFormat));
     }
 
     /// <summary>
@@ -79,7 +84,8 @@ public static class DurationFormatting
             parts.Add((0, DurationPart.Hour));
         }
 
-        if (Icu.SupportsDurations && FormatWithIcu(parts, unitWidth) is { } formatted)
+        if (Icu.SupportsDurations && (FormatterSettings.UseNumberFormatter || FormatterSettings.UseMeasureFormat)
+            && FormatWithIcu(parts, unitWidth) is { } formatted)
         {
             return formatted;
         }

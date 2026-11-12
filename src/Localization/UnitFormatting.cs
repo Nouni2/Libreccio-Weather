@@ -22,11 +22,23 @@ namespace LibreccioWeather.Core.Localization;
 /// <summary>
 /// Unit precision and unit-name width are independent, so a short value can use a full unit name.
 /// </summary>
+/// <remarks>
+/// Every value follows <see cref="FormatterSettings"/>. Temperatures, distances, speeds, pressures, precipitation and
+/// pollutant concentrations take the number formatter switch for both switches once past their language exceptions, so
+/// with it off they use the translated unit strings and ungrouped digits whatever the measure format switch says.
+/// </remarks>
 public static class UnitFormatting
 {
     public static string FormatValue(Speed speed, SpeedUnit unit, UnitWidth width = UnitWidth.Short)
     {
-        return NumberFormatting.Format(speed.ToDouble(unit), unit.GetPrecision(width), Strings.Culture);
+        return FormatPlainValue(speed.ToDouble(unit), unit.GetPrecision(width));
+    }
+
+    // A value without its unit, which uses the measure format switch for its grouping.
+    private static string FormatPlainValue(double value, int decimals)
+    {
+        return NumberFormatting.Format(value, decimals, Strings.Culture,
+            useNumberFormatter: FormatterSettings.UseNumberFormatter, useNumberFormat: FormatterSettings.UseMeasureFormat);
     }
 
     public static string Format(
@@ -38,12 +50,12 @@ public static class UnitFormatting
 
     public static string FormatValue(Distance distance, DistanceUnit unit, UnitWidth width = UnitWidth.Short)
     {
-        return NumberFormatting.Format(distance.ToDouble(unit), unit.GetPrecision(width), Strings.Culture);
+        return FormatPlainValue(distance.ToDouble(unit), unit.GetPrecision(width));
     }
 
     public static string FormatValue(Pressure pressure, PressureUnit unit, UnitWidth width = UnitWidth.Short)
     {
-        return NumberFormatting.Format(pressure.ToDouble(unit), unit.GetPrecision(width), Strings.Culture);
+        return FormatPlainValue(pressure.ToDouble(unit), unit.GetPrecision(width));
     }
 
     public static string Format(
@@ -65,7 +77,7 @@ public static class UnitFormatting
         UnitNames names = GetUnitNames(unit);
         CultureInfo culture = Strings.Culture;
         string language = culture.TwoLetterISOLanguageName;
-        bool useIcu = !(unit is PressureUnit && language == "eo")
+        bool useIcu = !(unit is PressureUnit or PollutantConcentrationUnit && language == "eo")
             && !(unit == SpeedUnit.Knot && language == "eo")
             && !(unit == SpeedUnit.BeaufortScale && language is "eo" or "es" or "eu" or "ga" or "ja" or "zh");
         string region = culture.Name.Split('-')[^1];
@@ -78,7 +90,8 @@ public static class UnitFormatting
             culture = CultureInfo.GetCultureInfo("en-001");
         }
 
-        if (useIcu && names.IcuUnit is { } icuUnit
+        bool useNumberFormatter = FormatterSettings.UseNumberFormatter;
+        if (useIcu && useNumberFormatter && names.IcuUnit is { } icuUnit
             && FormatIcuMeasure(value, unit.GetPrecision(valueWidth), $"measure-unit/{icuUnit}"
                 + (names.IcuPer is not null ? " per-measure-unit/duration-second" : ""), unitWidth, culture) is { } formatted)
         {
@@ -87,13 +100,14 @@ public static class UnitFormatting
 
         string suffix = unitWidth == UnitWidth.Long ? "long" : "short";
         string text = string.Format(Strings.Culture, Strings.GetUnit($"{names.Name}_nominative_{suffix}"),
-            NumberFormatting.Format(value, unit.GetPrecision(valueWidth), culture));
+            NumberFormatting.Format(value, unit.GetPrecision(valueWidth), culture, useNumberFormatter: useNumberFormatter,
+                useNumberFormat: useIcu ? useNumberFormatter : FormatterSettings.UseMeasureFormat));
         return names.Per is null ? text : string.Format(Strings.Culture, Strings.GetUnit($"{names.Per}_per_{suffix}"), text);
     }
 
     public static string FormatValue(Precipitation precipitation, PrecipitationUnit unit, UnitWidth width = UnitWidth.Short)
     {
-        return NumberFormatting.Format(precipitation.ToDouble(unit), unit.GetPrecision(width), Strings.Culture);
+        return FormatPlainValue(precipitation.ToDouble(unit), unit.GetPrecision(width));
     }
 
     public static string Format(
@@ -111,7 +125,11 @@ public static class UnitFormatting
         UnitWidth valueWidth = UnitWidth.Short, UnitWidth unitWidth = UnitWidth.Short)
     {
         UnitNames names = GetUnitNames(unit);
-        if (names.IcuUnit is { } icuUnit && FormatIcuMeasure(value, unit.GetPrecision(valueWidth),
+
+        // CLDR has no Esperanto liters per square meter.
+        bool useIcu = !(unit == PrecipitationUnit.LiterPerSquareMeter && Strings.Culture.TwoLetterISOLanguageName == "eo");
+        bool useNumberFormatter = FormatterSettings.UseNumberFormatter;
+        if (useIcu && useNumberFormatter && names.IcuUnit is { } icuUnit && FormatIcuMeasure(value, unit.GetPrecision(valueWidth),
             $"measure-unit/{icuUnit}" + (unit == PrecipitationUnit.LiterPerSquareMeter ? " per-measure-unit/area-square-meter" : ""),
             unitWidth) is { } formatted)
         {
@@ -120,7 +138,8 @@ public static class UnitFormatting
 
         string suffix = unitWidth == UnitWidth.Long ? "long" : "short";
         string text = string.Format(Strings.Culture, Strings.GetUnit($"{names.Name}_nominative_{suffix}"),
-            NumberFormatting.Format(value, unit.GetPrecision(valueWidth), Strings.Culture));
+            NumberFormatting.Format(value, unit.GetPrecision(valueWidth), Strings.Culture, useNumberFormatter: useNumberFormatter,
+                useNumberFormat: useIcu ? useNumberFormatter : FormatterSettings.UseMeasureFormat));
         return names.Per is null ? text : string.Format(Strings.Culture, Strings.GetUnit($"{names.Per}_per_{suffix}"), text);
     }
 
@@ -141,13 +160,16 @@ public static class UnitFormatting
     public static string Format(PollenConcentration concentration, UnitWidth unitWidth = UnitWidth.Short)
     {
         string pattern = Strings.GetUnit(unitWidth == UnitWidth.Long ? "volume_m3_per_long" : "volume_m3_per_short");
-        return string.Format(Strings.Culture, pattern, NumberFormatting.Format(
-            concentration.InPerCubicMeter, PollenConcentrationUnit.PerCubicMeter.GetPrecision(UnitWidth.Short), Strings.Culture));
+        return string.Format(Strings.Culture, pattern,
+            FormatPlainValue(concentration.InPerCubicMeter, PollenConcentrationUnit.PerCubicMeter.GetPrecision(UnitWidth.Short)));
     }
 
+    // Without the number formatter, the percent uses the language's percent format, whatever the measure format switch.
     public static string FormatPercent(Ratio ratio, UnitWidth valueWidth = UnitWidth.Short)
     {
-        return FormatIcuMeasure(ratio.InPercent, RatioUnit.Percent.GetPrecision(valueWidth), "percent", UnitWidth.Short)
+        return (FormatterSettings.UseNumberFormatter
+                ? FormatIcuMeasure(ratio.InPercent, RatioUnit.Percent.GetPrecision(valueWidth), "percent", UnitWidth.Short)
+                : null)
             ?? PercentFormatting.Format(ratio.InPercent, RatioUnit.Percent.GetPrecision(valueWidth), Strings.Culture);
     }
 
@@ -156,12 +178,12 @@ public static class UnitFormatting
     /// </summary>
     public static string FormatValue(Ratio ratio, UnitWidth width = UnitWidth.Short)
     {
-        return NumberFormatting.Format(ratio.InPercent, RatioUnit.Percent.GetPrecision(width), Strings.Culture);
+        return FormatPlainValue(ratio.InPercent, RatioUnit.Percent.GetPrecision(width));
     }
 
     public static string FormatValue(Temperature temperature, TemperatureUnit unit, UnitWidth width = UnitWidth.Short)
     {
-        return NumberFormatting.Format(temperature.ToDouble(unit), unit.GetPrecision(width), Strings.Culture);
+        return FormatPlainValue(temperature.ToDouble(unit), unit.GetPrecision(width));
     }
 
     private static string? FormatIcuMeasure(
@@ -193,15 +215,17 @@ public static class UnitFormatting
     {
         string language = Strings.Culture.TwoLetterISOLanguageName;
         UnitNames names = GetUnitNames(unit);
-        if (unitWidth != UnitWidth.Narrow && language != "eo" && !(language == "pl" && unitWidth == UnitWidth.Short)
-            && names.IcuUnit is { } icuUnit
+        bool useIcu = unitWidth != UnitWidth.Narrow && language != "eo" && !(language == "pl" && unitWidth == UnitWidth.Short);
+        bool useNumberFormatter = FormatterSettings.UseNumberFormatter;
+        if (useIcu && useNumberFormatter && names.IcuUnit is { } icuUnit
             && FormatIcuMeasure(temperature.ToDouble(unit), unit.GetPrecision(valueWidth), $"measure-unit/{icuUnit}", unitWidth,
                 showSign: showSign) is { } formatted)
         {
             return formatted;
         }
 
-        string value = NumberFormatting.Format(temperature.ToDouble(unit), unit.GetPrecision(valueWidth), Strings.Culture, showSign);
+        string value = NumberFormatting.Format(temperature.ToDouble(unit), unit.GetPrecision(valueWidth), Strings.Culture, showSign,
+            useNumberFormatter, useIcu ? useNumberFormatter : FormatterSettings.UseMeasureFormat);
         return string.Format(Strings.Culture, Nominative("temperature", unit, unitWidth), value);
     }
 
@@ -215,7 +239,8 @@ public static class UnitFormatting
         UnitNames names = GetUnitNames(unit);
         string suffix = width == UnitWidth.Long ? "long" : "short";
 
-        if (names.IcuUnit is not null && Icu.SupportsUnitNames && GetIcuDisplayName(names.IcuUnit, width) is { } icuName)
+        if (names.IcuUnit is not null && Icu.SupportsUnitNames && FormatterSettings.UseMeasureFormat
+            && GetIcuDisplayName(names.IcuUnit, width) is { } icuName)
         {
             return names.IcuPer is null
                 ? icuName

@@ -28,25 +28,49 @@ public static class NumberFormatting
     /// With no decimals, halves round towards positive infinity, so -2.5 gives "-2".
     /// With decimals, halves round to even.
     /// </summary>
-    public static string Format(double value, int decimals, CultureInfo culture, bool showSign = false)
+    /// <param name="useNumberFormatter">Allows ICU's number formatter when Windows has it.</param>
+    /// <param name="useNumberFormat">Without the number formatter, groups thousands as the language does; otherwise,
+    /// or with a sign, the digits are not grouped and the plus sign only shows on a value above zero.</param>
+    public static string Format(
+        double value,
+        int decimals,
+        CultureInfo culture,
+        bool showSign = false,
+        bool useNumberFormatter = true,
+        bool useNumberFormat = true)
     {
         double number = decimals == 0 ? UnitFormatting.RoundToInt(value) : value;
-        string precision = decimals == 0 ? "precision-integer" : "." + new string('#', decimals);
-        string sign = showSign ? "sign-always" : "sign-auto";
-        if (Icu.SupportsUnitNames && Icu.FormatNumber($"{precision} {sign}", number, culture)?.Text is { } formatted)
+        if (Icu.SupportsUnitNames && useNumberFormatter)
         {
-            return formatted;
+            string precision = decimals == 0 ? "precision-integer" : "." + new string('#', decimals);
+            string sign = showSign ? "sign-always" : "sign-auto";
+            if (Icu.FormatNumber($"{precision} {sign}", number, culture)?.Text is { } formatted)
+            {
+                return formatted;
+            }
         }
 
+        if (useNumberFormat && !showSign)
+        {
+            return FormatDigits(value, decimals, culture, grouped: true);
+        }
+
+        string digits = FormatDigits(value, decimals, culture, grouped: false);
+        return showSign && value > 0 ? "+" + digits : digits;
+    }
+
+    private static string FormatDigits(double value, int decimals, CultureInfo culture, bool grouped)
+    {
         if (decimals != 0 && !double.IsFinite(value))
         {
             return value.ToString(culture);
         }
 
-        string pattern = decimals == 0 ? "#,##0" : "#,##0." + new string('#', decimals);
+        string integerPattern = grouped ? "#,##0" : "0";
+        string pattern = decimals == 0 ? integerPattern : integerPattern + "." + new string('#', decimals);
         if (Math.Abs(value) >= (double)decimal.MaxValue && decimals != 0)
         {
-            return (showSign && value >= 0 ? culture.NumberFormat.PositiveSign : "") + value.ToString(pattern, culture);
+            return value.ToString(pattern, culture);
         }
 
         decimal rounded;
@@ -70,11 +94,6 @@ public static class NumberFormatting
 
         // English and French group every thousand, matching their minimum grouping digits of 1 in CLDR.
         string digits = Math.Abs(rounded).ToString(pattern, culture);
-        if (negative)
-        {
-            return culture.NumberFormat.NegativeSign + digits;
-        }
-
-        return showSign ? culture.NumberFormat.PositiveSign + digits : digits;
+        return negative ? culture.NumberFormat.NegativeSign + digits : digits;
     }
 }

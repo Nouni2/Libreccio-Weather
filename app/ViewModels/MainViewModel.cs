@@ -49,6 +49,7 @@ public sealed partial class MainViewModel : ObservableObject
     private readonly WeatherRepository _weatherRepository;
     private readonly SettingsManager _settings;
     private readonly string _regionCode;
+    private readonly WeatherUpdateJob _updateJob;
     private readonly Stack<ObservableObject> _backStack = new();
 
     // Screens left with Back, which Forward opens again until another screen is opened.
@@ -114,6 +115,7 @@ public sealed partial class MainViewModel : ObservableObject
         _weatherRepository = weatherRepository;
         _settings = settings;
         _regionCode = regionCode;
+        _updateJob = updateJob;
         IsDesktopInterfaceEnabled = settings.DesktopInterfaceEnabled;
 
         _snackbarTimer = new DispatcherTimer { Interval = SnackbarDuration };
@@ -518,6 +520,15 @@ public sealed partial class MainViewModel : ObservableObject
     public void OpenSettings()
     {
         NavigateTo(SettingsPages.Root(this));
+    }
+
+    /// <summary>
+    /// Runs the background update job now, choosing its locations as a scheduled run does. Nothing starts while it is
+    /// already running.
+    /// </summary>
+    public void ForceWeatherUpdate()
+    {
+        _ = _updateJob.RunAsync();
     }
 
     /// <summary>

@@ -42,6 +42,11 @@ public sealed record SeparatorPreference(double Height)
     public static SeparatorPreference Small { get; } = new(2);
 
     public static SeparatorPreference Large { get; } = new(16);
+
+    /// <summary>
+    /// The end of a section with a header: a transparent one-pixel line, as a divider without a color.
+    /// </summary>
+    public static SeparatorPreference SectionFooter { get; } = new(1);
 }
 
 /// <summary>

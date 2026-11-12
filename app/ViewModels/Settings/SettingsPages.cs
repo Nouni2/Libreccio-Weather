@@ -16,10 +16,13 @@
 
 using System.Globalization;
 using LibreccioWeather.Core.Localization;
+using LibreccioWeather.Core.Refresh;
 using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Settings.Options;
 using LibreccioWeather.Core.Sources.OpenMeteo;
 using LibreccioWeather.Core.Units;
+using LibreccioWeather.Diagnostics;
+using LibreccioWeather.ViewModels.RefreshErrors;
 
 namespace LibreccioWeather.ViewModels.Settings;
 
@@ -80,9 +83,113 @@ public static class SettingsPages
                 "IconFactory",
                 isLast: true),
             SeparatorPreference.Large,
-            NotPorted("settings_debug", "settings_debug_summary", "IconBugReport", isFirst: true, isLast: true),
+            new ClickablePreference(
+                Strings.Get("settings_debug"),
+                Strings.Get("settings_debug_summary"),
+                () => main.NavigateTo(Debug(main)),
+                "IconBugReport",
+                isFirst: true,
+                isLast: true),
         ];
         return new SettingsPageViewModel(Strings.Get("action_settings"), items, main.GoBack, () => Root(main), () => main.NavigateTo(About(main)));
+    }
+
+    // Windows apps need no permission to notify, so Android's notification permission card has no counterpart and
+    // every item is enabled. The items after the crash logs are only in debug builds.
+    public static SettingsPageViewModel Debug(MainViewModel main)
+    {
+        SettingsManager settings = main.Settings;
+        bool debugMode = Updates.AppVersion.IsDebug;
+        List<object> items =
+        [
+            new ClickablePreference(
+                Strings.Get("settings_debug_dump_crash_logs_title"),
+                Strings.Get("settings_debug_dump_crash_logs_summary"),
+                () => _ = DumpCrashLogsAsync(main),
+                isFirst: true,
+                isLast: !debugMode),
+        ];
+
+        if (debugMode)
+        {
+            string on = Strings.Get("settings_enabled");
+            string off = Strings.Get("settings_disabled");
+            bool numberFormatterSupported = FormatterSettings.IsNumberFormatterSupported;
+            items.AddRange(
+            [
+                SeparatorPreference.Small,
+                new ClickablePreference(
+                    Strings.Get("settings_debug_force_weather_update"),
+                    Strings.Get("debug_force_weather_update_summary"),
+                    main.ForceWeatherUpdate,
+                    isLast: true),
+                SeparatorPreference.Large,
+                new SectionHeaderPreference(Strings.Get("settings_debug_section_unit_formatting")),
+                new SwitchPreference(
+                    Strings.Get("settings_debug_use_numberformatter"), on, off,
+                    settings.UseNumberFormatter && numberFormatterSupported,
+                    value => settings.UseNumberFormatter = value,
+                    isEnabled: numberFormatterSupported,
+                    isFirst: true),
+                SeparatorPreference.Small,
+                new SwitchPreference(
+                    Strings.Get("settings_debug_use_measureformat"), on, off,
+                    settings.UseMeasureFormat,
+                    value => settings.UseMeasureFormat = value,
+                    isLast: true),
+                SeparatorPreference.SectionFooter,
+                SeparatorPreference.Large,
+                new SectionHeaderPreference(Strings.Get("settings_debug_section_refresh_error")),
+            ]);
+
+            RefreshErrorType[] errors = Enum.GetValues<RefreshErrorType>();
+            for (int index = 0; index < errors.Length; index++)
+            {
+                RefreshErrorType error = errors[index];
+                string shortMessage = RefreshErrorHelp.GetShortMessage(error);
+                items.Add(new ClickablePreference(shortMessage, null, () =>
+                {
+                    if (RefreshErrorHelp.GetActionButtonText(error) is { } actionText)
+                    {
+                        main.ShowSnackbar(shortMessage, actionText, () => RefreshErrorHelp.ShowDialog(error, main));
+                    }
+                    else
+                    {
+                        main.ShowSnackbar(shortMessage);
+                    }
+                }, isFirst: index == 0, isLast: index == errors.Length - 1));
+                if (index != errors.Length - 1)
+                {
+                    items.Add(SeparatorPreference.Small);
+                }
+            }
+
+            items.Add(SeparatorPreference.SectionFooter);
+        }
+
+        return new SettingsPageViewModel(Strings.Get("settings_debug"), items, main.GoBack, () => Debug(main), () => main.NavigateTo(About(main)));
+    }
+
+    // Saving reads the logs from disk, so it runs on a worker thread. Once saved, the message's Open button opens the
+    // file.
+    private static async Task DumpCrashLogsAsync(MainViewModel main)
+    {
+        string path;
+        try
+        {
+            path = await Task.Run(() => CrashLogs.Dump());
+        }
+        catch (Exception exception)
+        {
+            System.Diagnostics.Trace.TraceWarning("Crash logs could not be saved: {0}", exception);
+            main.ShowSnackbar(Strings.Get("crash_logs_failed"));
+            return;
+        }
+
+        main.ShowSnackbar(
+            Strings.Get("settings_debug_dump_crash_logs_saved"),
+            Strings.Get("desktop_open"),
+            () => CrashLogs.Open(path));
     }
 
     public static SettingsPageViewModel BackgroundUpdates(MainViewModel main)

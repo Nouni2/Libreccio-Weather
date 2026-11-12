@@ -515,6 +515,20 @@ public sealed class SettingsManager
         });
     }
 
+    // Debug
+
+    public bool UseNumberFormatter
+    {
+        get => _config.GetBoolean("use_number_formatter", true);
+        set => SetAndNotify(() => _config.PutBoolean("use_number_formatter", value));
+    }
+
+    public bool UseMeasureFormat
+    {
+        get => _config.GetBoolean("use_measure_format", true);
+        set => SetAndNotify(() => _config.PutBoolean("use_measure_format", value));
+    }
+
     private void SetAndNotify(Action write, [CallerMemberName] string propertyName = "")
     {
         write();

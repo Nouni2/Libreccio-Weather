@@ -71,6 +71,19 @@ public class NumberFormattingTests
         Assert.Throws<ArgumentException>(() => NumberFormatting.Format(double.NaN, 0, English));
     }
 
+    // DecimalFormat with the "+0" or "0" pattern: no grouping, and a plus sign only on a value above zero, even when
+    // it rounds to zero.
+    [Theory]
+    [InlineData(1234.5, 1, false, "1234.5")]
+    [InlineData(0.3, 0, true, "+0")]
+    [InlineData(0.0, 0, true, "0")]
+    [InlineData(-1234.0, 0, true, "-1234")]
+    public void Format_WithoutNumberFormatOrWithSign_MatchesDecimalFormat(double value, int decimals, bool showSign, string expected)
+    {
+        Assert.Equal(expected, NumberFormatting.Format(value, decimals, English, showSign,
+            useNumberFormatter: false, useNumberFormat: false));
+    }
+
     [Fact]
     public void Format_AboveDecimalRange_PreservesNumber()
     {

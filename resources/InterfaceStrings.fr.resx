@@ -47,4 +47,6 @@
     <data name="seasonal_window_icon" xml:space="preserve"><value>Icône saisonnière de l'application</value></data>
     <data name="touchpad_scroll_speed" xml:space="preserve"><value>Vitesse de défilement du pavé tactile</value></data>
     <data name="forecast_column_tooltip" xml:space="preserve"><value>Infobulles des prévisions</value></data>
+    <data name="debug_force_weather_update_summary" xml:space="preserve"><value>Exécute la tâche à des fins de débogage</value></data>
+    <data name="crash_logs_failed" xml:space="preserve"><value>Impossible d’obtenir les journaux</value></data>
 </root>

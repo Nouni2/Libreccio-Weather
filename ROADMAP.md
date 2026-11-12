@@ -193,7 +193,10 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Weather sources
     - [x] Default source, automatic or Open-Meteo
     - [x] Open-Meteo's forecast, air quality and geocoding server addresses
-  - [ ] Location and debug settings
+  - [ ] Location settings
+  - [ ] Debug
+    - [ ] Share crash logs: the log's errors with the app and system versions, saved to a file that opens from the message
+    - [ ] Debug-build tools: force weather update, NumberFormatter and MeasureFormat switches, and a trigger for each refresh error with its help dialog
   - [x] About screen
     - [x] Libreccio Weather's name, icon and version, update check and source code link
     - [x] Breezy Weather's contributors and translators of the selected language
