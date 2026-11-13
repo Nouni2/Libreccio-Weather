@@ -211,6 +211,61 @@ public sealed class WeatherRepositoryTests : IDisposable
     }
 
     [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("brightsky")]
+    public async Task EnsureCreated_ExistingOpenMeteoLocation_MigratesEmptyCurrentSourceOnce(string? currentSource)
+    {
+        CancellationToken cancellationToken = TestContext.Current.CancellationToken;
+        Location initial = TestLocation with { CurrentSource = currentSource };
+        Assert.Single(await _locations.AddAllAsync([initial]));
+        DateTimeOffset date = DateTimeOffset.FromUnixTimeMilliseconds(1800000000123);
+        Weather initialWeather = new()
+        {
+            Base = new Base { RefreshTime = date, ForecastUpdateTime = date, CurrentUpdateTime = date },
+            Current = new Current
+            {
+                Temperature = new Models.Temperature { Value = UnitTemperature.FromDeciCelsius(36L) },
+            },
+            HourlyForecast = [new Hourly { Date = date }],
+        };
+        await _weather.InsertAsync(initial, initialWeather, cancellationToken);
+        using (SqliteConnection connection = new(new SqliteConnectionStringBuilder { DataSource = _path }.ToString()))
+        {
+            await connection.OpenAsync(cancellationToken);
+            using SqliteCommand command = connection.CreateCommand();
+            command.CommandText = "PRAGMA user_version = 2;";
+            await command.ExecuteNonQueryAsync(cancellationToken);
+        }
+
+        _database.EnsureCreated();
+
+        bool migrated = string.IsNullOrEmpty(currentSource);
+        Location saved = Assert.IsType<Location>(await _locations.GetFirstLocationAsync());
+        Assert.Equal(migrated ? "openmeteo" : currentSource, saved.CurrentSource);
+        Assert.Equal("best_match", saved.Parameters["openmeteo"]["weatherModels"]);
+        Weather stored = Assert.IsType<Weather>(
+            await _weather.GetWeatherByLocationIdAsync(saved.FormattedId, cancellationToken));
+        Assert.Equal(initialWeather.Base with
+        {
+            RefreshTime = migrated ? null : date,
+            CurrentUpdateTime = migrated ? null : date,
+        }, stored.Base);
+        Assert.Equal(initialWeather.Current?.Temperature, stored.Current?.Temperature);
+        Assert.Equal(date, Assert.Single(stored.HourlyForecast).Date);
+
+        Assert.True(await _locations.UpdateAsync(saved with { CurrentSource = "" }));
+        await _weather.InsertAsync(saved, initialWeather, cancellationToken);
+        _database.EnsureCreated();
+
+        Location forecastOnly = Assert.IsType<Location>(await _locations.GetFirstLocationAsync());
+        Assert.Equal("", forecastOnly.CurrentSource);
+        Weather unchanged = Assert.IsType<Weather>(
+            await _weather.GetWeatherByLocationIdAsync(saved.FormattedId, cancellationToken));
+        Assert.Equal(initialWeather.Base, unchanged.Base);
+    }
+
+    [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public async Task UpdateAsync_RenamedLocation_PreservesParametersAndEveryForecastTable(bool changeSource)

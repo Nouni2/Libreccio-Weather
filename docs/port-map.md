@@ -164,6 +164,8 @@ Windows can deny foreground activation, and the named pipe rejects a different e
 | `WeatherReader.cs` | `kotlin/breezyweather/data/weather/WeatherMapper.kt` |
 | `WeatherSchema.cs`, `WeatherDatabase.cs` | `sqldelight/breezyweather/data/weathers.sq`, `dailys.sq`, `hourlys.sq`, `minutelys.sq`, `alerts.sq`, `normals.sq` |
 
+`WeatherDatabase.cs` also ports the current-source part of `app/src/main/kotlin/org/breezyweather/Migrations.kt`'s `oldVersion < 50400` migration for Open-Meteo locations. Database version 3 replaces an empty current source with `openmeteo` once, preserving nonempty sources. Differences: the migration runs as SQL in the schema transaction, is limited to Open-Meteo and current weather, and clears the affected weather's refresh and current-update timestamps so opening the location requests current conditions. A forecast-only choice made after migration stays empty.
+
 Deliberate differences in `LocationRepository.cs`: source parameters are replaced as a complete set in the surrounding transaction, removing obsolete names even when they equal a retained source identifier. Upstream compares parameter names with source identifiers. A formatted-ID rename defers foreign-key checks until commit and updates the seven dependent tables before committing; a collision or a failed dependent update rolls back the transaction. Upstream updates only the parent identifier. The schema remains unchanged, so the same transaction handles existing databases.
 
 ## Application

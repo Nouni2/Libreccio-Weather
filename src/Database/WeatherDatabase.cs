@@ -25,7 +25,7 @@ namespace LibreccioWeather.Core.Database;
 public sealed class WeatherDatabase
 {
     // Stored in SQLite's user_version, so a later schema change can tell which version a file has.
-    private const int SchemaVersion = 2;
+    private const int SchemaVersion = 3;
 
     private const string CreateSchema = """
         CREATE TABLE locations(
@@ -117,7 +117,19 @@ public sealed class WeatherDatabase
         createCommand.Transaction = transaction;
         // Existing databases already have locations, so only the missing tables are added.
         createCommand.CommandText = (version < 1 ? CreateSchema : "")
-            + WeatherSchema.Create
+            + (version < 2 ? WeatherSchema.Create : "")
+            + """
+                UPDATE weathers
+                SET refresh_time = NULL, current_update_time = NULL
+                WHERE location_formatted_id IN (
+                    SELECT formatted_id FROM locations
+                    WHERE weather_source = 'openmeteo' AND (current_source IS NULL OR current_source = '')
+                );
+
+                UPDATE locations
+                SET current_source = weather_source
+                WHERE weather_source = 'openmeteo' AND (current_source IS NULL OR current_source = '');
+                """
             + $"PRAGMA user_version = {SchemaVersion};";
         createCommand.ExecuteNonQuery();
         transaction.Commit();

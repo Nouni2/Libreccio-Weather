@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.5.1] - 2026-11-13
+
+### Fixed
+
+- Saved Open-Meteo locations with an empty current-weather source switch to Open-Meteo current conditions on upgrade.
+
 ## [0.5.0] - 2026-11-13
 
 ### Added

@@ -38,9 +38,10 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
     - [x] Day or night for each hour from the Sun's altitude, with the source's flag when Seasonal++ cannot be loaded
     - [x] Moonrise, moonset and moon phase (commons-suncalc)
 - [ ] Current location, reverse geocoding and time zone lookup (`RefreshHelper`)
-- [x] Database
+- [ ] Database
   - [x] Saved locations and the parameters of their sources (`LocationRepository`)
   - [x] Weather (`WeatherRepository`): current conditions, daily and hourly forecasts, minutely precipitation, alerts and normals
+  - [ ] Migration of empty current-weather sources for saved Open-Meteo locations (`Migrations`)
 - [x] Settings (`SettingsManager`)
   - [x] Settings stored in a JSON file with Breezy Weather's keys and defaults: units, refresh interval, notifications, dark mode, cards and charts, animations, forecast times and the ongoing notification's options for Mistray
   - [x] Language setting, which marks saved weather as outdated when it changes
