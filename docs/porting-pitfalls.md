@@ -7,6 +7,7 @@ Kotlin, Java and Android code whose closest C# equivalent behaves differently. E
 | Upstream | Upstream behaviour | C# difference | Reproduce with |
 |---|---|---|---|
 | `a ?: if (c) { x } else { y } ?: b` | An `if` whose branches are braced blocks ends at the closing brace, so the last `?:` applies to the whole `if`: when `c` holds and `x` is null, `b` is still used. | `a ?? (c ? x : b)` uses `b` only when `c` is false. | `a ?? (c ? x : y) ?? b`. |
+| An enum's `name` | The constant as declared in Kotlin, in upper case with underscores: `WeatherCode.PARTLY_CLOUDY.name` is "PARTLY_CLOUDY". | A C# enum's `ToString()` gives its C# name, such as "PartlyCloudy". | The upstream name rebuilt from the value's upstream identifier, such as `Id.ToUpperInvariant()` for weather codes in `DebugService`. |
 | `val x = expression` in a class body | Computed once, when the object is built. | A property with a getter body (`=>`) is computed on every read, so a value that depends on the current time can change between reads. | A field or an `init` property set when the object is built. |
 | A check that reads state built up earlier in the same function, such as a list of errors | The check sees everything recorded before it in upstream's order. | Moving the check earlier, or copying the state into a local before it is complete, misses what is recorded after. | The same order of statements as upstream. |
 

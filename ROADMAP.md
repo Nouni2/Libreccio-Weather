@@ -211,6 +211,8 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [ ] Debug
     - [ ] Share crash logs: the log's errors with the app and system versions, saved to a file that opens from the message
     - [ ] Debug-build tools: force weather update, NumberFormatter and MeasureFormat switches, and a trigger for each refresh error with its help dialog
+    - [ ] Debug weather source and "Add debug location" in the location list (`DebugService`), with a test city for each weather condition and nowcast case
+    - [ ] Further test cities: a full forecast, each alert severity and upcoming alerts, air quality levels, pollen, day and night, polar day and night
   - [x] About screen
     - [x] Libreccio Weather's name, icon and version, update check and source code link
     - [x] Breezy Weather's contributors and translators of the selected language
@@ -233,6 +235,10 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
 - [x] Mouse back and forward buttons moving through the screens
 - [x] Middle-button autoscroll
 - [x] Thin scrollbars in both interface modes
+- [ ] Title bar drawn by the app
+  - [ ] Window icon and title, with Windows' minimize, maximize and close buttons
+  - [ ] Snap layouts over the maximize button, dragging, double-click to maximize and the system menu
+  - [ ] Main screen top bar and time since the last refresh in the title bar
 - [x] Sharp rendering at each monitor's display scale, including when it changes or the window moves between monitors
 - [x] Animations at the refresh rate of the monitor the window is on
 - [x] Setting to keep animations at 60 frames per second on slower computers

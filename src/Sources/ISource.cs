@@ -84,6 +84,11 @@ public interface IFeatureSource : ISource
 public interface IWeatherSource : IFeatureSource
 {
     /// <summary>
+    /// Locations that cover the cases worth testing with this source, offered to add in debug builds.
+    /// </summary>
+    IReadOnlyList<Location> TestingLocations => [];
+
+    /// <summary>
     /// The requested features. A feature that fails is listed in the result's failed features instead of failing the
     /// whole request.
     /// </summary>

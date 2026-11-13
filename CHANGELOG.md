@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.5.0] - 2026-11-13
+
+### Added
+
+- The window draws its own title bar, following Windows' title bar guidelines: the app icon and name, and Windows' minimize, maximize and close buttons, with snap layouts over the maximize button, dragging, double-click to maximize and the system menu. On the main screen, the location list button, the location's name, the time since the last refresh and the actions sit in the title bar, tinted faintly with the weather's color, or red while an alert is in force.
+- Debug builds have Breezy Weather's debug locations, added from a bug button in the location list: a test city for each weather condition and each precipitation nowcast case, and further cities with a full forecast, each alert severity, upcoming alerts, air quality levels, pollen, day and night, and polar day and night.
+
+### Changed
+
+- The main screen's top bar and the time since the last refresh moved into the window's title bar, so the weather starts higher on the screen.
+
 ## [0.4.0] - 2026-11-12
 
 ### Added

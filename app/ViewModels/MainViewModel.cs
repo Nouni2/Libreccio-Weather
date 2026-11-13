@@ -76,6 +76,7 @@ public sealed partial class MainViewModel : ObservableObject
     private bool _isLandscapeWindow;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShownWeatherPage))]
     private ObservableObject? _currentPage;
 
     [ObservableProperty]
@@ -224,6 +225,11 @@ public sealed partial class MainViewModel : ObservableObject
     public string InterfaceCulture => Strings.Culture.Name;
 
     public WeatherViewModel? WeatherPage => FindMainScreen();
+
+    /// <summary>
+    /// The main screen while it is the screen shown; its top bar sits in the window's title bar.
+    /// </summary>
+    public WeatherViewModel? ShownWeatherPage => CurrentPage as WeatherViewModel;
 
     internal string? SelectedDailyTab { get; set; }
 
@@ -822,6 +828,14 @@ public sealed partial class MainViewModel : ObservableObject
     private async Task AddFromSearchAsync(Location location)
     {
         GoBack();
+        await AddWithMessageAsync(location);
+    }
+
+    /// <summary>
+    /// Adds a location unless the same place is saved, and says which happened.
+    /// </summary>
+    public async Task AddWithMessageAsync(Location location)
+    {
         if (LocationExists(location))
         {
             ShowSnackbar(Strings.Get("location_message_already_exists"));

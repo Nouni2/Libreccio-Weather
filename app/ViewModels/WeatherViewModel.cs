@@ -325,16 +325,24 @@ public sealed partial class WeatherViewModel : ObservableObject
         AnimationDaylight = daylight;
         AnimationDarkMode = _main.IsAppDark;
 
-        // The indicator follows the current weather even when the main screen background is turned off.
-        RefreshArcBrush = MaterialWeatherThemeDelegate.GetThemeBrush(_location.Weather?.Current?.WeatherCode, daylight);
+        // The refresh indicator and the title bar's tint follow the current weather even when the main screen background
+        // is turned off.
+        WeatherThemeBrush = MaterialWeatherThemeDelegate.GetThemeBrush(_location.Weather?.Current?.WeatherCode, daylight);
     }
 
     [ObservableProperty]
-    private Brush _refreshArcBrush = Brushes.Transparent;
+    private Brush _weatherThemeBrush = Brushes.Transparent;
+
+    /// <summary>
+    /// Whether an alert is in force, as the location list marks it.
+    /// </summary>
+    [ObservableProperty]
+    private bool _hasCurrentAlerts;
 
     private void Show(Weather weather)
     {
         UpdateRefreshTime();
+        HasCurrentAlerts = weather.CurrentAlertList.Count > 0;
         Current? current = weather.Current;
         WeatherText = current?.WeatherText is { Length: > 0 } text ? text : null;
 

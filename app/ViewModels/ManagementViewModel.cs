@@ -103,6 +103,17 @@ public sealed partial class ManagementViewModel : ObservableObject
         _main.OpenSearch();
     }
 
+    /// <summary>
+    /// Debug builds offer the debug sources' testing locations beside the add button.
+    /// </summary>
+    public bool CanAddDebugLocation => Updates.AppVersion.IsDebug;
+
+    [RelayCommand]
+    private void AddDebugLocation()
+    {
+        _main.ShowDialog(new Locations.DebugLocationDialogViewModel(_main));
+    }
+
     [RelayCommand]
     private void Open(LocationItemViewModel? item)
     {

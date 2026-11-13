@@ -353,16 +353,6 @@ public partial class WeatherView : UserControl
         return null;
     }
 
-    // The overflow menu opens below its button on a click, as a toolbar's overflow menu does.
-    private void OnMoreClick(object sender, RoutedEventArgs e)
-    {
-        if (sender is FrameworkElement { ContextMenu: { } menu } button)
-        {
-            menu.PlacementTarget = button;
-            menu.IsOpen = true;
-        }
-    }
-
     private void OnAstroCardClick(object sender, MouseButtonEventArgs e)
     {
         if (sender is FrameworkElement { DataContext: AstroCardViewModel } && DataContext is WeatherViewModel weather)

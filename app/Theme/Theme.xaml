@@ -17,7 +17,8 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=System.Runtime"
-                    xmlns:c="clr-namespace:LibreccioWeather.Controls">
+                    xmlns:c="clr-namespace:LibreccioWeather.Controls"
+                    xmlns:w="clr-namespace:LibreccioWeather.Windowing">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="DarkColors.xaml" />
         <ResourceDictionary Source="WeatherCardArtwork.xaml" />
@@ -354,6 +355,14 @@
         <Setter Property="Padding" Value="{DynamicResource TextButtonPadding}" />
     </Style>
 
+    <!-- Material 3's outlined button: no fill, an outline and the primary color for its content. -->
+    <Style x:Key="OutlinedButton" TargetType="Button" BasedOn="{StaticResource FilledButton}">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+    </Style>
+
     <!-- A floating action button, in the tertiary color. -->
     <Style x:Key="FloatingActionButton" TargetType="Button">
         <Setter Property="Width" Value="56" />
@@ -476,6 +485,91 @@
     <Style x:Key="CompactIconButton" TargetType="Button" BasedOn="{StaticResource IconButton}">
         <Setter Property="Width" Value="36" />
         <Setter Property="Height" Value="36" />
+    </Style>
+
+    <!-- The window's own text in its title bar: Windows' caption type, 12 in Segoe UI Variable or Segoe UI. -->
+    <Style x:Key="WindowTitleText" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Segoe UI Variable Small, Segoe UI" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Foreground" Value="{DynamicResource OnSurfaceBrush}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+
+    <!-- Title bar content is half transparent while the window is inactive, as Windows asks of every title bar; the
+         amount is Material 3's disabled content opacity. -->
+    <Style x:Key="WindowTitleContent" TargetType="FrameworkElement">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsActive, RelativeSource={RelativeSource AncestorType=Window}}" Value="False">
+                <Setter Property="Opacity" Value="0.38" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- The window's minimize and maximize buttons, drawn as Windows draws its own: a Segoe Fluent Icons glyph, or the
+         same glyph in Segoe MDL2 Assets before Windows 11, on a backplate as tall as the title bar. Hover and press add
+         Material 3's state layers. Windows handles the pointer over the maximize button, so WindowCaption sets its
+         states there. -->
+    <Style x:Key="CaptionButton" TargetType="Button">
+        <Setter Property="Width" Value="46" />
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Foreground" Value="{DynamicResource OnSurfaceBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="Backplate" Background="Transparent">
+                        <TextBlock x:Name="Glyph" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="LeftToRight"
+                                   FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="10"
+                                   Foreground="{TemplateBinding Foreground}"
+                                   Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding IsActive, RelativeSource={RelativeSource AncestorType=Window}}" Value="False">
+                            <Setter TargetName="Glyph" Property="Opacity" Value="0.38" />
+                        </DataTrigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Backplate" Property="Background" Value="{DynamicResource HoverLayerBrush}" />
+                        </Trigger>
+                        <Trigger Property="w:WindowCaption.IsHovered" Value="True">
+                            <Setter TargetName="Backplate" Property="Background" Value="{DynamicResource HoverLayerBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Backplate" Property="Background" Value="{DynamicResource PressedLayerBrush}" />
+                        </Trigger>
+                        <Trigger Property="w:WindowCaption.IsPressed" Value="True">
+                            <Setter TargetName="Backplate" Property="Background" Value="{DynamicResource PressedLayerBrush}" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- The window's close button, which turns Windows' red with a white glyph when hovered or pressed, even while the
+         window is inactive. -->
+    <Style x:Key="CaptionCloseButton" TargetType="Button" BasedOn="{StaticResource CaptionButton}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid x:Name="Backplate" Background="Transparent">
+                        <TextBlock x:Name="Glyph" HorizontalAlignment="Center" VerticalAlignment="Center" FlowDirection="LeftToRight"
+                                   FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets" FontSize="10"
+                                   Foreground="{TemplateBinding Foreground}"
+                                   Text="{Binding Content, RelativeSource={RelativeSource TemplatedParent}}" />
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding IsActive, RelativeSource={RelativeSource AncestorType=Window}}" Value="False">
+                            <Setter TargetName="Glyph" Property="Opacity" Value="0.38" />
+                        </DataTrigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Backplate" Property="Background" Value="{DynamicResource CaptionCloseBrush}" />
+                            <Setter TargetName="Glyph" Property="Foreground" Value="{DynamicResource OnCaptionCloseBrush}" />
+                            <Setter TargetName="Glyph" Property="Opacity" Value="1" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- Images keep their drawing in a right-to-left layout, as Android only mirrors a drawable marked to be mirrored. -->

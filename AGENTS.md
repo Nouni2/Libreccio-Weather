@@ -77,9 +77,7 @@ The code and its default text are in English. The app is translated through reso
 
 Every commit updates `CHANGELOG.md`, which follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-- Add each change under `## [Unreleased]`, in the matching group: Added, Changed, Deprecated, Removed, Fixed or Security.
-- Describe what changed for someone using or building the project, in more detail than the commit message.
-- At a release, move the `Unreleased` entries under a new version heading with the release date.
+- Add each change under the heading of the version it ships in, with its date, in the matching group: Added, Changed, Deprecated, Removed, Fixed or Security. 
 
 ## Naming
 

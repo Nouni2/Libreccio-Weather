@@ -36,7 +36,110 @@
         NumberSubstitution.CultureOverride="{DynamicResource AppNumberCulture}"
         NumberSubstitution.Substitution="{DynamicResource AppNumberSubstitution}"
         Background="{DynamicResource SurfaceBrush}">
+    <!-- The app draws its own title bar. The caption height is zero because WindowCaption reports the bar's caption,
+         icon and maximize button to Windows itself; one pixel of frame kept at the bottom keeps the window's shadow. -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" CornerRadius="0" GlassFrameThickness="0,0,0,1" UseAeroCaptionButtons="False"
+                      ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
+    </WindowChrome.WindowChrome>
     <Window.Resources>
+        <!-- The main screen's top bar in the window's title bar: the location list button, the location's name and the
+             time since the last refresh, then the actions. -->
+        <DataTemplate x:Key="WeatherTitleBar">
+            <DockPanel Margin="0,0,8,0">
+                <Border DockPanel.Dock="Left" Width="1" Height="16" Margin="16,0" VerticalAlignment="Center"
+                        Background="{DynamicResource OutlineVariantBrush}" />
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <Button Style="{StaticResource CompactIconButton}" Command="{Binding DataContext.DesktopLocationsCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            ToolTip="{l:Translate action_location_list}" AutomationProperties.Name="{l:Translate action_location_list}">
+                        <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconList}" Width="20" Height="20" />
+                    </Button>
+                    <Button Style="{StaticResource CompactIconButton}" Command="{Binding RefreshCommand}"
+                            ToolTip="{l:Translate action_refresh}" AutomationProperties.Name="{l:Translate action_refresh}">
+                        <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconSync}" Width="20" Height="20" />
+                    </Button>
+                    <Button Style="{StaticResource CompactIconButton}" Command="{Binding DataContext.DesktopSettingsCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            ToolTip="{l:Translate action_settings}" AutomationProperties.Name="{l:Translate action_settings}">
+                        <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconSettings}" Width="20" Height="20" />
+                    </Button>
+                </StackPanel>
+                <!-- The top bar's overflow menu, with the actions that have no room as icons. -->
+                <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}" Click="OnMoreClick" ContextMenuService.IsEnabled="False"
+                        ToolTip="{l:Translate action_more}" AutomationProperties.Name="{l:Translate action_more}">
+                    <Button.ContextMenu>
+                        <ContextMenu Style="{StaticResource AppContextMenu}" Placement="Bottom"
+                                     DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                            <MenuItem Header="{l:Translate action_open_in_other_app}" Command="{Binding OpenInOtherAppCommand}"
+                                      AutomationProperties.HelpText="{l:Translate action_open_in_other_app_description}" />
+                        </ContextMenu>
+                    </Button.ContextMenu>
+                    <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconMoreVert}" />
+                </Button>
+                <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}" Command="{Binding EditLocationCommand}"
+                        ToolTip="{l:Translate action_edit_location}" AutomationProperties.Name="{l:Translate action_edit_location}">
+                    <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconEdit}" />
+                </Button>
+                <!-- Refresh has no pull gesture with a mouse, so the standard interface shows it as a button; the desktop
+                     interface has its own in the panel above. -->
+                <Button DockPanel.Dock="Right" Command="{Binding RefreshCommand}"
+                        ToolTip="{l:Translate action_refresh}" AutomationProperties.Name="{l:Translate action_refresh}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource IconButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconSync}" />
+                </Button>
+                <Button DockPanel.Dock="Left" Command="{Binding OpenLocationListCommand}"
+                        ToolTip="{l:Translate action_location_list}" AutomationProperties.Name="{l:Translate action_location_list}">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource IconButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconList}" Width="20" Height="20" />
+                </Button>
+                <!-- The name keeps its width before the refresh time, which is shortened first when space runs out. Both
+                     are smaller than in a top bar, to sit with the window's title. -->
+                <DockPanel Margin="12,0,0,0">
+                    <TextBlock DockPanel.Dock="Left" Style="{StaticResource TopAppBarTitle}" FontSize="16" Text="{Binding Place}" />
+                    <DockPanel Margin="16,0,0,0" VerticalAlignment="Center" AutomationProperties.Name="{Binding RefreshTimeDescription}">
+                        <DockPanel.Style>
+                            <Style TargetType="DockPanel">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding RefreshTimeText}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DockPanel.Style>
+                        <ContentControl DockPanel.Dock="Left" Style="{StaticResource Icon24}" Width="16" Height="16"
+                                        Foreground="{DynamicResource OnSurfaceVariantBrush}" Tag="{StaticResource IconTime}" />
+                        <TextBlock Margin="6,0,0,0" VerticalAlignment="Center" FontSize="12" TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource OnSurfaceVariantBrush}" Text="{Binding RefreshTimeText}" />
+                    </DockPanel>
+                </DockPanel>
+            </DockPanel>
+        </DataTemplate>
+
         <!-- In wide windows, the location list sits in a pane beside the main screen, which the list button folds. -->
         <DataTemplate x:Key="InterfacePages">
             <c:DrawerPanel IsAvailable="{Binding IsLocationPaneAvailable}" IsUnfold="{Binding IsLocationPaneOpen}" ClipToBounds="True">
@@ -162,6 +265,58 @@
                                             </StackPanel>
                                         </DockPanel>
                                     </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- The testing locations of debug builds, under each source's name: the source in bold over the place, faded
+             and unavailable once the place is saved. -->
+        <DataTemplate DataType="{x:Type locations:DebugLocationDialogViewModel}">
+            <Border Style="{StaticResource DialogSurface}" Padding="0,24,0,8">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Margin="24,0,24,16" Style="{StaticResource HeadlineSmallText}" Text="{Binding Title}" />
+                    <Button DockPanel.Dock="Bottom" Margin="0,8,16,0" HorizontalAlignment="Right" Style="{StaticResource TextButton}"
+                            Command="{Binding CloseCommand}" Content="{Binding CloseText}" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <ItemsControl Margin="8,0" ItemsSource="{Binding Groups}" Focusable="False">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,0,0,16">
+                                        <TextBlock Margin="16,0,16,8" FontSize="14" Foreground="{DynamicResource OnSurfaceBrush}" Text="{Binding Name}" />
+                                        <ItemsControl ItemsSource="{Binding Entries}" Focusable="False">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Margin="0,0,0,2" Padding="16,12" CornerRadius="4">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background" Value="{DynamicResource ElevatedSurfaceBrush}" />
+                                                                <Setter Property="Cursor" Value="Hand" />
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsEnabled}" Value="False">
+                                                                        <Setter Property="Background" Value="Transparent" />
+                                                                        <Setter Property="Cursor" Value="Arrow" />
+                                                                        <Setter Property="Opacity" Value="0.5" />
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <Border.InputBindings>
+                                                            <MouseBinding Gesture="LeftClick" Command="{Binding ChooseCommand}" />
+                                                        </Border.InputBindings>
+                                                        <StackPanel>
+                                                            <TextBlock FontSize="16" FontWeight="Bold" Foreground="{DynamicResource OnSurfaceBrush}"
+                                                                       Text="{Binding SourceName}" />
+                                                            <TextBlock FontSize="14" Foreground="{DynamicResource OnSurfaceVariantBrush}" Text="{Binding Place}" />
+                                                        </StackPanel>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
@@ -539,11 +694,60 @@
         <KeyBinding Key="F5" Command="{Binding DesktopRefreshCommand}" />
     </Window.InputBindings>
 
-    <Grid>
-        <ContentControl x:Name="InterfaceHost" Content="{Binding}" Focusable="False" />
+    <Grid x:Name="WindowRoot">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- The title bar, 48 high as Windows' title bars that hold controls: the window's icon and title, the main
+             screen's top bar while it is shown, and room for the window's buttons, laid over it further down. -->
+        <Grid x:Name="TitleBar" Height="48" Background="{DynamicResource SurfaceBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <!-- While the main screen is shown, the shown weather's theme color tints the bar faintly, fading in from the
+                 start towards the window's buttons; while an alert is in force, the alert color of the location list
+                 does instead. -->
+            <Border Grid.ColumnSpan="3" Opacity="0.25">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Background" Value="{Binding ShownWeatherPage.WeatherThemeBrush}" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ShownWeatherPage.HasCurrentAlerts}" Value="True">
+                                <Setter Property="Background" Value="{DynamicResource AlertTextBrush}" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Border.OpacityMask>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                        <GradientStop Offset="0" Color="Transparent" />
+                        <GradientStop Offset="1" Color="Black" />
+                    </LinearGradientBrush>
+                </Border.OpacityMask>
+            </Border>
+            <!-- The icon sits 16 from the window's edge and the title 16 from the icon. In a narrow window the title
+                 gives its room to the main screen's top bar. -->
+            <StackPanel Margin="16,0,0,0" Orientation="Horizontal" Style="{StaticResource WindowTitleContent}">
+                <Image x:Name="TitleBarIcon" Width="16" Height="16" VerticalAlignment="Center"
+                       RenderOptions.BitmapScalingMode="HighQuality"
+                       Source="{Binding Icon, RelativeSource={RelativeSource AncestorType=Window}}" />
+                <TextBlock Margin="16,0,0,0" Style="{StaticResource WindowTitleText}"
+                           Text="{Binding Title, RelativeSource={RelativeSource AncestorType=Window}}"
+                           Visibility="{Binding IsWideLayout, Converter={StaticResource BooleanToVisibility}}" />
+            </StackPanel>
+            <ContentControl x:Name="TitleBarPage" Grid.Column="1" Focusable="False" Style="{StaticResource WindowTitleContent}"
+                            Content="{Binding ShownWeatherPage}" ContentTemplate="{StaticResource WeatherTitleBar}" />
+            <Border Grid.Column="2" Width="{Binding ActualWidth, ElementName=CaptionButtons}" />
+        </Grid>
+
+        <ContentControl x:Name="InterfaceHost" Grid.Row="1" Content="{Binding}" Focusable="False" />
 
         <!-- A message at the bottom, with its optional action. -->
-        <Border MaxWidth="560" Margin="16" Padding="16,4,8,4" HorizontalAlignment="Center" VerticalAlignment="Bottom"
+        <Border Grid.Row="1" MaxWidth="560" Margin="16" Padding="16,4,8,4" HorizontalAlignment="Center" VerticalAlignment="Bottom"
                 CornerRadius="4" Background="{DynamicResource InverseSurfaceBrush}"
                 DataContext="{Binding Snackbar}">
             <Border.Style>
@@ -574,7 +778,7 @@
         </Border>
 
         <!-- The open dialog. A click outside it cancels it. -->
-        <Grid x:Name="DialogHost" DataContext="{Binding Dialog}" Focusable="True" KeyboardNavigation.TabNavigation="Cycle">
+        <Grid x:Name="DialogHost" Grid.RowSpan="2" DataContext="{Binding Dialog}" Focusable="True" KeyboardNavigation.TabNavigation="Cycle">
             <Grid.InputBindings>
                 <KeyBinding Key="Escape" Command="{Binding CancelCommand}" />
             </Grid.InputBindings>
@@ -594,5 +798,24 @@
             </Border>
             <ContentControl HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding}" Focusable="False" />
         </Grid>
+
+        <!-- The window's buttons stay above an open dialog's scrim, as the system's do. Their glyphs are Windows' own:
+             ChromeMinimize, ChromeMaximize or ChromeRestore, and ChromeClose. -->
+        <StackPanel x:Name="CaptionButtons" HorizontalAlignment="Right" Orientation="Horizontal">
+            <Button x:Name="MinimizeButton" Style="{StaticResource CaptionButton}" Content="&#xE921;" Click="OnMinimizeClick" />
+            <Button x:Name="MaximizeButton" Click="OnMaximizeClick">
+                <Button.Style>
+                    <Style TargetType="Button" BasedOn="{StaticResource CaptionButton}">
+                        <Setter Property="Content" Value="&#xE922;" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding WindowState, RelativeSource={RelativeSource AncestorType=Window}}" Value="Maximized">
+                                <Setter Property="Content" Value="&#xE923;" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <Button x:Name="CloseButton" Style="{StaticResource CaptionCloseButton}" Content="&#xE8BB;" Click="OnCloseClick" />
+        </StackPanel>
     </Grid>
 </Window>

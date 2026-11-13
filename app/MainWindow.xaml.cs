@@ -16,11 +16,15 @@
 
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Automation;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Input;
 using LibreccioWeather.Localization;
 using LibreccioWeather.ViewModels;
+using LibreccioWeather.Windowing;
 
 namespace LibreccioWeather;
 
@@ -29,6 +33,7 @@ public partial class MainWindow : Window
     private ResourceDictionary? _desktopTheme;
     private ResourceDictionary? _lightColors;
     private IInputElement? _focusBeforeDialog;
+    private readonly WindowCaption _caption;
 
     public MainWindow()
     {
@@ -39,6 +44,53 @@ public partial class MainWindow : Window
         DataContextChanged += OnViewModelChanged;
         DialogHost.IsVisibleChanged += OnDialogVisibilityChanged;
         InterfaceHost.SizeChanged += (_, _) => UpdateWindowShape();
+        _caption = new WindowCaption(this, WindowRoot, TitleBar, TitleBarIcon, MaximizeButton);
+        StateChanged += (_, _) => UpdateCaptionButtonNames();
+    }
+
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        _caption.Attach();
+        UpdateCaptionButtonNames();
+    }
+
+    // Minimize, maximize and restore are named with Windows' own words for them, from the window's system menu.
+    private void UpdateCaptionButtonNames()
+    {
+        IntPtr handle = new WindowInteropHelper(this).Handle;
+        if (handle == IntPtr.Zero)
+        {
+            return;
+        }
+
+        SetCaptionButtonName(MinimizeButton, SystemStrings.Minimize(handle));
+        SetCaptionButtonName(MaximizeButton,
+            WindowState == WindowState.Maximized ? SystemStrings.Restore(handle) : SystemStrings.Maximize(handle));
+    }
+
+    private static void SetCaptionButtonName(Button button, string name)
+    {
+        button.ToolTip = name;
+        AutomationProperties.SetName(button, name);
+    }
+
+    private void OnMinimizeClick(object sender, RoutedEventArgs e) => SystemCommands.MinimizeWindow(this);
+
+    // A mouse click on the maximize button is handled by WindowCaption, since Windows takes the pointer there; this one
+    // comes from the keyboard or a screen reader.
+    private void OnMaximizeClick(object sender, RoutedEventArgs e) => _caption.ToggleMaximized();
+
+    private void OnCloseClick(object sender, RoutedEventArgs e) => SystemCommands.CloseWindow(this);
+
+    // The main screen's overflow menu opens below its button on a click, as a toolbar's overflow menu does.
+    private void OnMoreClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { ContextMenu: { } menu } button)
+        {
+            menu.PlacementTarget = button;
+            menu.IsOpen = true;
+        }
     }
 
     private void UpdateWindowShape()
@@ -159,8 +211,12 @@ public partial class MainWindow : Window
         Title += " — " + Strings.Get("settings_debug");
 #endif
 
-        // Recreating the template also reloads markup translations after a language change.
+        SetCaptionButtonName(CloseButton, Strings.Get("action_close"));
+
+        // Recreating the templates also reloads markup translations after a language change.
         InterfaceHost.ContentTemplate = null;
         InterfaceHost.ContentTemplate = (DataTemplate)FindResource("InterfacePages");
+        TitleBarPage.ContentTemplate = null;
+        TitleBarPage.ContentTemplate = (DataTemplate)FindResource("WeatherTitleBar");
     }
 }

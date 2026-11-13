@@ -109,122 +109,31 @@
     <Grid Background="{Binding BackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- The animated weather, behind the top bar and the scrolling content. -->
-        <animation:WeatherAnimationView x:Name="WeatherAnimation" Grid.RowSpan="3"
+        <!-- The animated weather, behind the scrolling content. The top bar is in the window's title bar. -->
+        <animation:WeatherAnimationView x:Name="WeatherAnimation" Grid.RowSpan="2"
                                         Condition="{Binding AnimationCondition}" Daylight="{Binding AnimationDaylight}"
                                         DarkMode="{Binding AnimationDarkMode}" Animate="{Binding AnimateBackground, Mode=OneTime}" />
 
-        <DockPanel Grid.Row="0" Height="64" Margin="4,0,8,0">
-            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                <StackPanel.Style>
-                    <Style TargetType="StackPanel">
-                        <Setter Property="Visibility" Value="Collapsed" />
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                                <Setter Property="Visibility" Value="Visible" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </StackPanel.Style>
-                <Button Style="{StaticResource CompactIconButton}" Command="{Binding DataContext.DesktopLocationsCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                        ToolTip="{l:Translate action_location_list}" AutomationProperties.Name="{l:Translate action_location_list}">
-                    <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconList}" Width="20" Height="20" />
-                </Button>
-                <Button Style="{StaticResource CompactIconButton}" Command="{Binding RefreshCommand}"
-                        ToolTip="{l:Translate action_refresh}" AutomationProperties.Name="{l:Translate action_refresh}">
-                    <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconSync}" Width="20" Height="20" />
-                </Button>
-                <Button Style="{StaticResource CompactIconButton}" Command="{Binding DataContext.DesktopSettingsCommand, RelativeSource={RelativeSource AncestorType=Window}}"
-                        ToolTip="{l:Translate action_settings}" AutomationProperties.Name="{l:Translate action_settings}">
-                    <ContentControl Style="{StaticResource Icon24}" Tag="{StaticResource IconSettings}" Width="20" Height="20" />
-                </Button>
-            </StackPanel>
-            <!-- The top bar's overflow menu, with the actions that have no room as icons. -->
-            <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}" Click="OnMoreClick" ContextMenuService.IsEnabled="False"
-                    ToolTip="{l:Translate action_more}" AutomationProperties.Name="{l:Translate action_more}">
-                <Button.ContextMenu>
-                    <ContextMenu Style="{StaticResource AppContextMenu}" Placement="Bottom"
-                                 DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                        <MenuItem Header="{l:Translate action_open_in_other_app}" Command="{Binding OpenInOtherAppCommand}"
-                                  AutomationProperties.HelpText="{l:Translate action_open_in_other_app_description}" />
-                    </ContextMenu>
-                </Button.ContextMenu>
-                <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconMoreVert}" />
-            </Button>
-            <Button DockPanel.Dock="Right" Style="{StaticResource IconButton}" Command="{Binding EditLocationCommand}"
-                    ToolTip="{l:Translate action_edit_location}" AutomationProperties.Name="{l:Translate action_edit_location}">
-                <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconEdit}" />
-            </Button>
-            <!-- Refresh has no pull gesture with a mouse, so the standard interface shows it as a button; the desktop
-                 interface has its own in the panel above. -->
-            <Button DockPanel.Dock="Right" Command="{Binding RefreshCommand}"
-                    ToolTip="{l:Translate action_refresh}" AutomationProperties.Name="{l:Translate action_refresh}">
-                <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource IconButton}">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-                <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconSync}" />
-            </Button>
-            <Button DockPanel.Dock="Left" Command="{Binding OpenLocationListCommand}"
-                    ToolTip="{l:Translate action_location_list}" AutomationProperties.Name="{l:Translate action_location_list}">
-                <Button.Style>
-                    <Style TargetType="Button" BasedOn="{StaticResource IconButton}">
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding DataContext.IsDesktopInterfaceEnabled, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                                <Setter Property="Visibility" Value="Collapsed" />
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Button.Style>
-                <ContentControl Style="{StaticResource Icon960}" Tag="{StaticResource IconList}" />
-            </Button>
-            <Grid>
-                <TextBlock Margin="12,0,0,0" Style="{StaticResource TopAppBarTitle}" Text="{Binding Place}" />
-            </Grid>
-        </DockPanel>
-
         <!-- Follows a pull to refresh with the mouse wheel or a drag; it starts above the content and comes down with
              the pull. -->
-        <c:PullRefreshIndicator x:Name="PullIndicator" Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Top"
+        <c:PullRefreshIndicator x:Name="PullIndicator" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Top"
                                 Panel.ZIndex="1" Visibility="Collapsed"
-                                DiscBrush="{DynamicResource SurfaceBrush}" ArcBrush="{Binding RefreshArcBrush}" />
+                                DiscBrush="{DynamicResource SurfaceBrush}" ArcBrush="{Binding WeatherThemeBrush}" />
 
-        <ProgressBar Grid.Row="1" Height="4" IsIndeterminate="True" BorderThickness="0"
+        <ProgressBar Grid.Row="0" Height="4" IsIndeterminate="True" BorderThickness="0"
                      Background="Transparent" Foreground="{DynamicResource PrimaryBrush}"
                      Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibility}}" />
 
-        <ScrollViewer x:Name="WeatherScroll" Grid.Row="2" VerticalScrollBarVisibility="Auto"
+        <ScrollViewer x:Name="WeatherScroll" Grid.Row="1" VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
             <StackPanel>
                 <StackPanel x:Name="WeatherHeader" Margin="8,0,8,16">
-                    <!-- The time since the last refresh, with a clock icon, at the start of the header. -->
-                    <StackPanel Margin="8,0,8,8" HorizontalAlignment="Left" Orientation="Horizontal"
-                                AutomationProperties.Name="{Binding RefreshTimeDescription}">
-                        <StackPanel.Style>
-                            <Style TargetType="StackPanel">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding RefreshTimeText}" Value="{x:Null}">
-                                        <Setter Property="Visibility" Value="Collapsed" />
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </StackPanel.Style>
-                        <ContentControl Style="{StaticResource Icon24}" Width="20" Height="20"
-                                        Foreground="{DynamicResource InverseSurfaceBrush}" Tag="{StaticResource IconTime}" />
-                        <TextBlock Margin="6,0,0,0" VerticalAlignment="Center" FontSize="14" TextTrimming="CharacterEllipsis"
-                                   Foreground="{DynamicResource InverseSurfaceBrush}" Text="{Binding RefreshTimeText}" />
-                    </StackPanel>
-
-                    <TextBlock HorizontalAlignment="Center" Margin="0,8,0,0" Style="{StaticResource TitleLargeText}"
+                    <!-- 36 above the condition: its own 8, and the 28 of the refresh time's row that starts upstream's
+                         header, which sits in the title bar here. -->
+                    <TextBlock HorizontalAlignment="Center" Margin="0,36,0,0" Style="{StaticResource TitleLargeText}"
                                FontWeight="Light" Foreground="{DynamicResource InverseSurfaceBrush}" Text="{Binding WeatherText}" />
 
                     <Grid>

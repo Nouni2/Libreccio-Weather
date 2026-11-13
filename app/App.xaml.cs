@@ -27,6 +27,7 @@ using LibreccioWeather.Core.Refresh;
 using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Sources;
 using LibreccioWeather.Core.Sources.BrightSky;
+using LibreccioWeather.Core.Sources.Debug;
 using LibreccioWeather.Core.Sources.OpenMeteo;
 using LibreccioWeather.Core.Updates;
 using LibreccioWeather.Diagnostics;
@@ -111,7 +112,9 @@ public partial class App : System.Windows.Application
         WeatherRepository weather = new(database);
         LocationRepository locations = new(database);
         BrightSkyService brightSky = new(HttpClient, new ConfigStore(SettingsManager.GetSourcePath(BrightSkyService.Id)));
-        SourceManager sources = new(worldwideWeatherSources: [openMeteo], nationalWeatherSources: [brightSky]);
+        // The debug source, with its testing locations, only exists in debug builds, after the worldwide sources.
+        IReadOnlyList<IWeatherSource> worldwideSources = AppVersion.IsDebug ? [openMeteo, new DebugService()] : [openMeteo];
+        SourceManager sources = new(worldwideWeatherSources: worldwideSources, nationalWeatherSources: [brightSky]);
         WeatherRefresher refresher = new(sources, weather, settings);
         WeatherUpdateJob updateJob = new(refresher, locations, weather, settings);
         MainViewModel viewModel = new(

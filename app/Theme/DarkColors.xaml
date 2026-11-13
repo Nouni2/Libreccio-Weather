@@ -56,6 +56,10 @@
     <SolidColorBrush x:Key="InversePrimaryBrush" po:Freeze="True" Color="#6750A4" />
     <SolidColorBrush x:Key="ScrimBrush" po:Freeze="True" Color="#99000000" />
     <SolidColorBrush x:Key="HoverLayerBrush" po:Freeze="True" Color="#14E6E0E9" />
+    <SolidColorBrush x:Key="PressedLayerBrush" po:Freeze="True" Color="#1AE6E0E9" />
+    <!-- The close button of the window takes Windows' own red when hovered or pressed, in both themes. -->
+    <SolidColorBrush x:Key="CaptionCloseBrush" po:Freeze="True" Color="#C42B1C" />
+    <SolidColorBrush x:Key="OnCaptionCloseBrush" po:Freeze="True" Color="#FFFFFF" />
     <SolidColorBrush x:Key="AlertBackgroundBrush" po:Freeze="True" Color="#410002" />
     <!-- The main screen's title and caption text, also here so that its forecast columns, built before they join the
          screen, find a value; the main screen's own palette gives theirs once they are shown. -->

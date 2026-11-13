@@ -184,18 +184,24 @@
             </StackPanel>
         </ScrollViewer>
 
-        <Button Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{StaticResource NormalMargin}"
-                Style="{StaticResource FloatingActionButton}" Command="{Binding AddLocationCommand}"
-                ToolTip="{l:Translate action_add_new_location}" AutomationProperties.Name="{l:Translate action_add_new_location}"
-                Visibility="{Binding HasLocations, Converter={StaticResource BooleanToVisibility}}">
-            <ContentControl Style="{StaticResource Icon24}" Foreground="{DynamicResource OnTertiaryBrush}" Tag="{StaticResource IconAdd}" />
-        </Button>
+        <!-- The add button, with the debug location button above it in debug builds. -->
+        <StackPanel Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="{StaticResource NormalMargin}"
+                    Visibility="{Binding HasLocations, Converter={StaticResource BooleanToVisibility}}">
+            <Button Margin="0,0,0,16" Style="{StaticResource FloatingActionButton}" Command="{Binding AddDebugLocationCommand}"
+                    ToolTip="{l:Translate action_add_debug_location}" AutomationProperties.Name="{l:Translate action_add_debug_location}"
+                    Visibility="{Binding CanAddDebugLocation, Converter={StaticResource BooleanToVisibility}}">
+                <ContentControl Style="{StaticResource Icon960}" Foreground="{DynamicResource OnTertiaryBrush}" Tag="{StaticResource IconBugReport}" />
+            </Button>
+            <Button Style="{StaticResource FloatingActionButton}" Command="{Binding AddLocationCommand}"
+                    ToolTip="{l:Translate action_add_new_location}" AutomationProperties.Name="{l:Translate action_add_new_location}">
+                <ContentControl Style="{StaticResource Icon24}" Foreground="{DynamicResource OnTertiaryBrush}" Tag="{StaticResource IconAdd}" />
+            </Button>
+        </StackPanel>
 
-        <!-- Without locations, the screen only offers to add one. -->
-        <Button Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center"
-                Command="{Binding AddLocationCommand}" Content="{l:Translate action_add_new_location}">
-            <Button.Style>
-                <Style TargetType="Button" BasedOn="{StaticResource FilledButton}">
+        <!-- Without locations, the screen only offers to add one, or a debug location in debug builds. -->
+        <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel.Style>
+                <Style TargetType="StackPanel">
                     <Setter Property="Visibility" Value="Collapsed" />
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding HasLocations}" Value="False">
@@ -203,7 +209,16 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </Button.Style>
-        </Button>
+            </StackPanel.Style>
+            <Button Style="{StaticResource FilledButton}" Command="{Binding AddLocationCommand}" Content="{l:Translate action_add_new_location}" />
+            <Button Margin="0,8,0,0" Style="{StaticResource OutlinedButton}" Command="{Binding AddDebugLocationCommand}"
+                    Visibility="{Binding CanAddDebugLocation, Converter={StaticResource BooleanToVisibility}}">
+                <StackPanel Orientation="Horizontal">
+                    <ContentControl Style="{StaticResource Icon960}" Width="18" Height="18" Foreground="{DynamicResource PrimaryBrush}"
+                                    Tag="{StaticResource IconBugReport}" AutomationProperties.Name="{l:Translate settings_debug}" />
+                    <TextBlock Margin="8,0,0,0" VerticalAlignment="Center" Text="{l:Translate action_add_debug_location}" />
+                </StackPanel>
+            </Button>
+        </StackPanel>
     </Grid>
 </UserControl>
