@@ -61,6 +61,8 @@ internal static class Icu
         "ureldatefmt_open", "ureldatefmt_format", "ureldatefmt_formatNumeric", "ureldatefmt_close",
         "udatpg_open", "udatpg_getBestPattern", "udatpg_close", "udat_open", "udat_format", "udat_close");
 
+    public static bool SupportsDateParsing { get; } = HasExports("udat_open", "udat_parse", "udat_setLenient", "udat_close");
+
     // Opening a formatter loads the language's CLDR data and parses its pattern, which costs far more than formatting
     // with it, so each formatter is opened once and kept for the life of the process. A screen formats hundreds of
     // values with a handful of formatters. ICU's date and relative-time formatters are not safe to use from two
@@ -329,6 +331,47 @@ internal static class Icu
             string displayLocale = LocaleId(displayCulture);
             return ReadString((char[] buffer, ref int error) =>
                 uloc_getDisplayCountry(locale, displayLocale, buffer, buffer.Length, ref error));
+        }
+    }
+
+    /// <summary>
+    /// Lenient parsing lets out-of-range calendar fields roll into the surrounding date.
+    /// </summary>
+    public static DateTimeOffset? ParseDate(string text, string pattern, TimeZoneInfo timeZone, CultureInfo culture)
+    {
+        if (!SupportsDateParsing)
+        {
+            return null;
+        }
+
+        lock (Gate)
+        {
+            string zone = TimeZoneInfo.TryConvertWindowsIdToIanaId(timeZone.Id, out string? iana) ? iana : timeZone.Id;
+            int status = 0;
+            IntPtr formatter = udat_open(DatePatternStyle, DatePatternStyle, LocaleId(culture), zone, zone.Length,
+                pattern, pattern.Length, ref status);
+            if (formatter == IntPtr.Zero || Failed(status))
+            {
+                if (formatter != IntPtr.Zero)
+                {
+                    udat_close(formatter);
+                }
+
+                return null;
+            }
+
+            try
+            {
+                udat_setLenient(formatter, 1);
+                int position = 0;
+                double milliseconds = udat_parse(formatter, text, text.Length, ref position, ref status);
+                return Failed(status) || position == 0 || !double.IsFinite(milliseconds)
+                    ? null : DateTimeOffset.FromUnixTimeMilliseconds(checked((long)milliseconds));
+            }
+            finally
+            {
+                udat_close(formatter);
+            }
         }
     }
 
@@ -622,6 +665,12 @@ internal static class Icu
     [DllImport(Library, CharSet = CharSet.Unicode)]
     private static extern int udat_format(
         IntPtr formatter, double date, [Out] char[] result, int capacity, IntPtr position, ref int status);
+
+    [DllImport(Library, CharSet = CharSet.Unicode)]
+    private static extern double udat_parse(IntPtr formatter, string text, int length, ref int position, ref int status);
+
+    [DllImport(Library)]
+    private static extern void udat_setLenient(IntPtr formatter, sbyte isLenient);
 
     [DllImport(Library)]
     private static extern void udat_close(IntPtr formatter);

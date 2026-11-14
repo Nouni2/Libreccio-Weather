@@ -27,7 +27,13 @@ using LibreccioWeather.Core.Refresh;
 using LibreccioWeather.Core.Settings;
 using LibreccioWeather.Core.Sources;
 using LibreccioWeather.Core.Sources.BrightSky;
+using LibreccioWeather.Core.Sources.ClimWeb;
 using LibreccioWeather.Core.Sources.Debug;
+using LibreccioWeather.Core.Sources.MeteoFrance;
+using LibreccioWeather.Core.Sources.MetNorway;
+using LibreccioWeather.Core.Sources.Ncei;
+using LibreccioWeather.Core.Sources.NaturalEarth;
+using LibreccioWeather.Core.Sources.Nws;
 using LibreccioWeather.Core.Sources.OpenMeteo;
 using LibreccioWeather.Core.Updates;
 using LibreccioWeather.Diagnostics;
@@ -112,10 +118,34 @@ public partial class App : System.Windows.Application
         WeatherRepository weather = new(database);
         LocationRepository locations = new(database);
         BrightSkyService brightSky = new(HttpClient, new ConfigStore(SettingsManager.GetSourcePath(BrightSkyService.Id)));
+        MfService meteoFrance = new(HttpClient, new ConfigStore(SettingsManager.GetSourcePath(MfService.Id)));
+        MetNoService metNorway = new(HttpClient);
+        NceiService ncei = new(HttpClient);
         // The debug source, with its testing locations, only exists in debug builds, after the worldwide sources.
-        IReadOnlyList<IWeatherSource> worldwideSources = AppVersion.IsDebug ? [openMeteo, new DebugService()] : [openMeteo];
-        SourceManager sources = new(worldwideWeatherSources: worldwideSources, nationalWeatherSources: [brightSky]);
-        WeatherRefresher refresher = new(sources, weather, settings);
+        IReadOnlyList<IWeatherSource> worldwideSources = AppVersion.IsDebug
+            ? [openMeteo, metNorway, ncei, new DebugService()] : [openMeteo, metNorway, ncei];
+        SourceManager sources = new(worldwideWeatherSources: worldwideSources, nationalWeatherSources:
+        [
+            brightSky, meteoFrance, new NwsService(HttpClient),
+            new AnamBfService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("anambf"))),
+            new AnametService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("anamet"))),
+            new DccmsService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("dccms"))),
+            new DmnNeService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("dmnne"))),
+            new DwrGmService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("dwrgm"))),
+            new EthioMetService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("ethiomet"))),
+            new GMetService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("gmet"))),
+            new IgebuService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("igebu"))),
+            new InmgbService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("inmgb"))),
+            new MaliMeteoService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("malimeteo"))),
+            new MeteoBeninService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("meteobenin"))),
+            new MeteoTchadService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("meteotchad"))),
+            new MettelsatService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("mettelsat"))),
+            new MsdZwService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("msdzw"))),
+            new SmaScService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("smasc"))),
+            new SmaSuService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("smasu"))),
+            new SsmsService(HttpClient, new ConfigStore(SettingsManager.GetSourcePath("ssms"))),
+        ], otherSources: [new NaturalEarthService()]);
+        WeatherRefresher refresher = new(sources, weather, settings, locations);
         WeatherUpdateJob updateJob = new(refresher, locations, weather, settings);
         MainViewModel viewModel = new(
             openMeteo, sources, refresher, locations, weather, updateJob, settings, RegionInfo.CurrentRegion.TwoLetterISORegionName);

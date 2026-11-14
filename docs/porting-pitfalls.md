@@ -13,6 +13,18 @@ Kotlin, Java and Android code whose closest C# equivalent behaves differently. E
 
 Where Kotlin reads two ways, compiling a small Kotlin test settles it.
 
+## Weather source JSON
+
+| Upstream | Upstream behaviour | .NET difference | Reproduce with |
+|---|---|---|---|
+| NWS `Duration.parseIsoString(...).inWholeHours.toInt()` and `Calendar.add(HOUR_OF_DAY, ...)` | Days are 24 hours; signed duration components are allowed. Whole hours truncate, then narrow to 32 bits before the 360-hour limit. Hours advance by elapsed time through daylight-saving transitions. | `TimeSpan` has a smaller range and no matching restricted ISO parser; converting local wall times can skip or duplicate instants. | `NwsDuration` retains the narrowing and nanosecond/millisecond ranges; NWS expands UTC instants with `AddHours`. Its source test pins fractional hours, a narrowing overflow and the repeated autumn hour. |
+| `DateSerializer`, `ISO8601Utils.parse` | Accept compact dates and hour-only offsets, clamp seconds 60–62 to 59 and truncate fractional seconds to milliseconds. A timestamp needs a time zone; a date alone uses the device's zone. | System.Text.Json's `DateTimeOffset` reader rejects leap seconds and compact forms and can retain sub-millisecond precision. | `SourceDateConverter`; `MfServiceTests` pins the time-zone and fractional-second cases. Dates before the Gregorian cutover retain a calendar difference. |
+| `List<Date>.getOrNull` | Returns null outside the list. | `ElementAtOrDefault` on a `DateTimeOffset` array returns the default date outside the array. | Check the array length before selecting a date; `MetNoServiceTests` pins the empty alert interval. |
+| `Objects.hash`, Java string and date hashes | Use a 31-based array hash, UTF-16 string hashes and the XOR of a timestamp's low and high 32 bits. | .NET string hashes are randomized, and `HashCode` does not use Java's algorithm. | `MfService.ObjectsHash` keeps alert identifiers stable with the source's component types; `MfServiceTests` pins an alert identifier. |
+| `StringOrStringListSerializer` | A string becomes a one-item list. Array primitives become their textual contents, including `null`; nested arrays and objects become empty strings. | System.Text.Json's string-array reader rejects numeric and Boolean elements. | `MfStringListConverter`; the overseas bulletin test pins the mixed array. |
+| `SimpleDateFormat.parse` | Lenient calendar fields roll into the surrounding date, and RFC 822 offsets and general time-zone names are accepted. | .NET's exact date parser rejects out-of-range calendar fields and uses different time-zone patterns. | `Icu.ParseDate` uses [ICU date parsing](https://unicode-org.github.io/icu-docs/apidoc/dev/icu4c/udat_8h.html) with lenient parsing enabled; `ClimWebServiceTests` pins an overflowed day and an offset. |
+| Kotlin `String.trim` | Whitespace includes separator categories, tabs/newlines and controls U+001C–U+001F, but excludes U+0085. | .NET's `String.Trim` includes U+0085 and excludes U+001C–U+001F. | `ClimWebService.Trim` retains the Kotlin set; its alert-text test pins both control characters. |
+
 ## Rounding
 
 | Upstream | Upstream behaviour | .NET difference | Reproduce with |

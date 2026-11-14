@@ -26,12 +26,23 @@
     <!-- Each language file such as Strings.fr.resx becomes a satellite assembly that .NET loads for that language. -->
     <EmbeddedResource Include="translations\*.resx" />
     <EmbeddedResource Include="resources\*.resx" />
+    <EmbeddedResource Include="resources\geography\*.json" />
     <!-- MSBuild only recognises the cultures ICU has data for, which leaves out Creole English, so its files would be
          built into the main assembly under a name no language looks up. -->
     <EmbeddedResource Update="translations\Strings.cpe.resx" Culture="cpe" WithCulture="true"
                       LogicalName="LibreccioWeather.Core.translations.Strings.cpe.resources" />
     <EmbeddedResource Update="translations\UnitStrings.cpe.resx" Culture="cpe" WithCulture="true"
                       LogicalName="LibreccioWeather.Core.translations.UnitStrings.cpe.resources" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Libreccio-Weather.Core.Tests" />
+  </ItemGroup>
+  <!-- Default source credentials come from the git-ignored Libreccio-Weather.Core.csproj.user, which MSBuild imports
+       on its own, so they reach the built assembly without entering the repository. Without that file they stay empty
+       and each source asks for its own key. -->
+  <ItemGroup>
+    <AssemblyMetadata Include="MfWsftKey" Value="$(MfWsftKey)" />
+    <AssemblyMetadata Include="MfWsftJwtKey" Value="$(MfWsftJwtKey)" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite" />

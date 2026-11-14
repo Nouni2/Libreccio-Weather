@@ -29,6 +29,33 @@ public interface ISource
     string Name { get; }
 }
 
+public interface IConfigurableSource : ISource
+{
+    bool IsConfigured { get; }
+
+    bool IsRestricted { get; }
+
+    IReadOnlyList<SourcePreference> GetPreferences();
+}
+
+public sealed record SourcePreference(string TitleKey, string Content, Action<string> OnValueChanged, string? DefaultUrl = null);
+
+public interface IReverseGeocodingSource : IFeatureSource
+{
+    IReadOnlyList<string>? KnownAmbiguousCountryCodes { get; }
+
+    Task<IReadOnlyList<LocationAddressInfo>> RequestNearestLocationAsync(
+        double latitude, double longitude, CancellationToken cancellationToken = default);
+}
+
+public interface ILocationParametersSource : ISource
+{
+    bool NeedsLocationParametersRefresh(Location location, bool coordinatesChanged, IReadOnlyCollection<SourceFeature> features);
+
+    Task<IReadOnlyDictionary<string, string>> RequestLocationParametersAsync(
+        Location location, CancellationToken cancellationToken = default);
+}
+
 /// <summary>
 /// A source reached over the network.
 /// </summary>

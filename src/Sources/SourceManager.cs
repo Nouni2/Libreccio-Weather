@@ -16,6 +16,7 @@
 
 using LibreccioWeather.Core.Localization;
 using LibreccioWeather.Core.Locations;
+using LibreccioWeather.Core.Sources.NaturalEarth;
 
 namespace LibreccioWeather.Core.Sources;
 
@@ -29,10 +30,11 @@ public sealed class SourceManager
 
     private readonly IReadOnlyList<ISource> _sources;
 
-    public SourceManager(IReadOnlyList<IWeatherSource> worldwideWeatherSources, IReadOnlyList<IWeatherSource> nationalWeatherSources)
+    public SourceManager(IReadOnlyList<IWeatherSource> worldwideWeatherSources, IReadOnlyList<IWeatherSource> nationalWeatherSources,
+        IReadOnlyList<ISource>? otherSources = null)
     {
         StringComparer collator = StringComparer.Create(Strings.Culture, ignoreCase: false);
-        _sources = [.. worldwideWeatherSources, .. nationalWeatherSources.OrderBy(source => source.Name, collator)];
+        _sources = [.. worldwideWeatherSources, .. nationalWeatherSources.OrderBy(source => source.Name, collator), .. (otherSources ?? [])];
     }
 
     public ISource? GetSource(string id)
@@ -65,6 +67,23 @@ public sealed class SourceManager
         return GetWeatherSources().FirstOrDefault(source => source.Id == id);
     }
 
+    public IReadOnlyList<IReverseGeocodingSource> GetReverseGeocodingSources()
+    {
+        return [.. _sources.OfType<IReverseGeocodingSource>()
+            .Where(source => source.SupportedFeatures.ContainsKey(SourceFeature.ReverseGeocoding))];
+    }
+
+    public IReverseGeocodingSource? GetReverseGeocodingSource(string id)
+    {
+        return GetReverseGeocodingSources().FirstOrDefault(source => source.Id == id);
+    }
+
+    public IReverseGeocodingSource GetReverseGeocodingSourceOrDefault(string id)
+    {
+        return GetReverseGeocodingSource(id) ?? GetReverseGeocodingSource(NaturalEarthService.Id)
+            ?? throw new InvalidOperationException("The default reverse-geocoding source is missing.");
+    }
+
     /// <summary>
     /// The sources giving a feature, at a location when given; a position that is not known yet takes every source.
     /// </summary>
@@ -88,7 +107,8 @@ public sealed class SourceManager
     {
         return GetSupportedFeatureSources(feature, location)
             .Where(source => source.IsFeatureSupportedForLocation(location, feature)
-                && source.GetFeaturePriorityForLocation(location, feature) > IFeatureSource.PriorityNone)
+                && source.GetFeaturePriorityForLocation(location, feature) > IFeatureSource.PriorityNone
+                && (source is not IConfigurableSource configurable || (configurable.IsConfigured && !configurable.IsRestricted)))
             .MaxBy(source => source.GetFeaturePriorityForLocation(location, feature));
     }
 

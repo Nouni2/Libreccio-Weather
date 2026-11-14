@@ -17,6 +17,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
+using LibreccioWeather.Core.Locations;
 using LibreccioWeather.Core.Models;
 using LibreccioWeather.Core.Sources;
 
@@ -61,6 +62,8 @@ public sealed record RefreshError(RefreshErrorType Error, string? Source = null,
         return exception switch
         {
             InvalidLocationException => RefreshErrorType.InvalidLocation,
+            OutdatedServerDataException => RefreshErrorType.OutdatedServerData,
+            ApiKeyMissingException => RefreshErrorType.ApiKeyRequiredMissing,
             HttpRequestException { HttpRequestError: HttpRequestError.NameResolutionError } =>
                 RefreshErrorType.NetworkUnavailable,
             HttpRequestException { HttpRequestError: HttpRequestError.SecureConnectionError } =>
@@ -83,4 +86,6 @@ public sealed record RefreshError(RefreshErrorType Error, string? Source = null,
 /// <summary>
 /// The weather after a refresh, which may be the previous weather when the refresh failed, and what went wrong.
 /// </summary>
-public sealed record WeatherResult(Weather? Weather, IReadOnlyList<RefreshError> Errors);
+public sealed record WeatherResult(Weather? Weather, IReadOnlyList<RefreshError> Errors, Location? Location = null);
+
+public sealed record LocationResult(Location Location, IReadOnlyList<RefreshError> Errors);

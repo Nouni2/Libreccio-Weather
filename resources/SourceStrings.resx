@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  This file is part of Libreccio Weather.
+
+  Libreccio Weather is free software: you can redistribute it and/or modify it
+  under the terms of the GNU General Public License as published by the Free
+  Software Foundation, version 3 of the License.
+
+  Libreccio Weather is distributed in the hope that it will be useful, but
+  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  more details.
+
+  You should have received a copy of the GNU General Public License along
+  with Libreccio Weather. If not, see <https://www.gnu.org/licenses/>.
+-->
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="mf_warning_bulletin" xml:space="preserve"><value>Bulletin de Vigilance météo</value></data>
+  <data name="mf_warning_consequences" xml:space="preserve"><value>Conséquences possibles</value></data>
+  <data name="mf_warning_advice" xml:space="preserve"><value>Conseils de comportement</value></data>
+  <data name="mf_warning_type_1" xml:space="preserve"><value>Vent</value></data>
+  <data name="mf_warning_type_2" xml:space="preserve"><value>Pluie-inondation</value></data>
+  <data name="mf_warning_type_3" xml:space="preserve"><value>Orages</value></data>
+  <data name="mf_warning_type_4" xml:space="preserve"><value>Crues</value></data>
+  <data name="mf_warning_type_5" xml:space="preserve"><value>Neige-verglas</value></data>
+  <data name="mf_warning_type_6" xml:space="preserve"><value>Canicule</value></data>
+  <data name="mf_warning_type_7" xml:space="preserve"><value>Grand froid</value></data>
+  <data name="mf_warning_type_8" xml:space="preserve"><value>Avalanches</value></data>
+  <data name="mf_warning_type_9" xml:space="preserve"><value>Vagues-submersion</value></data>
+  <data name="mf_warning_type_other" xml:space="preserve"><value>Divers</value></data>
+  <data name="mf_warning_level_4" xml:space="preserve"><value>Vigilance absolue</value></data>
+  <data name="mf_warning_level_3" xml:space="preserve"><value>Soyez très vigilant</value></data>
+  <data name="mf_warning_level_2" xml:space="preserve"><value>Soyez attentif</value></data>
+  <data name="mf_warning_level_0" xml:space="preserve"><value>Pas de vigilance particulière</value></data>
+  <data name="mf_department_01" xml:space="preserve"><value>Ain</value></data>
+  <data name="mf_department_02" xml:space="preserve"><value>Aisne</value></data>
+  <data name="mf_department_03" xml:space="preserve"><value>Allier</value></data>
+  <data name="mf_department_04" xml:space="preserve"><value>Alpes de Hautes-Provence</value></data>
+  <data name="mf_department_05" xml:space="preserve"><value>Hautes-Alpes</value></data>
+  <data name="mf_department_06" xml:space="preserve"><value>Alpes-Maritimes</value></data>
+  <data name="mf_department_07" xml:space="preserve"><value>Ardèche</value></data>
+  <data name="mf_department_08" xml:space="preserve"><value>Ardennes</value></data>
+  <data name="mf_department_09" xml:space="preserve"><value>Ariège</value></data>
+  <data name="mf_department_10" xml:space="preserve"><value>Aube</value></data>
+  <data name="mf_department_11" xml:space="preserve"><value>Aude</value></data>
+  <data name="mf_department_12" xml:space="preserve"><value>Aveyron</value></data>
+  <data name="mf_department_13" xml:space="preserve"><value>Bouches-du-Rhône</value></data>
+  <data name="mf_department_14" xml:space="preserve"><value>Calvados</value></data>
+  <data name="mf_department_15" xml:space="preserve"><value>Cantal</value></data>
+  <data name="mf_department_16" xml:space="preserve"><value>Charente</value></data>
+  <data name="mf_department_17" xml:space="preserve"><value>Charente-Maritime</value></data>
+  <data name="mf_department_18" xml:space="preserve"><value>Cher</value></data>
+  <data name="mf_department_19" xml:space="preserve"><value>Corrèze</value></data>
+  <data name="mf_department_21" xml:space="preserve"><value>Côte-d&apos;Or</value></data>
+  <data name="mf_department_22" xml:space="preserve"><value>Côtes d&apos;Armor</value></data>
+  <data name="mf_department_23" xml:space="preserve"><value>Creuse</value></data>
+  <data name="mf_department_24" xml:space="preserve"><value>Dordogne</value></data>
+  <data name="mf_department_25" xml:space="preserve"><value>Doubs</value></data>
+  <data name="mf_department_26" xml:space="preserve"><value>Drôme</value></data>
+  <data name="mf_department_27" xml:space="preserve"><value>Eure</value></data>
+  <data name="mf_department_28" xml:space="preserve"><value>Eure-et-Loir</value></data>
+  <data name="mf_department_29" xml:space="preserve"><value>Finistère</value></data>
+  <data name="mf_department_2A" xml:space="preserve"><value>Corse-du-Sud</value></data>
+  <data name="mf_department_2B" xml:space="preserve"><value>Haute-Corse</value></data>
+  <data name="mf_department_30" xml:space="preserve"><value>Gard</value></data>
+  <data name="mf_department_31" xml:space="preserve"><value>Haute-Garonne</value></data>
+  <data name="mf_department_32" xml:space="preserve"><value>Gers</value></data>
+  <data name="mf_department_33" xml:space="preserve"><value>Gironde</value></data>
+  <data name="mf_department_34" xml:space="preserve"><value>Hérault</value></data>
+  <data name="mf_department_35" xml:space="preserve"><value>Ille-et-Vilaine</value></data>
+  <data name="mf_department_36" xml:space="preserve"><value>Indre</value></data>
+  <data name="mf_department_37" xml:space="preserve"><value>Indre-et-Loire</value></data>
+  <data name="mf_department_38" xml:space="preserve"><value>Isère</value></data>
+  <data name="mf_department_39" xml:space="preserve"><value>Jura</value></data>
+  <data name="mf_department_40" xml:space="preserve"><value>Landes</value></data>
+  <data name="mf_department_41" xml:space="preserve"><value>Loir-et-Cher</value></data>
+  <data name="mf_department_42" xml:space="preserve"><value>Loire</value></data>
+  <data name="mf_department_43" xml:space="preserve"><value>Haute-Loire</value></data>
+  <data name="mf_department_44" xml:space="preserve"><value>Loire-Atlantique</value></data>
+  <data name="mf_department_45" xml:space="preserve"><value>Loiret</value></data>
+  <data name="mf_department_46" xml:space="preserve"><value>Lot</value></data>
+  <data name="mf_department_47" xml:space="preserve"><value>Lot-et-Garonne</value></data>
+  <data name="mf_department_48" xml:space="preserve"><value>Lozère</value></data>
+  <data name="mf_department_49" xml:space="preserve"><value>Maine-et-Loire</value></data>
+  <data name="mf_department_50" xml:space="preserve"><value>Manche</value></data>
+  <data name="mf_department_51" xml:space="preserve"><value>Marne</value></data>
+  <data name="mf_department_52" xml:space="preserve"><value>Haute-Marne</value></data>
+  <data name="mf_department_53" xml:space="preserve"><value>Mayenne</value></data>
+  <data name="mf_department_54" xml:space="preserve"><value>Meurthe-et-Moselle</value></data>
+  <data name="mf_department_55" xml:space="preserve"><value>Meuse</value></data>
+  <data name="mf_department_56" xml:space="preserve"><value>Morbihan</value></data>
+  <data name="mf_department_57" xml:space="preserve"><value>Moselle</value></data>
+  <data name="mf_department_58" xml:space="preserve"><value>Nièvre</value></data>
+  <data name="mf_department_59" xml:space="preserve"><value>Nord</value></data>
+  <data name="mf_department_60" xml:space="preserve"><value>Oise</value></data>
+  <data name="mf_department_61" xml:space="preserve"><value>Orne</value></data>
+  <data name="mf_department_62" xml:space="preserve"><value>Pas-de-Calais</value></data>
+  <data name="mf_department_63" xml:space="preserve"><value>Puy-de-Dôme</value></data>
+  <data name="mf_department_64" xml:space="preserve"><value>Pyrénées-Atlantiques</value></data>
+  <data name="mf_department_65" xml:space="preserve"><value>Hautes-Pyrénées</value></data>
+  <data name="mf_department_66" xml:space="preserve"><value>Pyrénées-Orientales</value></data>
+  <data name="mf_department_67" xml:space="preserve"><value>Bas-Rhin</value></data>
+  <data name="mf_department_68" xml:space="preserve"><value>Haut-Rhin</value></data>
+  <data name="mf_department_69" xml:space="preserve"><value>Rhône</value></data>
+  <data name="mf_department_70" xml:space="preserve"><value>Haute-Saône</value></data>
+  <data name="mf_department_71" xml:space="preserve"><value>Saône-et-Loire</value></data>
+  <data name="mf_department_72" xml:space="preserve"><value>Sarthe</value></data>
+  <data name="mf_department_73" xml:space="preserve"><value>Savoie</value></data>
+  <data name="mf_department_74" xml:space="preserve"><value>Haute-Savoie</value></data>
+  <data name="mf_department_75" xml:space="preserve"><value>Paris</value></data>
+  <data name="mf_department_76" xml:space="preserve"><value>Seine-Maritime</value></data>
+  <data name="mf_department_77" xml:space="preserve"><value>Seine-et-Marne</value></data>
+  <data name="mf_department_78" xml:space="preserve"><value>Yvelines</value></data>
+  <data name="mf_department_79" xml:space="preserve"><value>Deux-Sèvres</value></data>
+  <data name="mf_department_80" xml:space="preserve"><value>Somme</value></data>
+  <data name="mf_department_81" xml:space="preserve"><value>Tarn</value></data>
+  <data name="mf_department_82" xml:space="preserve"><value>Tarn-et-Garonne</value></data>
+  <data name="mf_department_83" xml:space="preserve"><value>Var</value></data>
+  <data name="mf_department_84" xml:space="preserve"><value>Vaucluse</value></data>
+  <data name="mf_department_85" xml:space="preserve"><value>Vendée</value></data>
+  <data name="mf_department_86" xml:space="preserve"><value>Vienne</value></data>
+  <data name="mf_department_87" xml:space="preserve"><value>Haute-Vienne</value></data>
+  <data name="mf_department_88" xml:space="preserve"><value>Vosges</value></data>
+  <data name="mf_department_89" xml:space="preserve"><value>Yonne</value></data>
+  <data name="mf_department_90" xml:space="preserve"><value>Territoire-de-Belfort</value></data>
+  <data name="mf_department_91" xml:space="preserve"><value>Essonne</value></data>
+  <data name="mf_department_92" xml:space="preserve"><value>Hauts-de-Seine</value></data>
+  <data name="mf_department_93" xml:space="preserve"><value>Seine-Saint-Denis</value></data>
+  <data name="mf_department_94" xml:space="preserve"><value>Val-de-Marne</value></data>
+  <data name="mf_department_95" xml:space="preserve"><value>Val-d&apos;Oise</value></data>
+  <data name="mf_department_99" xml:space="preserve"><value>Andorre</value></data>
+</root>

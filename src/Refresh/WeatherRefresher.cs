@@ -53,12 +53,16 @@ public sealed class WeatherRefresher
 
     private readonly SourceManager _sources;
     private readonly WeatherRepository _weatherRepository;
+    private readonly LocationRepository _locationRepository;
+    private readonly LocationRefresher _locationRefresher;
     private readonly SettingsManager _settings;
 
-    public WeatherRefresher(SourceManager sources, WeatherRepository weatherRepository, SettingsManager settings)
+    public WeatherRefresher(SourceManager sources, WeatherRepository weatherRepository, SettingsManager settings, LocationRepository locationRepository)
     {
         _sources = sources;
         _weatherRepository = weatherRepository;
+        _locationRepository = locationRepository;
+        _locationRefresher = new LocationRefresher(sources, locationRepository);
         _settings = settings;
     }
 
@@ -68,11 +72,16 @@ public sealed class WeatherRefresher
         bool ignoreCaching = false,
         CancellationToken cancellationToken = default)
     {
+        List<RefreshError> errors = [];
         try
         {
+            LocationResult locationResult = await Task.Run(() => _locationRefresher.GetLocationAsync(location, cancellationToken),
+                cancellationToken).ConfigureAwait(false);
+            location = locationResult.Location;
+            errors.AddRange(locationResult.Errors);
             if (!location.IsUsable || location.NeedsGeocodeRefresh)
             {
-                return new WeatherResult(location.Weather, [new RefreshError(RefreshErrorType.InvalidLocation)]);
+                return new WeatherResult(location.Weather, [.. errors, new RefreshError(RefreshErrorType.InvalidLocation)], location);
             }
 
             Dictionary<string, List<SourceFeature>> featuresBySource = GroupFeaturesBySource(location);
@@ -86,15 +95,15 @@ public sealed class WeatherRefresher
 
             if (!NetworkStatus.IsOnline())
             {
-                return new WeatherResult(location.Weather, [new RefreshError(RefreshErrorType.NetworkUnavailable)]);
+                return new WeatherResult(location.Weather, [.. errors, new RefreshError(RefreshErrorType.NetworkUnavailable)], location);
             }
 
             if (featuresBySource.Count == 0)
             {
-                return new WeatherResult(location.Weather, [new RefreshError(RefreshErrorType.InvalidLocation)]);
+                return new WeatherResult(location.Weather, [.. errors, new RefreshError(RefreshErrorType.InvalidLocation)], location);
             }
 
-            List<RefreshError> errors = [];
+            location = await UpdateLocationParametersAsync(location, featuresBySource, errors, cancellationToken).ConfigureAwait(false);
             Dictionary<string, WeatherWrapper?> sourceCalls = [];
             using (SemaphoreSlim semaphore = new(MaxConcurrentSources))
             {
@@ -189,13 +198,49 @@ public sealed class WeatherRefresher
                 Normals = completed.Normals ?? new Dictionary<Month, Normals>(),
             };
             await _weatherRepository.InsertAsync(location, weather, cancellationToken).ConfigureAwait(false);
-            return new WeatherResult(weather, errors);
+            return new WeatherResult(weather, errors, location with { Weather = weather });
         }
         catch (Exception exception) when (!(exception is OperationCanceledException && cancellationToken.IsCancellationRequested))
         {
             Trace.TraceError("Refreshing {0} failed: {1}", location.FormattedId, exception);
-            return new WeatherResult(location.Weather, [new RefreshError(RefreshErrorType.DataRefreshFailed)]);
+            return new WeatherResult(location.Weather, [.. errors, new RefreshError(RefreshErrorType.DataRefreshFailed)], location);
         }
+    }
+
+    private async Task<Location> UpdateLocationParametersAsync(Location location,
+        Dictionary<string, List<SourceFeature>> featuresBySource, List<RefreshError> errors, CancellationToken cancellationToken)
+    {
+        Dictionary<string, IReadOnlyDictionary<string, string>> parameters = new(location.Parameters);
+        bool changed = false;
+        foreach ((string sourceId, List<SourceFeature> features) in featuresBySource)
+        {
+            IWeatherSource? source = _sources.GetWeatherSource(sourceId);
+            if (source is not ILocationParametersSource parameterSource
+                || (source is IConfigurableSource configurable && !configurable.IsConfigured)
+                || !parameterSource.NeedsLocationParametersRefresh(location, coordinatesChanged: false, features))
+            {
+                continue;
+            }
+
+            try
+            {
+                parameters[sourceId] = await parameterSource.RequestLocationParametersAsync(location, cancellationToken).ConfigureAwait(false);
+                changed = true;
+            }
+            catch (Exception exception) when (!(exception is OperationCanceledException && cancellationToken.IsCancellationRequested))
+            {
+                errors.Add(new RefreshError(
+                    RefreshError.GetTypeFromException(exception, RefreshErrorType.LocationFailed), sourceId));
+            }
+        }
+
+        if (!changed)
+        {
+            return location;
+        }
+
+        await _locationRepository.InsertParametersAsync(location.FormattedId, parameters).ConfigureAwait(false);
+        return location with { Parameters = parameters };
     }
 
     private static Dictionary<string, List<SourceFeature>> GroupFeaturesBySource(Location location)
@@ -251,6 +296,12 @@ public sealed class WeatherRefresher
         if (_sources.GetWeatherSource(source) is not { } weatherSource)
         {
             AddError(new RefreshError(RefreshErrorType.SourceNotInstalled, source));
+            return null;
+        }
+
+        if (weatherSource is IConfigurableSource { IsConfigured: false })
+        {
+            AddError(new RefreshError(RefreshErrorType.ApiKeyRequiredMissing, source));
             return null;
         }
 

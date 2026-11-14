@@ -20,6 +20,10 @@ Credits belong to the Breezy Weather and Geometric Weather developers and contri
 
 The moonrise, moonset, moon phase and moon altitude calculations in `src/Astronomy/` are a C# translation of [commons-suncalc](https://github.com/shred/commons-suncalc) 2.14, the library Breezy Weather uses for them. Copyright (C) 2017 Richard "Shred" Körber. It is distributed under the Apache License 2.0, included in [apache-licence.md](apache-licence.md).
 
+## Geographic alert matching
+
+`src/Sources/Geography/SourceGeometry.cs` translates the geodesic polygon and distance calculations in `upstream/maps-utils/`, including coordinate clamping. Copyright 2008, 2013 Google Inc. The code is distributed under the Apache License 2.0, included in [apache-licence.md](apache-licence.md).
+
 ## Default units by country
 
 The default unit of each country in `src/Units/TemperatureUnit.cs`, `DistanceUnit.cs`, `PrecipitationUnit.cs`, `SpeedUnit.cs` and `PressureUnit.cs` comes from the unit preferences of [Unicode CLDR](https://github.com/unicode-org/cldr/blob/3f3967f3cbadc56bbb44a9aed20784e82ac64c67/common/supplemental/units.xml), as Breezy Weather's `weather-unit` module takes them, with the changes it makes. Copyright © 1991-Present Unicode, Inc. It is distributed under the [Unicode License v3](https://www.unicode.org/license.txt).

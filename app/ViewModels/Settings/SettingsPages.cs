@@ -600,8 +600,11 @@ public static class SettingsPages
         SettingsManager settings = main.Settings;
         OpenMeteoService openMeteo = main.OpenMeteo;
 
-        // Open-Meteo is the only worldwide forecast source; any other stored choice reads as automatic.
-        List<(string Id, string Name)> worldwideSources = [(OpenMeteoService.Id, OpenMeteoService.Name)];
+        List<(string Id, string Name)> worldwideSources = [.. main.Sources.GetWeatherSources()
+            .Where(source => source is Core.Sources.IHttpSource http && http.Continent == Core.Sources.SourceContinent.Worldwide
+                && source.SupportedFeatures.ContainsKey(Core.Sources.SourceFeature.Forecast)
+                && (source is not Core.Sources.IConfigurableSource configurable || configurable.IsConfigured))
+            .Select(source => (source.Id, source.Name))];
         string defaultSource = worldwideSources.Any(source => source.Id == settings.DefaultForecastSource)
             ? settings.DefaultForecastSource
             : "auto";
@@ -646,6 +649,33 @@ public static class SettingsPages
                     BrightSkyService.BaseUrl, invalid, value => brightSky.Instance = value, isFirst: true, isLast: true),
             ]);
         }
+        foreach (Core.Sources.IConfigurableSource source in main.Sources.GetWeatherSources().OfType<Core.Sources.IConfigurableSource>())
+        {
+            IReadOnlyList<Core.Sources.SourcePreference> preferences = source.GetPreferences();
+            if (preferences.Count == 0)
+            {
+                continue;
+            }
+
+            items.Add(SeparatorPreference.Large);
+            items.Add(new SectionHeaderPreference(source.Name));
+            for (int i = 0; i < preferences.Count; i++)
+            {
+                Core.Sources.SourcePreference preference = preferences[i];
+                if (i > 0)
+                {
+                    items.Add(SeparatorPreference.Small);
+                }
+
+                items.Add(preference.DefaultUrl is { } defaultUrl
+                    ? InstancePreference(main, preference.TitleKey, preference.Content.Length == 0 ? defaultUrl : preference.Content,
+                        defaultUrl, invalid, value => preference.OnValueChanged(value ?? ""), isFirst: i == 0, isLast: i == preferences.Count - 1)
+                    : new EditTextPreference(main, Strings.Get(preference.TitleKey),
+                        value => value.Length == 0 ? Strings.Get("settings_source_default_value") : value,
+                        preference.Content, null, null, null, preference.OnValueChanged, isFirst: i == 0, isLast: i == preferences.Count - 1));
+            }
+        }
+
         return new SettingsPageViewModel(
             Strings.Get("settings_weather_sources"), items, main.GoBack, () => WeatherSources(main), () => main.NavigateTo(About(main)));
     }

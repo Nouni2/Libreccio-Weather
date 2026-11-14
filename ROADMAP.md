@@ -76,6 +76,88 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [ ] Credits, data sources and privacy policies of every source a location uses
 - [ ] Other weather sources
   - [ ] Bright Sky (DWD) for Germany: forecast, current conditions, minutely precipitation and alerts, with its server address in the weather sources settings
+  - [ ] Météo-France (`MfService`)
+    - [ ] Forecast, current observations, rain nowcasts and monthly temperature normals
+    - [ ] Metropolitan and overseas alerts
+    - [ ] Source key settings and alert-domain parameters
+    - [ ] Nearest-location addresses, territory codes and French department names
+  - [ ] AccuWeather (`AccuService`)
+  - [ ] FPAS (`FpasService`)
+  - [ ] Infoplaza (`InfoplazaService`)
+  - [ ] MET Norway (`MetNoService`)
+    - [ ] Worldwide forecasts
+    - [ ] Nordic current conditions and nowcasts
+    - [ ] Norwegian air quality and regional alerts
+  - [ ] NCEI (`NceiService`)
+  - [ ] OpenWeather (`OpenWeatherService`)
+  - [ ] Pirate Weather (`PirateWeatherService`)
+  - [ ] WMO Severe Weather (`WmoSevereWeatherService`)
+  - [ ] AEMET (`AemetService`)
+  - [ ] ANAM Burkina Faso (`AnamBfService`)
+  - [ ] ANAMET (`AnametService`)
+  - [ ] Atmo Auvergne-Rhône-Alpes (`AtmoAuraService`)
+  - [ ] Atmo France (`AtmoFranceService`)
+  - [ ] Atmo Grand Est (`AtmoGrandEstService`)
+  - [ ] Atmo Hauts-de-France (`AtmoHdfService`)
+  - [ ] Atmo Sud (`AtmoSudService`)
+  - [ ] BMD (`BmdService`)
+  - [ ] BMKG (`BmkgService`)
+  - [ ] China (`ChinaService`)
+  - [ ] CWA (`CwaService`)
+  - [ ] DCCMS (`DccmsService`)
+  - [ ] DMI (`DmiService`)
+  - [ ] DMN Niger (`DmnNeService`)
+  - [ ] DWR Gambia (`DwrGmService`)
+  - [ ] ECCC (`EcccService`)
+  - [ ] EKUK (`EkukService`)
+  - [ ] EPD Hong Kong (`EpdHkService`)
+  - [ ] Ethio Met (`EthioMetService`)
+  - [ ] FMI (`FmiService`)
+  - [ ] GeoSphere Austria (`GeoSphereAtService`)
+  - [ ] GMet (`GMetService`)
+  - [ ] HKO (`HkoService`)
+  - [ ] IGEBU (`IgebuService`)
+  - [ ] Ilmateenistus (`IlmateenistusService`)
+  - [ ] IMD (`ImdService`)
+  - [ ] IMS (`ImsService`)
+  - [ ] INM Guinea-Bissau (`InmgbService`)
+  - [ ] IPMA (`IpmaService`)
+  - [ ] JMA (`JmaService`)
+  - [ ] KNMI (`KnmiService`)
+  - [ ] LHMT (`LhmtService`)
+  - [ ] LVGMC (`LvgmcService`)
+  - [ ] Mali Météo (`MaliMeteoService`)
+  - [ ] MeteoAM (`MeteoAmService`)
+  - [ ] Météo Bénin (`MeteoBeninService`)
+  - [ ] MeteoLux (`MeteoLuxService`)
+  - [ ] Météo Tchad (`MeteoTchadService`)
+  - [ ] Met Éireann (`MetIeService`)
+  - [ ] Met Office (`MetOfficeService`)
+  - [ ] METTELSAT (`MettelsatService`)
+  - [ ] MGM (`MgmService`)
+  - [ ] MSD Zimbabwe (`MsdZwService`)
+  - [ ] NAMEM (`NamemService`)
+  - [ ] NCDR (`NcdrService`)
+  - [ ] NLSC (`NlscService`)
+  - [ ] NWS (`NwsService`)
+    - [ ] Grid forecasts, daily periods and station observations
+    - [ ] Active alerts, event colors and source text
+    - [ ] Grid and station parameters, and nearest-location addresses
+    - [ ] Whole-hour duration conversion and elapsed hours across clock changes
+  - [ ] Polleninfo (`PollenInfoService`)
+  - [ ] PAGASA (`PagasaService`)
+  - [ ] Recosanté (`RecosanteService`)
+  - [ ] SMA Seychelles (`SmaScService`)
+  - [ ] SMA Sudan (`SmaSuService`)
+  - [ ] SMG (`SmgService`)
+  - [ ] SMHI (`SmhiService`)
+  - [ ] SSMS (`SsmsService`)
+  - [ ] ClimWeb alerts and normals (`ClimWebService`)
+    - [ ] Geographic alert filtering and source text
+    - [ ] Monthly normals and nearest-city parameters
+    - [ ] Per-source server addresses
+    - [ ] Lenient alert-date parsing through ICU
+  - [ ] Icelandic Met Office (`VedurIsService`)
 
 ### Translations
 
@@ -205,9 +287,10 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
     - [x] App updates switch, with a switch for pre-releases
     - [x] Alerts and precipitation switches, unavailable without background updates
     - [x] Today's and tomorrow's forecast switches and times, chosen by typing the time
-  - [x] Weather sources
-    - [x] Default source, automatic or Open-Meteo
+  - [ ] Weather sources
+    - [ ] Default source, automatic or a worldwide forecast provider
     - [x] Open-Meteo's forecast, air quality and geocoding server addresses
+    - [ ] Provider key settings for configurable sources
   - [ ] Location settings
   - [ ] Debug
     - [ ] Share crash logs: the log's errors with the app and system versions, saved to a file that opens from the message
@@ -282,6 +365,7 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Breezy Weather's tests for temperature conversions, humidex and total precipitation
   - [x] Checks on rounding and the Beaufort scale
   - [x] Weather database migrations, quantity storage and transaction rollback
+  - [ ] Weather-source compatibility: date parsing, alert identities, nullable intervals, mixed JSON lists and Unicode trimming
   - [x] Location identifier changes, rename rollback and full source parameter replacement
   - [x] Breezy Weather's number formatting tests
   - [x] Breezy Weather's tests for card and chart lists and option names

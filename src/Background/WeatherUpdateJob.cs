@@ -154,8 +154,7 @@ public sealed class WeatherUpdateJob
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            // The location itself is not refreshed: there is no current position or reverse geocoding.
-            if (location.IsUsable && !location.NeedsGeocodeRefresh)
+            if (location.IsUsable)
             {
                 try
                 {
@@ -167,7 +166,7 @@ public sealed class WeatherUpdateJob
                         or RefreshErrorType.ApiLimitReached or RefreshErrorType.ServerUnavailable
                         or RefreshErrorType.ParsingError or RefreshErrorType.InvalidIncompleteData
                         or RefreshErrorType.OutdatedServerData or RefreshErrorType.IncompatibleForecastTimes
-                        or RefreshErrorType.DataRefreshFailed);
+                        or RefreshErrorType.DataRefreshFailed or RefreshErrorType.ReverseGeocodingFailed);
                     retryRequired |= locationRetryRequired;
                     if (locationRetryRequired)
                     {
@@ -179,7 +178,7 @@ public sealed class WeatherUpdateJob
                         _locationsToRetry.Remove(location.FormattedId);
                     }
 
-                    newUpdates.Add(location with { Weather = result.Weather });
+                    newUpdates.Add(result.Location ?? (location with { Weather = result.Weather }));
                 }
                 catch (Exception exception) when (exception is not OperationCanceledException)
                 {

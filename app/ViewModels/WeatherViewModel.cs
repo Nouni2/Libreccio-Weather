@@ -243,7 +243,7 @@ public sealed partial class WeatherViewModel : ObservableObject
         try
         {
             WeatherResult result = await _refresher.GetWeatherAsync(_location);
-            _location = _location with { Weather = result.Weather };
+            _location = result.Location ?? (_location with { Weather = result.Weather });
             if (result.Weather is { } weather)
             {
                 Show(weather);

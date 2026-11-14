@@ -37,3 +37,27 @@ public sealed class LocationSearchException : Exception
     {
     }
 }
+
+public sealed class OutdatedServerDataException : Exception
+{
+    public OutdatedServerDataException()
+        : base("The source returned outdated data.")
+    {
+    }
+}
+
+public sealed class ApiKeyMissingException : Exception
+{
+    public ApiKeyMissingException()
+        : base("The source requires an API key.")
+    {
+    }
+}
+
+public sealed class ReverseGeocodingException : Exception
+{
+    public ReverseGeocodingException()
+        : base("Reverse geocoding returned no location.")
+    {
+    }
+}
