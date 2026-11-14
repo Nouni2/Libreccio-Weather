@@ -81,7 +81,7 @@ public sealed class ConnectedButtonGroup : Panel
 
     public ConnectedButtonGroup()
     {
-        _overflowButton = new Button { Visibility = Visibility.Collapsed };
+        _overflowButton = new Button { Visibility = Visibility.Hidden };
         _overflowButton.SetResourceReference(StyleProperty, "ConnectedGroupOverflowButton");
         _overflowButton.SetBinding(System.Windows.Automation.AutomationProperties.NameProperty,
             new Binding(nameof(OverflowLabel)) { Source = this });
@@ -309,14 +309,16 @@ public sealed class ConnectedButtonGroup : Panel
             ? FindComposeOverflow(available)
             : FindMaterialComponentsOverflow(available);
 
+        // Buttons left out are hidden, not collapsed: a collapsed element measures as 0 wide, which would make it fit
+        // on the next measure and the row would alternate between its two states.
         _overflowed.Clear();
         _overflowed.AddRange(overflowed);
         foreach (ConnectedToggle button in _buttons)
         {
-            button.Visibility = _overflowed.Contains(button) ? Visibility.Collapsed : Visibility.Visible;
+            button.Visibility = _overflowed.Contains(button) ? Visibility.Hidden : Visibility.Visible;
         }
 
-        _overflowButton.Visibility = showOverflow ? Visibility.Visible : Visibility.Collapsed;
+        _overflowButton.Visibility = showOverflow ? Visibility.Visible : Visibility.Hidden;
         UpdateCorners();
 
         double width = 0;
@@ -324,7 +326,7 @@ public sealed class ConnectedButtonGroup : Panel
         int index = 0;
         foreach (UIElement child in InternalChildren)
         {
-            if (child.Visibility == Visibility.Collapsed)
+            if (child.Visibility != Visibility.Visible)
             {
                 continue;
             }
@@ -389,8 +391,9 @@ public sealed class ConnectedButtonGroup : Panel
         double x = 0;
         foreach (UIElement child in InternalChildren)
         {
-            if (child.Visibility == Visibility.Collapsed)
+            if (child.Visibility != Visibility.Visible)
             {
+                child.Arrange(new Rect());
                 continue;
             }
 
@@ -404,7 +407,7 @@ public sealed class ConnectedButtonGroup : Panel
     // The row's two ends are fully round and the corners between buttons small; the chosen button is fully round.
     private void UpdateCorners()
     {
-        List<FrameworkElement> shown = [.. InternalChildren.OfType<FrameworkElement>().Where(child => child.Visibility != Visibility.Collapsed)];
+        List<FrameworkElement> shown = [.. InternalChildren.OfType<FrameworkElement>().Where(child => child.Visibility == Visibility.Visible)];
         for (int i = 0; i < shown.Count; i++)
         {
             bool last = i == shown.Count - 1 && (shown[i] == _overflowButton || RoundsLastItem);

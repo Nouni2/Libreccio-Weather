@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.6.0] - 2026-11-14
+
+### Added
+
+- Météo-France, Breezy Weather's weather source for France: forecast, current conditions and precipitation nowcasts in metropolitan France, temperature normals and alerts there, in Andorra and in the French overseas territories, and temperature normals in Monaco. Its forecast also covers the rest of the world.
+- MET Norway: worldwide forecasts, current conditions and precipitation nowcasts in the Nordic countries, air quality in Norway, and alerts for Norway, Svalbard and Jan Mayen.
+- The National Weather Service for the United States: forecast, current conditions from the nearest station and active alerts.
+- NCEI temperature normals for the United States, Puerto Rico, the US Virgin Islands, the Northern Mariana Islands and Guam.
+- The 17 ClimWeb national weather services, for alerts and temperature normals: ANAM-BF, ANAMET, DCCMS, DMN Niger, DWR Gambia, Ethio Met, GMet, IGEBU, INM-GB, Mali-Météo, Météo Bénin, Météo Tchad, Mettelsat, MSD Zimbabwe, SMA Seychelles, SMA Sudan and SSMS.
+
 ## [0.5.1] - 2026-11-13
 
 ### Fixed
