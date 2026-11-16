@@ -467,7 +467,7 @@ public sealed class WeatherCardsPanel : Panel
         int column = 0;
         foreach (UIElement child in InternalChildren)
         {
-            bool square = child is ContentPresenter { Content: WeatherCardHost { Card: ConditionsCardViewModel or AstroCardViewModel } };
+            bool square = child is ContentPresenter { Content: WeatherCardHost { Card: ConditionsCardViewModel or AstroCardViewModel or ClockCardViewModel } };
             child.SetValue(AstroCardView.AreBlocksSquishedProperty, squished);
             if (!square && column > 0)
             {

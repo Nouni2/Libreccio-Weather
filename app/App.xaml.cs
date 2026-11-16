@@ -100,12 +100,14 @@ public partial class App : System.Windows.Application
         ProportionalWheelScroll.TouchpadSpeed = (settings.TouchpadScrollSpeed ?? 100) / 100.0;
         FormatterSettings.UseNumberFormatter = settings.UseNumberFormatter;
         FormatterSettings.UseMeasureFormat = settings.UseMeasureFormat;
+        FormatterSettings.UseWindowsTimeZones = settings.IsWindowsTimeZonesEnabled;
         settings.SettingsChanged += (_, _) =>
         {
             RefreshRate.MatchesMonitor = settings.IsScreenRefreshRateEnabled;
             ProportionalWheelScroll.TouchpadSpeed = (settings.TouchpadScrollSpeed ?? 100) / 100.0;
             FormatterSettings.UseNumberFormatter = settings.UseNumberFormatter;
             FormatterSettings.UseMeasureFormat = settings.UseMeasureFormat;
+            FormatterSettings.UseWindowsTimeZones = settings.IsWindowsTimeZonesEnabled;
         };
 
         // The language is set before the first window opens, because translated text is read when XAML loads.

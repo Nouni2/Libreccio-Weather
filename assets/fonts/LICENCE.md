@@ -1,4 +1,5 @@
 Copyright 2018 The Asap Project Authors (https://github.com/Omnibus-Type/Asap)
+Copyright 2017 The Roboto Flex Project Authors (https://github.com/TypeNetwork/Roboto-Flex)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:

@@ -34,6 +34,13 @@ public static class FormatterSettings
     public static bool UseMeasureFormat { get; set; } = true;
 
     /// <summary>
+    /// Whether dates and times formatted through ICU take their time zone offset from Windows' time zone rules, which
+    /// Windows Update keeps current, instead of the time zone database built into Windows' ICU, which can be years
+    /// older. Windows' rules are also those every other time in the app follows.
+    /// </summary>
+    public static bool UseWindowsTimeZones { get; set; } = true;
+
+    /// <summary>
     /// Whether Windows' ICU has the number formatter, without which the first switch has no effect.
     /// </summary>
     public static bool IsNumberFormatterSupported => Icu.SupportsUnitNames;

@@ -378,11 +378,25 @@ public static class SettingsPages
                 value => main.Settings.IsSeasonalWindowIconEnabled = value),
             SeparatorPreference.Small,
             new SwitchPreference(
+                Strings.Get("accent_colors"),
+                Strings.Get("settings_enabled"),
+                Strings.Get("settings_disabled"),
+                main.Settings.IsAccentColorsEnabled,
+                value => main.Settings.IsAccentColorsEnabled = value),
+            SeparatorPreference.Small,
+            new SwitchPreference(
                 Strings.Get("forecast_column_tooltip"),
                 Strings.Get("settings_enabled"),
                 Strings.Get("settings_disabled"),
                 main.Settings.IsForecastColumnTooltipEnabled,
                 value => main.Settings.IsForecastColumnTooltipEnabled = value),
+            SeparatorPreference.Small,
+            new SwitchPreference(
+                Strings.Get("windows_time_zones"),
+                Strings.Get("settings_enabled"),
+                Strings.Get("settings_disabled"),
+                main.Settings.IsWindowsTimeZonesEnabled,
+                value => main.Settings.IsWindowsTimeZonesEnabled = value),
             SeparatorPreference.Small,
 
             // 100 % follows Windows' wheel setting, which reset returns to. The slider spans a tenth to twice that

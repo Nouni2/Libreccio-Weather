@@ -31,6 +31,9 @@
         <DataTemplate DataType="{x:Type conditions:AstroCardViewModel}">
             <cards:AstroCardView Data="{Binding}" Margin="8" Cursor="Hand" MouseLeftButtonUp="OnAstroCardClick" />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type conditions:ClockCardViewModel}">
+            <cards:ClockCardView Data="{Binding}" Margin="8" Cursor="Hand" MouseLeftButtonUp="OnClockCardClick" />
+        </DataTemplate>
         <DataTemplate DataType="{x:Type conditions:ConditionsCardViewModel}">
             <cards:ConditionsCardView Data="{Binding}" Margin="8" Cursor="Hand" MouseLeftButtonUp="OnConditionsCardClick" />
         </DataTemplate>

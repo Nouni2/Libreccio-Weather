@@ -36,6 +36,7 @@ public partial class DetailsView : UserControl
 
     private ResourceDictionary? _palette;
     private bool? _paletteIsLight;
+    private int? _paletteAccent;
     private System.Windows.Point? _pageDragStart;
     private bool _isSwipingPage;
 
@@ -74,15 +75,17 @@ public partial class DetailsView : UserControl
     }
 
     // The screen's own palette overrides the app's, so a location can be light while the rest of the app is dark.
-    // Swapping it makes every color of the screen resolve again, so it is only swapped when it changes.
+    // Swapping it makes every color of the screen resolve again, so it is only swapped when it or the accent changes.
     private void ApplyPalette(bool light)
     {
-        if (_paletteIsLight == light)
+        int? accent = Appearance.ThemeManager.CurrentAccentColor();
+        if (_paletteIsLight == light && _paletteAccent == accent)
         {
             return;
         }
 
         _paletteIsLight = light;
+        _paletteAccent = accent;
         if (_palette is not null)
         {
             Resources.MergedDictionaries.Remove(_palette);

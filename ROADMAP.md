@@ -306,11 +306,12 @@ Each item names the part of Breezy Weather it ports. An item is ticked once ever
   - [x] Newest release or pre-release found once a day after refreshes and background updates when enabled
   - [x] Semantic Versioning comparison of pre-releases
   - [x] Offer to enable update checks on the location list
-- [x] Breezy Weather's colors and light theme
+- [ ] Breezy Weather's colors and light theme
   - [x] Material 3's palettes for settings and Breezy Weather's for the main screen, location cards and order editors, light and dark
   - [x] Setting and location cards tinted by their elevation
   - [x] App theme from the dark mode setting or Windows' app mode, applied at once
   - [x] Main screen light during the day and dark at night, following the day/night setting for locations
+  - [ ] Colors built from Windows' accent color, as Android 12 and later build them from the wallpaper, with a switch in Appearance's interface settings
 - [ ] Single instance
   - [x] One process per Windows user, enforced before settings and database access
   - [ ] Separate Debug and Release instances, settings, source preferences and databases

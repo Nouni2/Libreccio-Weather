@@ -71,6 +71,22 @@ public static class DateFormatting
         return TimeZoneInfo.ConvertTime(date, timeZone).ToString(twelveHour ? "h:mm tt" : "HH:mm", Strings.Culture);
     }
 
+    /// <summary>
+    /// One field of a clock in a pattern such as "HH", "hh" or "mm", zero-padded. Android pads it with String.format in
+    /// the default locale; ICU formats the exact pattern in the selected language, and without ICU, .NET writes Latin
+    /// digits.
+    /// </summary>
+    public static string FormatClockField(DateTimeOffset date, TimeZoneInfo timeZone, string pattern)
+    {
+        if (Icu.SupportsRelativeTimes
+            && Icu.FormatDate(date, pattern, pattern, timeZone, Icu.GetLocaleId(Strings.Culture)) is { } formatted)
+        {
+            return formatted;
+        }
+
+        return TimeZoneInfo.ConvertTime(date, timeZone).ToString(pattern, Strings.Culture);
+    }
+
     public static string GetFormattedShortDayAndMonth(DateTimeOffset date, TimeZoneInfo timeZone)
     {
         if (Icu.SupportsRelativeTimes

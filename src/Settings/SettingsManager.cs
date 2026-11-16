@@ -332,12 +332,32 @@ public sealed class SettingsManager
     }
 
     /// <summary>
+    /// Builds the Material colors of the app's screens from Windows' accent color, as Android 12 and later build them
+    /// from the wallpaper. On by default, as those Android versions always do.
+    /// </summary>
+    public bool IsAccentColorsEnabled
+    {
+        get => _config.GetBoolean("accent_colors", true);
+        set => SetAndNotify(() => _config.PutBoolean("accent_colors", value));
+    }
+
+    /// <summary>
     /// Shows a forecast column's description when the pointer rests on it, as screen readers read it.
     /// </summary>
     public bool IsForecastColumnTooltipEnabled
     {
         get => _config.GetBoolean("forecast_column_tooltip", true);
         set => SetAndNotify(() => _config.PutBoolean("forecast_column_tooltip", value));
+    }
+
+    /// <summary>
+    /// Formats dates and times through ICU at the offsets of Windows' time zone rules, which Windows Update keeps
+    /// current, instead of ICU's own time zone database. On by default.
+    /// </summary>
+    public bool IsWindowsTimeZonesEnabled
+    {
+        get => _config.GetBoolean("windows_time_zones", true);
+        set => SetAndNotify(() => _config.PutBoolean("windows_time_zones", value));
     }
 
     // Changing the cards does not raise SettingsChanged; the main screen reads them again when it is shown.

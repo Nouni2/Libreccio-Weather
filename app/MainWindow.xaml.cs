@@ -32,6 +32,7 @@ public partial class MainWindow : Window
 {
     private ResourceDictionary? _desktopTheme;
     private ResourceDictionary? _lightColors;
+    private ResourceDictionary? _accentColors;
     private IInputElement? _focusBeforeDialog;
     private readonly WindowCaption _caption;
 
@@ -167,7 +168,7 @@ public partial class MainWindow : Window
     {
         if (sender is MainViewModel main
             && e.PropertyName is nameof(MainViewModel.IsDesktopInterfaceEnabled) or nameof(MainViewModel.InterfaceCulture)
-                or nameof(MainViewModel.IsAppDark))
+                or nameof(MainViewModel.IsAppDark) or nameof(MainViewModel.AccentColor))
         {
             ApplyInterface(main);
         }
@@ -201,6 +202,19 @@ public partial class MainWindow : Window
         {
             applicationResources.MergedDictionaries.Remove(_lightColors);
             _lightColors = null;
+        }
+
+        // The accent colors come last, so they take precedence over the light or dark palette.
+        if (_accentColors is not null)
+        {
+            applicationResources.MergedDictionaries.Remove(_accentColors);
+            _accentColors = null;
+        }
+
+        if (main.AccentColor is { } accent)
+        {
+            _accentColors = Appearance.ThemeManager.GetAccentColors(accent, dark: main.IsAppDark);
+            applicationResources.MergedDictionaries.Add(_accentColors);
         }
 
         LayoutDirection.Apply(applicationResources);

@@ -95,6 +95,12 @@ public sealed partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _isAppDark;
 
+    /// <summary>
+    /// The source color of the app's screens' accent colors, or null while they are off.
+    /// </summary>
+    [ObservableProperty]
+    private int? _accentColor;
+
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(
         nameof(DesktopHomeCommand), nameof(DesktopLocationsCommand), nameof(DesktopSearchCommand),
@@ -144,8 +150,10 @@ public sealed partial class MainViewModel : ObservableObject
         };
 
         IsAppDark = Appearance.ThemeManager.IsAppDark(settings);
+        AccentColor = Appearance.ThemeManager.GetAccentColor(settings);
 
-        // A change of Windows' app mode applies at once while the dark mode setting follows the system.
+        // A change of Windows' accent color applies at once, and so does a change of its app mode while the dark mode
+        // setting follows the system; Windows reports both with the same notification.
         Microsoft.Win32.SystemEvents.UserPreferenceChanged += (_, args) =>
         {
             if (args.Category == Microsoft.Win32.UserPreferenceCategory.General)
@@ -166,6 +174,11 @@ public sealed partial class MainViewModel : ObservableObject
                 FollowThemeInDetails();
             }
 
+            if (args is SettingsChangedEventArgs { PropertyName: nameof(SettingsManager.IsAccentColorsEnabled) })
+            {
+                FollowAccentColor();
+            }
+
             if (args is SettingsChangedEventArgs
                 {
                     PropertyName: nameof(SettingsManager.IsWidgetNotificationEnabled)
@@ -178,7 +191,8 @@ public sealed partial class MainViewModel : ObservableObject
                         or nameof(SettingsManager.TrayDoubleClickDelay)
                         or nameof(SettingsManager.TouchpadScrollSpeed)
                         or nameof(SettingsManager.IsScreenRefreshRateEnabled)
-                        or nameof(SettingsManager.IsSeasonalWindowIconEnabled),
+                        or nameof(SettingsManager.IsSeasonalWindowIconEnabled)
+                        or nameof(SettingsManager.IsAccentColorsEnabled),
                 })
             {
                 return;
@@ -887,6 +901,7 @@ public sealed partial class MainViewModel : ObservableObject
 
     private void FollowSystemTheme()
     {
+        FollowAccentColor();
         if (_settings.DarkMode != DarkMode.System)
         {
             return;
@@ -897,6 +912,16 @@ public sealed partial class MainViewModel : ObservableObject
         {
             IsAppDark = dark;
             RebuildMainScreen();
+            FollowThemeInDetails();
+        }
+    }
+
+    private void FollowAccentColor()
+    {
+        int? accent = Appearance.ThemeManager.GetAccentColor(_settings);
+        if (accent != AccentColor)
+        {
+            AccentColor = accent;
             FollowThemeInDetails();
         }
     }

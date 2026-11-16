@@ -16,9 +16,19 @@ Credits belong to the Breezy Weather and Geometric Weather developers and contri
 
 `assets/fonts/Roboto-Medium.ttf` and `Roboto-Bold.ttf` are the hinted Roboto faces from [Google Fonts' Roboto repository](https://github.com/googlefonts/roboto-2/tree/main/src/hinted), used for the sun and moon cards. They are distributed under the Apache License 2.0, included in [assets/fonts/roboto-licence.md](../assets/fonts/roboto-licence.md).
 
+`assets/fonts/robotoflex.ttf` is the Roboto Flex variable font bundled with Breezy Weather, used for the clock card. Copyright 2017 The Roboto Flex Project Authors ([Roboto Flex project](https://github.com/TypeNetwork/Roboto-Flex)). It is distributed under the SIL Open Font License 1.1, included in [assets/fonts/LICENCE.md](../assets/fonts/LICENCE.md).
+
+## Clock card
+
+The clock card's hands in `app/Controls/WeatherCards/ClockCardView.cs` are the vectors of Android's `clock_hand_hour.xml` and `clock_hand_minute.xml`, and the card translates how Android's `AnalogClock`, `TextClock`, `TextView`, `Layout` and `DateFormat` place, size and format the clock, from the [Android Open Source Project](https://source.android.com/)'s `frameworks/base`, branch `android14-release`. Copyright (C) 2006, 2012 The Android Open Source Project. It is distributed under the Apache License 2.0, included in [apache-licence.md](apache-licence.md).
+
 ## Moon calculations
 
 The moonrise, moonset, moon phase and moon altitude calculations in `src/Astronomy/` are a C# translation of [commons-suncalc](https://github.com/shred/commons-suncalc) 2.14, the library Breezy Weather uses for them. Copyright (C) 2017 Richard "Shred" Körber. It is distributed under the Apache License 2.0, included in [apache-licence.md](apache-licence.md).
+
+## Material color schemes
+
+The color scheme generation in `src/MaterialColors/` is a C# translation of the Java sources of [Material Color Utilities](https://github.com/material-foundation/material-color-utilities) at commit `dd62982`, and `tests/ColorSchemes/` translates tests of its TypeScript version at commit `194144d`. Copyright 2021–2025 Google LLC. It is distributed under the Apache License 2.0, included in [apache-licence.md](apache-licence.md).
 
 ## Geographic alert matching
 

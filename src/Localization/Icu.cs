@@ -403,7 +403,11 @@ internal static class Icu
                 return null;
             }
 
-            string zone = TimeZoneInfo.TryConvertWindowsIdToIanaId(timeZone.Id, out string? iana) ? iana : timeZone.Id;
+            // A custom zone such as GMT+01:00 makes ICU format the wall time Windows' rules give, leaving its own time
+            // zone database unused. No pattern here asks for a zone name, which would show the custom zone instead.
+            string zone = FormatterSettings.UseWindowsTimeZones
+                ? OffsetZone(timeZone.GetUtcOffset(date))
+                : TimeZoneInfo.TryConvertWindowsIdToIanaId(timeZone.Id, out string? iana) ? iana : timeZone.Id;
             IntPtr formatter = Cached(DateFormatters, (bestPattern, locale, zone), () =>
             {
                 int openStatus = 0;
@@ -438,6 +442,14 @@ internal static class Icu
             return ReadString((char[] buffer, ref int error) =>
                 uloc_getDisplayKeywordValue(locale, keyword, displayLocale, buffer, buffer.Length, ref error));
         }
+    }
+
+    // ICU's custom time zone ID for a fixed offset, such as GMT+05:30 or GMT-03:00.
+    private static string OffsetZone(TimeSpan offset)
+    {
+        TimeSpan magnitude = offset.Duration();
+        return string.Create(CultureInfo.InvariantCulture,
+            $"GMT{(offset < TimeSpan.Zero ? '-' : '+')}{(int)magnitude.TotalHours:00}:{magnitude.Minutes:00}");
     }
 
     /// <summary>

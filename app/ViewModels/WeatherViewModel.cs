@@ -195,6 +195,12 @@ public sealed partial class WeatherViewModel : ObservableObject
         _main.OpenDetails(_location, _location.Weather?.TodayIndex, DetailScreen.SunMoon);
     }
 
+    [RelayCommand]
+    private void OpenClockDetails()
+    {
+        _main.OpenDetails(_location, _location.Weather?.TodayIndex, DetailScreen.Conditions);
+    }
+
     /// <summary>
     /// Shows the result of a refresh that the screen this one replaces is still running, so the location is not
     /// requested a second time.
@@ -420,6 +426,10 @@ public sealed partial class WeatherViewModel : ObservableObject
                     hourly.DetailsRequested += (_, request) => _main.OpenDetails(_location, request.DailyIndex, request.Screen);
                     cards.Add(hourly);
                 }
+            }
+            else if (ClockCardViewModel.Create(card, _location) is { } clock)
+            {
+                cards.Add(clock);
             }
             else if (AstroCardViewModel.Create(card, weather, _location, _main.Settings.IsElementsAnimationEnabled) is { } astro)
             {
