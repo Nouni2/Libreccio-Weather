@@ -4,11 +4,23 @@
 
 ### Added
 
-- Météo-France, Breezy Weather's weather source for France: forecast, current conditions and precipitation nowcasts in metropolitan France, temperature normals and alerts there, in Andorra and in the French overseas territories, and temperature normals in Monaco. Its forecast also covers the rest of the world.
-- MET Norway: worldwide forecasts, current conditions and precipitation nowcasts in the Nordic countries, air quality in Norway, and alerts for Norway, Svalbard and Jan Mayen.
-- The National Weather Service for the United States: forecast, current conditions from the nearest station and active alerts.
-- NCEI temperature normals for the United States, Puerto Rico, the US Virgin Islands, the Northern Mariana Islands and Guam.
-- The 17 ClimWeb national weather services, for alerts and temperature normals: ANAM-BF, ANAMET, DCCMS, DMN Niger, DWR Gambia, Ethio Met, GMet, IGEBU, INM-GB, Mali-Météo, Météo Bénin, Météo Tchad, Mettelsat, MSD Zimbabwe, SMA Seychelles, SMA Sudan and SSMS.
+- Météo-France provides worldwide forecasts, current conditions and precipitation nowcasts in metropolitan France, and alerts and temperature normals in metropolitan France, Andorra and 11 French overseas territories. Monaco gets temperature normals.
+- MET Norway provides worldwide forecasts, current conditions and precipitation nowcasts in Norway, Sweden, Finland and Denmark, air quality in Norway, and alerts in Norway, Svalbard and Jan Mayen.
+- The National Weather Service provides forecasts, station observations and active alerts in the United States, Puerto Rico, the U.S. Virgin Islands, the Northern Mariana Islands and Guam.
+- NCEI provides temperature normals. The app recommends this source in the United States, Puerto Rico, the U.S. Virgin Islands, the Northern Mariana Islands and Guam.
+- ClimWeb alerts are available from ANAM-BF, ANAMET, DCCMS, DMN Niger, DWR Gambia, Ethio Met, GMet, IGEBU, INM-GB, Mali-Météo, Météo Bénin, Météo Tchad, Mettelsat, MSD Zimbabwe, SMA Seychelles, SMA Sudan and SSMS. DCCMS, DMN Niger, Ethio Met, Météo Bénin, Météo Tchad and SMA Seychelles also provide temperature normals.
+- Address lookup from coordinates through Météo-France and the National Weather Service.
+- A clock card shows the location's time on an analog and a digital clock.
+- The Windows time zones switch in Settings → Appearance → Interface applies Windows time zone rules when formatting dates and times.
+- The Accent colors switch in Settings → Appearance → Interface applies the Windows accent color to the app's palette.
+
+### Changed
+
+- Dragging a location card by its handle animates the other cards into place. The app saves the order after the dragged card settles.
+
+### Fixed
+
+- Forecast tab rows keep the overflow button visible when tabs do not fit.
 
 ## [0.5.1] - 2026-11-13
 

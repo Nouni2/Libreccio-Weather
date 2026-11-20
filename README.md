@@ -78,7 +78,9 @@ The main window uses the selected location's meteorological season for its icon,
 
 ## Scope
 
-In `0.6.0`, you get Open-Meteo forecasts, and Bright Sky's in Germany, with light and dark themes. I haven't ported automatic location detection, weather providers other than Open-Meteo and Bright Sky, Windows weather notifications or autostart. See the [roadmap](ROADMAP.md) for the remaining features.
+In `0.6.0`, you get light and dark themes and forecasts from Open-Meteo, Bright Sky in Germany, Météo-France, MET Norway and the U.S. National Weather Service. NCEI supplies temperature normals. All 17 ClimWeb sources supply alerts, and six also supply temperature normals.
+
+Startup is manual. See the [roadmap](ROADMAP.md) for automatic location detection and Windows weather notifications.
 
 The bundled solar DLL requires x64; you cannot use it in an ARM64 process.
 
